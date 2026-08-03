@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#1b0f0b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>보름이의 라면포차 V0.01</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main id="app" aria-label="보름이의 라면포차">
+    <section class="game-shell">
+      <div class="background" aria-hidden="true"></div>
+      <div class="warm-overlay" aria-hidden="true"></div>
+
+      <header class="hud glass-panel">
+        <div class="hud-block day-block">
+          <span class="hud-label">DAY</span>
+          <strong id="dayValue">1</strong>
+        </div>
+        <div class="hud-block">
+          <span class="hud-label">목표 금액</span>
+          <strong>20,000원</strong>
+        </div>
+        <div class="hud-block timer-block">
+          <span class="hud-label">남은 시간</span>
+          <strong id="timerValue">03:00</strong>
+          <div class="timer-track"><span id="timerFill"></span></div>
+        </div>
+        <div class="hud-block">
+          <span class="hud-label">현재 매출</span>
+          <strong id="salesValue">0원</strong>
+        </div>
+        <div class="hud-block">
+          <span class="hud-label">오늘 손님</span>
+          <strong id="guestValue">0명</strong>
+        </div>
+
+        <button id="pauseButton" class="round-button" type="button" aria-label="일시정지">Ⅱ</button>
+        <button id="settingsButton" class="round-button settings" type="button" aria-label="설정">⚙</button>
+      </header>
+
+      <aside class="brand-sign" aria-label="게임 제목">
+        <span class="moon-mark">●</span>
+        <span>보름이의</span>
+        <strong>라면포차</strong>
+      </aside>
+
+      <section class="customer-row" aria-label="손님 자리">
+        <article class="customer-seat">
+          <div class="patience"><span style="width:78%"></span></div>
+          <div class="order-card">손님 자리 1</div>
+        </article>
+        <article class="customer-seat">
+          <div class="patience"><span style="width:62%"></span></div>
+          <div class="order-card">손님 자리 2</div>
+        </article>
+        <article class="customer-seat">
+          <div class="patience"><span style="width:46%"></span></div>
+          <div class="order-card">손님 자리 3</div>
+        </article>
+      </section>
+
+      <section class="worktop" aria-label="조리대">
+        <div class="station-group pots">
+          <button class="station pot" type="button" data-label="냄비 1"><span>냄비 1</span></button>
+          <button class="station pot" type="button" data-label="냄비 2"><span>냄비 2</span></button>
+          <button class="station pot locked" type="button" data-label="냄비 3" disabled><span>잠금</span></button>
+        </div>
+
+        <div class="station-group grills">
+          <button class="station grill" type="button" data-label="그릴 1"><span>그릴 1</span></button>
+          <button class="station grill locked" type="button" data-label="그릴 2" disabled><span>잠금</span></button>
+        </div>
+
+        <div class="station-group side-stations">
+          <button class="station odeng" type="button" data-label="오뎅통"><span>오뎅</span></button>
+          <button class="station save-slot" type="button" data-label="완성품 보관함"><span>보관함</span></button>
+        </div>
+      </section>
+
+      <footer class="ingredient-dock glass-panel">
+        <div class="dock-section">
+          <h2>라면 재료</h2>
+          <div class="items">
+            <button class="item" type="button">면</button>
+            <button class="item" type="button">스프</button>
+            <button class="item" type="button">계란</button>
+            <button class="item" type="button">대파</button>
+            <button class="item" type="button">떡</button>
+            <button class="item" type="button">김치</button>
+          </div>
+        </div>
+        <div class="dock-section">
+          <h2>술</h2>
+          <div class="items">
+            <button class="item" type="button">소주</button>
+            <button class="item" type="button">맥주</button>
+            <button class="item" type="button">소맥</button>
+          </div>
+        </div>
+        <div class="dock-section">
+          <h2>안주</h2>
+          <div class="items">
+            <button class="item" type="button">김치전</button>
+            <button class="item" type="button">계란말이</button>
+            <button class="item" type="button">군만두</button>
+            <button class="item" type="button">소시지</button>
+          </div>
+        </div>
+      </footer>
+
+      <button id="startButton" class="start-button" type="button">
+        <span class="full-moon">●</span>
+        <span class="start-copy">
+          <small>DAY 1</small>
+          <strong>영업 시작</strong>
+        </span>
+      </button>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <div id="pauseOverlay" class="modal-overlay hidden">
+        <section class="modal-card">
+          <span class="modal-moon">●</span>
+          <h2>잠시 쉬어갈까요?</h2>
+          <p>영업 시간이 멈춰 있어요.</p>
+          <button id="resumeButton" type="button">계속 영업</button>
+        </section>
+      </div>
+
+      <div id="settingsOverlay" class="modal-overlay hidden">
+        <section class="modal-card">
+          <span class="modal-moon">●</span>
+          <h2>설정</h2>
+          <label class="setting-row">
+            <span>효과음</span>
+            <input id="soundToggle" type="checkbox" checked />
+          </label>
+          <button id="closeSettingsButton" type="button">닫기</button>
+        </section>
+      </div>
+
+      <div id="rotateNotice">
+        <div class="phone-icon">▯</div>
+        <h1>아이폰을 가로로 돌려주세요</h1>
+        <p>보름이의 라면포차는 가로 화면에 맞춰 제작됐어요.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
