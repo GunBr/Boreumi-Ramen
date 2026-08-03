@@ -3,115 +3,108 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#180e0b">
-<title>보름이의 라면포차 V0.06</title>
+<meta name="theme-color" content="#170b08">
+<title>보름이의 라면포차 V0.09</title>
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <main id="game">
-  <img class="scene-bg" src="./assets/backgrounds/pocha_empty.svg" alt="">
-  <div class="moon-glow" aria-hidden="true"></div>
-  <div class="lantern-row" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="light-overlay" aria-hidden="true"></div>
+  <div class="sky"><div class="moon"></div><div class="stars"></div></div>
+  <div class="city"></div>
+  <div class="river"></div>
+  <div class="pocha">
+    <div class="roof"></div>
+    <div class="lanterns"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="back-shelf">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="counter-back"></div>
+    <div class="counter-front"></div>
+  </div>
 
   <header class="hud">
-    <div><small>DAY</small><b>1</b></div>
-    <div><small>목표 금액</small><b>20,000원</b></div>
-    <div><small>남은 시간</small><b id="time">03:00</b><i><span id="timeFill"></span></i></div>
-    <div><small>현재 매출</small><b id="sales">0원</b></div>
-    <div><small>오늘 손님</small><b id="guests">0명</b></div>
-    <button id="pause">Ⅱ</button>
+    <div class="hud-cell"><small>DAY</small><b>1</b></div>
+    <div class="hud-cell goal"><small>목표 금액</small><b>20,000원</b></div>
+    <div class="hud-cell time"><small>남은 시간</small><b id="time">03:00</b><div class="timebar"><span id="timeFill"></span></div></div>
+    <div class="hud-cell"><small>현재 매출</small><b id="sales">0원</b></div>
+    <div class="hud-cell"><small>오늘 손님</small><b id="guestCount">0명</b></div>
+    <button id="pauseButton" class="round-button" aria-label="일시정지">Ⅱ</button>
   </header>
 
-  <aside class="sign"><span>보름이의</span><strong>라면포차</strong></aside>
+  <aside class="title-sign"><small>보름이의</small><strong>라면<br>포차</strong></aside>
 
-  <section class="customer-stage">
+  <section class="seats">
     <article class="seat" data-seat="0">
-      <div class="speech"><div class="order-icons"></div></div>
+      <div class="order-bubble"><div class="order-icons"></div></div>
       <img class="guest" alt="">
       <div class="patience"><span></span></div>
     </article>
     <article class="seat" data-seat="1">
-      <div class="speech"><div class="order-icons"></div></div>
+      <div class="order-bubble"><div class="order-icons"></div></div>
       <img class="guest" alt="">
       <div class="patience"><span></span></div>
     </article>
     <article class="seat" data-seat="2">
-      <div class="speech"><div class="order-icons"></div></div>
+      <div class="order-bubble"><div class="order-icons"></div></div>
       <img class="guest" alt="">
       <div class="patience"><span></span></div>
     </article>
   </section>
 
-  <section class="main-characters">
+  <section class="characters">
     <div class="boreumi-wrap">
       <img class="boreumi" src="./assets/characters/boreumi.png" alt="보름이">
-      <div class="boreumi-status" aria-live="polite"></div>
+      <div id="boreumiBubble" class="boreumi-bubble"></div>
     </div>
     <img class="ppomi" src="./assets/characters/ppomi.png" alt="뽀미">
   </section>
 
-  <section class="cookline">
-    <div class="burner drop-pot" data-pot="pot1">
-      <span class="burner-ring"></span>
-      <div class="pot-stack" aria-label="냄비 1">
-        <img class="pot-art" src="./assets/ui/pot.svg" alt="">
-        <div class="broth-layer"></div>
-        <img class="ingredient-layer noodle-layer" src="./assets/foods/noodle.svg" alt="">
-        <img class="ingredient-layer egg-layer" src="./assets/foods/egg.svg" alt="">
-        <img class="ingredient-layer onion-layer" src="./assets/foods/greenOnion.svg" alt="">
-        <img class="ingredient-layer ricecake-layer" src="./assets/foods/riceCake.svg" alt="">
-        <img class="ingredient-layer kimchi-layer" src="./assets/foods/kimchi.svg" alt="">
-        <div class="bubble-layer"></div>
-        <div class="steam-layer"><i></i><i></i><i></i></div>
-      </div>
-    </div>
-    <div class="burner drop-pot" data-pot="pot2">
-      <span class="burner-ring"></span>
-      <div class="pot-stack" aria-label="냄비 2">
-        <img class="pot-art" src="./assets/ui/pot.svg" alt="">
-        <div class="broth-layer"></div>
-        <img class="ingredient-layer noodle-layer" src="./assets/foods/noodle.svg" alt="">
-        <img class="ingredient-layer egg-layer" src="./assets/foods/egg.svg" alt="">
-        <img class="ingredient-layer onion-layer" src="./assets/foods/greenOnion.svg" alt="">
-        <img class="ingredient-layer ricecake-layer" src="./assets/foods/riceCake.svg" alt="">
-        <img class="ingredient-layer kimchi-layer" src="./assets/foods/kimchi.svg" alt="">
-        <div class="bubble-layer"></div>
-        <div class="steam-layer"><i></i><i></i><i></i></div>
-      </div>
-    </div>
-    <div class="burner locked"><span class="burner-ring"></span><div class="lock">잠금</div></div>
-    <div class="grill"><div class="grill-bars"></div><span>그릴 1</span></div>
-    <div class="grill locked"><div class="lock">잠금</div></div>
-    <div class="oden"><span>오뎅</span></div>
+  <section class="cookline" aria-label="조리대">
+    <button class="pot-zone" data-pot="pot1" type="button">
+      <span class="flame"></span>
+      <img class="pot-image" src="./assets/foods/stage_empty.png" alt="냄비 1">
+      <div class="cook-progress"><span></span></div>
+    </button>
+    <button class="pot-zone" data-pot="pot2" type="button">
+      <span class="flame"></span>
+      <img class="pot-image" src="./assets/foods/stage_empty.png" alt="냄비 2">
+      <div class="cook-progress"><span></span></div>
+    </button>
+    <div class="locked-tool">잠금</div>
+    <div class="oden-tool"><span>오뎅탕</span></div>
+    <div class="grill-tool"><span>그릴</span></div>
   </section>
 
   <section class="dock">
-    <div class="dock-group ramen-group"><h2>라면 재료</h2><div class="dock-items">
-      <button class="asset-item" data-type="ingredient" data-key="noodle"><img src="./assets/foods/noodle.svg" alt="면"><span>면</span></button>
-      <button class="asset-item" data-type="ingredient" data-key="soup"><img src="./assets/foods/soup.svg" alt="스프"><span>스프</span></button>
-      <button class="asset-item" data-type="ingredient" data-key="egg"><img src="./assets/foods/egg.svg" alt="계란"><span>계란</span></button>
-      <button class="asset-item" data-type="ingredient" data-key="greenOnion"><img src="./assets/foods/greenOnion.svg" alt="대파"><span>대파</span></button>
-      <button class="asset-item" data-type="ingredient" data-key="riceCake"><img src="./assets/foods/riceCake.svg" alt="떡"><span>떡</span></button>
-      <button class="asset-item" data-type="ingredient" data-key="kimchi"><img src="./assets/foods/kimchi.svg" alt="김치"><span>김치</span></button>
-    </div></div>
-    <div class="dock-group"><h2>술</h2><div class="dock-items">
-      <button class="asset-item" data-type="drink" data-key="soju"><img src="./assets/drinks/soju.svg" alt="소주"><span>소주</span></button>
-      <button class="asset-item" data-type="drink" data-key="beer"><img src="./assets/drinks/beer.svg" alt="맥주"><span>맥주</span></button>
-      <button class="asset-item" data-type="drink" data-key="somaek"><img src="./assets/drinks/somaek.svg" alt="소맥"><span>소맥</span></button>
-    </div></div>
-    <div class="dock-group"><h2>안주</h2><div class="dock-items">
-      <button class="asset-item" data-type="side" data-key="kimchiPancake"><img src="./assets/sides/kimchiPancake.svg" alt="김치전"><span>김치전</span></button>
-      <button class="asset-item" data-type="side" data-key="eggRoll"><img src="./assets/sides/eggRoll.svg" alt="계란말이"><span>계란말이</span></button>
-      <button class="asset-item" data-type="side" data-key="dumpling"><img src="./assets/sides/dumpling.svg" alt="군만두"><span>군만두</span></button>
-      <button class="asset-item" data-type="side" data-key="sausage"><img src="./assets/sides/sausage.svg" alt="소시지"><span>소시지</span></button>
-    </div></div>
+    <div class="dock-group ramen-items">
+      <h2>라면 재료</h2>
+      <div class="items">
+        <button class="item" data-key="noodle"><img src="./assets/foods/noodle.png" alt="면"><span>면</span></button>
+        <button class="item" data-key="egg"><img src="./assets/foods/egg.png" alt="계란"><span>계란</span></button>
+        <button class="item" data-key="cheese"><img src="./assets/foods/cheese.png" alt="치즈"><span>치즈</span></button>
+        <button class="item" data-key="greenOnion"><img src="./assets/foods/greenOnion.png" alt="대파"><span>대파</span></button>
+        <button class="item" data-key="kimchi"><img src="./assets/foods/kimchi.png" alt="김치"><span>김치</span></button>
+        <button class="item" data-key="riceCake"><img src="./assets/foods/riceCake.png" alt="떡"><span>떡</span></button>
+        <button class="item" data-key="dumpling"><img src="./assets/foods/dumpling.png" alt="만두"><span>만두</span></button>
+        <button class="item" data-key="sausage"><img src="./assets/foods/sausage.png" alt="소시지"><span>소시지</span></button>
+        <button class="item" data-key="chili"><img src="./assets/foods/chili.png" alt="청양고추"><span>청양</span></button>
+      </div>
+    </div>
+    <div class="dock-group drinks">
+      <h2>주류</h2>
+      <div class="drink-icons"><span>소주</span><span>맥주</span></div>
+    </div>
+    <div class="dock-group sides">
+      <h2>안주</h2>
+      <div class="side-icons"><span>김치전</span><span>계란말이</span><span>군만두</span></div>
+    </div>
   </section>
 
-  <button id="start" class="start"><span>●</span><small>DAY 1</small><b>영업 시작</b></button>
+  <button id="startButton" class="start-button"><small>DAY 1</small><strong>영업 시작</strong></button>
   <div id="toast" class="toast"></div>
-  <div id="ghost" class="ghost"><img alt=""><span></span></div>
-  <div id="rotate"><div>▯</div><h1>가로로 돌려주세요</h1></div>
+  <div id="dragGhost" class="drag-ghost"><img alt=""><span></span></div>
+  <div id="pauseOverlay" class="overlay hidden"><div class="modal"><h2>일시정지</h2><button id="resumeButton">계속하기</button></div></div>
+  <div class="rotate"><div>↻</div><b>가로 모드로 돌려주세요</b></div>
 </main>
 <script src="./script.js"></script>
 </body>
