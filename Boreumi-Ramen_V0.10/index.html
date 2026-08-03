@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#160b08">
+<title>보름이의 라면포차 V0.10</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="viewport">
+  <main id="stage">
+    <div class="night-sky">
+      <div class="moon"></div>
+      <div class="starfield"></div>
+      <div class="cityline"></div>
+      <div class="riverline"></div>
+    </div>
+
+    <div class="stall">
+      <div class="awning"></div>
+      <div class="lantern-line"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="wood-wall"></div>
+      <div class="shelf">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="guest-counter"></div>
+      <div class="cook-counter"></div>
+    </div>
+
+    <header class="hud">
+      <div><small>DAY</small><strong>1</strong></div>
+      <div><small>목표 금액</small><strong>10,000원</strong></div>
+      <div class="time-cell"><small>남은 시간</small><strong id="time">01:30</strong><i><b id="timeFill"></b></i></div>
+      <div><small>현재 매출</small><strong id="sales">0원</strong></div>
+      <div><small>오늘 손님</small><strong id="guestCount">0명</strong></div>
+      <button id="pauseButton" aria-label="일시정지">Ⅱ</button>
+    </header>
+
+    <aside class="sign">
+      <small>보름이의</small>
+      <strong>라면<br>포차</strong>
+    </aside>
+
+    <section class="guest-area">
+      <div class="order-bubble" id="orderBubble">
+        <img src="./assets/foods/ramen_egg.svg" alt="계란라면">
+      </div>
+      <img id="guest" class="guest" src="./assets/customers/office.png" alt="손님">
+      <div class="patience"><span id="patienceFill"></span></div>
+    </section>
+
+    <section class="characters">
+      <img class="boreumi" src="./assets/characters/boreumi.png" alt="보름이">
+      <img class="ppomi" src="./assets/characters/ppomi.png" alt="뽀미">
+      <div id="boreumiText" class="boreumi-text"></div>
+    </section>
+
+    <section class="cook-area">
+      <button id="pot" class="pot" type="button" aria-label="냄비">
+        <span class="flame"></span>
+        <img id="potImage" src="./assets/foods/pot_empty.svg" alt="빈 냄비">
+        <div class="progress"><span id="cookFill"></span></div>
+      </button>
+      <div class="tool oden">오뎅탕</div>
+      <div class="tool grill">그릴</div>
+    </section>
+
+    <section class="dock">
+      <div class="dock-title">라면 재료</div>
+      <button class="ingredient" data-key="noodle">
+        <img src="./assets/foods/noodle.svg" alt="면"><span>면</span>
+      </button>
+      <button class="ingredient" data-key="egg">
+        <img src="./assets/foods/egg.svg" alt="계란"><span>계란</span>
+      </button>
+      <div class="dock-spacer"></div>
+      <div class="mini-panel"><small>주류</small><b>준비 중</b></div>
+      <div class="mini-panel"><small>안주</small><b>준비 중</b></div>
+    </section>
+
+    <button id="startButton" class="start-button"><small>DAY 1</small><strong>영업 시작</strong></button>
+
+    <div id="toast" class="toast"></div>
+    <div id="dragGhost" class="drag-ghost"><img alt=""><span></span></div>
+
+    <div id="pauseOverlay" class="overlay hidden">
+      <div class="pause-card">
+        <h2>일시정지</h2>
+        <button id="resumeButton">계속하기</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="rotate-message">가로 모드로 돌려주세요</div>
+<script src="./script.js"></script>
+</body>
+</html>

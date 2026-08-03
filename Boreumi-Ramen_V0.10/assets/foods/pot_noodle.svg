@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180">
+<defs>
+  <linearGradient id="pot" x1="0" x2="1"><stop stop-color="#111"/><stop offset=".5" stop-color="#454545"/><stop offset="1" stop-color="#111"/></linearGradient>
+  <filter id="s"><feDropShadow dx="0" dy="9" stdDeviation="7" flood-opacity=".42"/></filter>
+</defs>
+<g filter="url(#s)">
+  <path d="M28 63Q130 28 232 63L211 144Q130 177 49 144Z" fill="url(#pot)" stroke="#080808" stroke-width="8"/>
+  <path d="M12 80h30M218 80h30" stroke="#171717" stroke-width="13" stroke-linecap="round"/>
+  <ellipse cx="130" cy="66" rx="101" ry="43" fill="#161616" stroke="#080808" stroke-width="7"/>
+  <g fill="none" stroke="#efc35d" stroke-width="9" stroke-linecap="round">
+    <path d="M72 55q15-14 30 0t30 0t30 0t30 0"/>
+    <path d="M74 72q14-13 28 0t28 0t28 0t28 0"/>
+  </g>
+</g>
+</svg>
