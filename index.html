@@ -1,192 +1,88 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <meta name="theme-color" content="#1b0f0b" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>보름이의 라면포차 V0.04</title>
-  <link rel="stylesheet" href="./style.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#180e0b">
+<title>보름이의 라면포차 V0.05</title>
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <main id="app" aria-label="보름이의 라면포차">
-    <section class="game-shell">
-      <div class="background" aria-hidden="true"></div>
-      <div class="warm-overlay" aria-hidden="true"></div>
-      <div class="ambient-layer lantern-glow" aria-hidden="true"></div>
-      <div class="ambient-layer steam steam-a" aria-hidden="true"></div>
-      <div class="ambient-layer steam steam-b" aria-hidden="true"></div>
-      <div class="ambient-layer bokeh" aria-hidden="true"></div>
+<main id="game">
+  <img class="scene-bg" src="./assets/backgrounds/pocha_empty.svg" alt="">
+  <div class="light-overlay" aria-hidden="true"></div>
 
-      <header class="hud glass-panel">
-        <div class="hud-block day-block">
-          <span class="hud-label">DAY</span>
-          <strong id="dayValue">1</strong>
-        </div>
-        <div class="hud-block">
-          <span class="hud-label">목표 금액</span>
-          <strong>20,000원</strong>
-        </div>
-        <div class="hud-block timer-block">
-          <span class="hud-label">남은 시간</span>
-          <strong id="timerValue">03:00</strong>
-          <div class="timer-track"><span id="timerFill"></span></div>
-        </div>
-        <div class="hud-block">
-          <span class="hud-label">현재 매출</span>
-          <strong id="salesValue">0원</strong>
-        </div>
-        <div class="hud-block">
-          <span class="hud-label">오늘 손님</span>
-          <strong id="guestValue">0명</strong>
-        </div>
+  <header class="hud">
+    <div><small>DAY</small><b>1</b></div>
+    <div><small>목표 금액</small><b>20,000원</b></div>
+    <div><small>남은 시간</small><b id="time">03:00</b><i><span id="timeFill"></span></i></div>
+    <div><small>현재 매출</small><b id="sales">0원</b></div>
+    <div><small>오늘 손님</small><b id="guests">0명</b></div>
+    <button id="pause">Ⅱ</button>
+  </header>
 
-        <button id="pauseButton" class="round-button" type="button" aria-label="일시정지">Ⅱ</button>
-        <button id="settingsButton" class="round-button settings" type="button" aria-label="설정">⚙</button>
-      </header>
+  <aside class="sign"><span>보름이의</span><strong>라면포차</strong></aside>
 
-      <aside class="brand-sign" aria-label="게임 제목">
-        <span class="moon-mark">●</span>
-        <span>보름이의</span>
-        <strong>라면포차</strong>
-      </aside>
+  <section class="customer-stage">
+    <article class="seat" data-seat="0">
+      <div class="speech"><div class="order-icons"></div></div>
+      <img class="guest" alt="">
+      <div class="patience"><span></span></div>
+    </article>
+    <article class="seat" data-seat="1">
+      <div class="speech"><div class="order-icons"></div></div>
+      <img class="guest" alt="">
+      <div class="patience"><span></span></div>
+    </article>
+    <article class="seat" data-seat="2">
+      <div class="speech"><div class="order-icons"></div></div>
+      <img class="guest" alt="">
+      <div class="patience"><span></span></div>
+    </article>
+  </section>
 
-      <section class="customer-row" aria-label="손님 자리">
-        <article class="customer-seat" data-seat="0">
-          <div class="guest-visual">
-            <img class="guest-image" alt="" />
-          </div>
-          <div class="patience"><span></span></div>
-          <div class="order-card">
-            <span class="order-title">오늘의 주문</span>
-            <span class="order-menu"></span>
-          </div>
-        </article>
-        <article class="customer-seat" data-seat="1">
-          <div class="guest-visual">
-            <img class="guest-image" alt="" />
-          </div>
-          <div class="patience"><span></span></div>
-          <div class="order-card">
-            <span class="order-title">오늘의 주문</span>
-            <span class="order-menu"></span>
-          </div>
-        </article>
-        <article class="customer-seat" data-seat="2">
-          <div class="guest-visual">
-            <img class="guest-image" alt="" />
-          </div>
-          <div class="patience"><span></span></div>
-          <div class="order-card">
-            <span class="order-title">오늘의 주문</span>
-            <span class="order-menu"></span>
-          </div>
-        </article>
-      </section>
+  <section class="main-characters">
+    <img class="boreumi" src="./assets/characters/boreumi.png" alt="보름이">
+    <img class="ppomi" src="./assets/characters/ppomi.png" alt="뽀미">
+  </section>
 
-      <section class="worktop" aria-label="조리대">
-        <div class="station-group pots">
-          <button class="station pot drop-zone draggable-pot" type="button" draggable="false" data-station="pot1" data-label="냄비 1">
-<img class="station-art" src="./assets/ui/pot.svg" alt="냄비 1"><span>냄비 1</span></button>
-          <button class="station pot drop-zone draggable-pot" type="button" draggable="false" data-station="pot2" data-label="냄비 2">
-<img class="station-art" src="./assets/ui/pot.svg" alt="냄비 2"><span>냄비 2</span></button>
-          <button class="station pot locked" type="button" data-label="냄비 3" disabled><span>잠금</span></button>
-        </div>
+  <section class="cookline">
+    <div class="burner drop-pot" data-pot="pot1"><span class="burner-ring"></span><img class="pot-art" alt=""><div class="pot-label"></div></div>
+    <div class="burner drop-pot" data-pot="pot2"><span class="burner-ring"></span><img class="pot-art" alt=""><div class="pot-label"></div></div>
+    <div class="burner locked"><span class="burner-ring"></span><div class="lock">잠금</div></div>
+    <div class="grill"><div class="grill-bars"></div><span>그릴 1</span></div>
+    <div class="grill locked"><div class="lock">잠금</div></div>
+    <div class="oden"><span>오뎅</span></div>
+  </section>
 
-        <div class="station-group grills">
-          <button class="station grill" type="button" data-label="그릴 1"><span>그릴 1</span></button>
-          <button class="station grill locked" type="button" data-label="그릴 2" disabled><span>잠금</span></button>
-        </div>
+  <section class="dock">
+    <div class="dock-group ramen-group"><h2>라면 재료</h2><div class="dock-items">
+      <button class="asset-item" data-type="ingredient" data-key="noodle"><img src="./assets/foods/noodle.svg" alt="면"><span>면</span></button>
+      <button class="asset-item" data-type="ingredient" data-key="soup"><img src="./assets/foods/soup.svg" alt="스프"><span>스프</span></button>
+      <button class="asset-item" data-type="ingredient" data-key="egg"><img src="./assets/foods/egg.svg" alt="계란"><span>계란</span></button>
+      <button class="asset-item" data-type="ingredient" data-key="greenOnion"><img src="./assets/foods/greenOnion.svg" alt="대파"><span>대파</span></button>
+      <button class="asset-item" data-type="ingredient" data-key="riceCake"><img src="./assets/foods/riceCake.svg" alt="떡"><span>떡</span></button>
+      <button class="asset-item" data-type="ingredient" data-key="kimchi"><img src="./assets/foods/kimchi.svg" alt="김치"><span>김치</span></button>
+    </div></div>
+    <div class="dock-group"><h2>술</h2><div class="dock-items">
+      <button class="asset-item" data-type="drink" data-key="soju"><img src="./assets/drinks/soju.svg" alt="소주"><span>소주</span></button>
+      <button class="asset-item" data-type="drink" data-key="beer"><img src="./assets/drinks/beer.svg" alt="맥주"><span>맥주</span></button>
+      <button class="asset-item" data-type="drink" data-key="somaek"><img src="./assets/drinks/somaek.svg" alt="소맥"><span>소맥</span></button>
+    </div></div>
+    <div class="dock-group"><h2>안주</h2><div class="dock-items">
+      <button class="asset-item" data-type="side" data-key="kimchiPancake"><img src="./assets/sides/kimchiPancake.svg" alt="김치전"><span>김치전</span></button>
+      <button class="asset-item" data-type="side" data-key="eggRoll"><img src="./assets/sides/eggRoll.svg" alt="계란말이"><span>계란말이</span></button>
+      <button class="asset-item" data-type="side" data-key="dumpling"><img src="./assets/sides/dumpling.svg" alt="군만두"><span>군만두</span></button>
+      <button class="asset-item" data-type="side" data-key="sausage"><img src="./assets/sides/sausage.svg" alt="소시지"><span>소시지</span></button>
+    </div></div>
+  </section>
 
-        <div class="station-group side-stations">
-          <button class="station odeng" type="button" data-label="오뎅통"><span>오뎅</span></button>
-          <button class="station save-slot" type="button" data-label="완성품 보관함"><span>보관함</span></button>
-        </div>
-      </section>
-
-      <footer class="ingredient-dock glass-panel">
-        <div class="dock-section">
-          <h2>라면 재료</h2>
-          <div class="items">
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="noodle">
-<img src="./assets/foods/noodle.svg" alt="면"><span>면</span></button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="soup">
-<img src="./assets/foods/soup.svg" alt="스프"><span>스프</span></button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="egg">
-<img src="./assets/foods/egg.svg" alt="계란"><span>계란</span></button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="greenOnion">
-<img src="./assets/foods/greenOnion.svg" alt="대파"><span>대파</span></button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="riceCake">
-<img src="./assets/foods/riceCake.svg" alt="떡"><span>떡</span></button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="kimchi">
-<img src="./assets/foods/kimchi.svg" alt="김치"><span>김치</span></button>
-          </div>
-        </div>
-        <div class="dock-section">
-          <h2>술</h2>
-          <div class="items">
-            <button class="item" type="button">소주</button>
-            <button class="item" type="button">맥주</button>
-            <button class="item" type="button">소맥</button>
-          </div>
-        </div>
-        <div class="dock-section">
-          <h2>안주</h2>
-          <div class="items">
-            <button class="item" type="button">김치전</button>
-            <button class="item" type="button">계란말이</button>
-            <button class="item" type="button">군만두</button>
-            <button class="item" type="button">소시지</button>
-          </div>
-        </div>
-      </footer>
-
-
-      <button id="trashButton" class="utility-button trash-button" type="button">폐기</button>
-
-      <button id="startButton" class="start-button" type="button">
-        <span class="full-moon">●</span>
-        <span class="start-copy">
-          <small>DAY 1</small>
-          <strong>영업 시작</strong>
-        </span>
-      </button>
-
-      <div id="dragHint" class="drag-hint">재료를 냄비로 끌어 놓으세요</div>
-      <div id="toast" class="toast" role="status" aria-live="polite"></div>
-      <div id="dragGhost" class="drag-ghost" aria-hidden="true"></div>
-
-      <div id="pauseOverlay" class="modal-overlay hidden">
-        <section class="modal-card">
-          <span class="modal-moon">●</span>
-          <h2>잠시 쉬어갈까요?</h2>
-          <p>영업 시간이 멈춰 있어요.</p>
-          <button id="resumeButton" type="button">계속 영업</button>
-        </section>
-      </div>
-
-      <div id="settingsOverlay" class="modal-overlay hidden">
-        <section class="modal-card">
-          <span class="modal-moon">●</span>
-          <h2>설정</h2>
-          <label class="setting-row">
-            <span>효과음</span>
-            <input id="soundToggle" type="checkbox" checked />
-          </label>
-          <button id="closeSettingsButton" type="button">닫기</button>
-        </section>
-      </div>
-
-      <div id="rotateNotice">
-        <div class="phone-icon">▯</div>
-        <h1>아이폰을 가로로 돌려주세요</h1>
-        <p>보름이의 라면포차는 가로 화면에 맞춰 제작됐어요.</p>
-      </div>
-    </section>
-  </main>
-
-  <script src="./script.js"></script>
+  <button id="start" class="start"><span>●</span><small>DAY 1</small><b>영업 시작</b></button>
+  <button id="trash" class="trash">폐기</button>
+  <div id="toast" class="toast"></div>
+  <div id="ghost" class="ghost"><img alt=""><span></span></div>
+  <div id="rotate"><div>▯</div><h1>가로로 돌려주세요</h1></div>
+</main>
+<script src="./script.js"></script>
 </body>
 </html>
