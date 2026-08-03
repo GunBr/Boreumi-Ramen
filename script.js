@@ -251,10 +251,13 @@
     const seat = seats[seatIndex];
     const orders = ["일반라면", "계란라면", "대파라면"];
     const order = orders[Math.floor(Math.random() * orders.length)];
+    const avatars = ["office", "student", "cap"];
+    const avatar = avatars[Math.floor(Math.random() * avatars.length)];
 
     activeGuest = {
       seatIndex,
       order,
+      avatar,
       interval: null,
       remainingMs: CONFIG.guestPatienceMs,
       lastTickAt: Date.now()
@@ -262,7 +265,9 @@
 
     guestCount += 1;
     seat.classList.add("active");
-    seat.querySelector(".order-title").textContent = "오늘의 주문";
+    const guestImage = seat.querySelector(".guest-image");
+    guestImage.src = `./assets/characters/${avatar}.svg`;
+    guestImage.alt = "손님";
     seat.querySelector(".order-menu").textContent = order;
     seat.querySelector(".patience span").style.width = "100%";
     renderHud();
@@ -285,8 +290,10 @@
     const seat = seats[activeGuest.seatIndex];
     clearInterval(activeGuest.interval);
     seat.classList.remove("active");
-    seat.querySelector(".order-title").textContent = "빈자리";
-    seat.querySelector(".order-menu").textContent = "다음 손님을 기다려요";
+    const guestImage = seat.querySelector(".guest-image");
+    guestImage.removeAttribute("src");
+    guestImage.alt = "";
+    seat.querySelector(".order-menu").textContent = "";
     seat.querySelector(".patience span").style.width = "0%";
     activeGuest = null;
     showToast(message);
@@ -392,8 +399,10 @@
     Object.values(pots).forEach(resetPot);
     seats.forEach(seat => {
       seat.classList.remove("active");
-      seat.querySelector(".order-title").textContent = "빈자리";
-      seat.querySelector(".order-menu").textContent = "영업 시작 후 손님이 와요";
+      const guestImage = seat.querySelector(".guest-image");
+      guestImage.removeAttribute("src");
+      guestImage.alt = "";
+      seat.querySelector(".order-menu").textContent = "";
       seat.querySelector(".patience span").style.width = "0%";
     });
     dragHint.classList.remove("hidden");

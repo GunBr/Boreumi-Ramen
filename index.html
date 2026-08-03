@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#1b0f0b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>보름이의 라면포차 V0.03</title>
+  <title>보름이의 라면포차 V0.04</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -54,24 +54,44 @@
       </aside>
 
       <section class="customer-row" aria-label="손님 자리">
-        <article class="customer-seat">
-          <div class="patience"><span style="width:78%"></span></div>
-          <div class="order-card"><span class="order-title">빈자리</span><span class="order-menu">영업 시작 후 손님이 와요</span></div>
+        <article class="customer-seat" data-seat="0">
+          <div class="guest-visual">
+            <img class="guest-image" alt="" />
+          </div>
+          <div class="patience"><span></span></div>
+          <div class="order-card">
+            <span class="order-title">오늘의 주문</span>
+            <span class="order-menu"></span>
+          </div>
         </article>
-        <article class="customer-seat">
-          <div class="patience"><span style="width:62%"></span></div>
-          <div class="order-card"><span class="order-title">빈자리</span><span class="order-menu">영업 시작 후 손님이 와요</span></div>
+        <article class="customer-seat" data-seat="1">
+          <div class="guest-visual">
+            <img class="guest-image" alt="" />
+          </div>
+          <div class="patience"><span></span></div>
+          <div class="order-card">
+            <span class="order-title">오늘의 주문</span>
+            <span class="order-menu"></span>
+          </div>
         </article>
-        <article class="customer-seat">
-          <div class="patience"><span style="width:46%"></span></div>
-          <div class="order-card"><span class="order-title">빈자리</span><span class="order-menu">영업 시작 후 손님이 와요</span></div>
+        <article class="customer-seat" data-seat="2">
+          <div class="guest-visual">
+            <img class="guest-image" alt="" />
+          </div>
+          <div class="patience"><span></span></div>
+          <div class="order-card">
+            <span class="order-title">오늘의 주문</span>
+            <span class="order-menu"></span>
+          </div>
         </article>
       </section>
 
       <section class="worktop" aria-label="조리대">
         <div class="station-group pots">
-          <button class="station pot drop-zone draggable-pot" type="button" draggable="false" data-station="pot1" data-label="냄비 1"><span>냄비 1</span></button>
-          <button class="station pot drop-zone draggable-pot" type="button" draggable="false" data-station="pot2" data-label="냄비 2"><span>냄비 2</span></button>
+          <button class="station pot drop-zone draggable-pot" type="button" draggable="false" data-station="pot1" data-label="냄비 1">
+<img class="station-art" src="./assets/ui/pot.svg" alt="냄비 1"><span>냄비 1</span></button>
+          <button class="station pot drop-zone draggable-pot" type="button" draggable="false" data-station="pot2" data-label="냄비 2">
+<img class="station-art" src="./assets/ui/pot.svg" alt="냄비 2"><span>냄비 2</span></button>
           <button class="station pot locked" type="button" data-label="냄비 3" disabled><span>잠금</span></button>
         </div>
 
@@ -90,12 +110,18 @@
         <div class="dock-section">
           <h2>라면 재료</h2>
           <div class="items">
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="noodle">면</button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="soup">스프</button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="egg">계란</button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="greenOnion">대파</button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="riceCake">떡</button>
-            <button class="item draggable-item" type="button" draggable="false" data-ingredient="kimchi">김치</button>
+            <button class="item draggable-item" type="button" draggable="false" data-ingredient="noodle">
+<img src="./assets/foods/noodle.svg" alt="면"><span>면</span></button>
+            <button class="item draggable-item" type="button" draggable="false" data-ingredient="soup">
+<img src="./assets/foods/soup.svg" alt="스프"><span>스프</span></button>
+            <button class="item draggable-item" type="button" draggable="false" data-ingredient="egg">
+<img src="./assets/foods/egg.svg" alt="계란"><span>계란</span></button>
+            <button class="item draggable-item" type="button" draggable="false" data-ingredient="greenOnion">
+<img src="./assets/foods/greenOnion.svg" alt="대파"><span>대파</span></button>
+            <button class="item draggable-item" type="button" draggable="false" data-ingredient="riceCake">
+<img src="./assets/foods/riceCake.svg" alt="떡"><span>떡</span></button>
+            <button class="item draggable-item" type="button" draggable="false" data-ingredient="kimchi">
+<img src="./assets/foods/kimchi.svg" alt="김치"><span>김치</span></button>
           </div>
         </div>
         <div class="dock-section">
