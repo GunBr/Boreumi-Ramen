@@ -1,321 +1,277 @@
 (() => {
 "use strict";
 
-const CFG = {
-  daySeconds: 180,
-  autoWaterMs: 700,
-  autoSoupMs: 700,
-  cookMs: 10000,
-  safeMs: 5000,
-  warningMs: 2200,
-  guestPatienceMs: 45000,
-  salePrice: 3500,
-  wasteCost: 700
-};
-
-const NAMES = {
-  noodle:"면", egg:"계란", cheese:"치즈", greenOnion:"대파",
-  kimchi:"김치", riceCake:"떡", dumpling:"만두", sausage:"소시지", chili:"청양고추"
-};
-
-const ICONS = Object.fromEntries(Object.keys(NAMES).map(k => [k, `./assets/foods/${k}.png`]));
-const RECIPE_ORDER = ["egg","cheese","greenOnion","kimchi","riceCake","dumpling","sausage","chili"];
-
-const RECIPES = {
-  "": {name:"기본라면", image:"ramen_base.png"},
-  "egg": {name:"계란라면", image:"ramen_egg.png"},
-  "cheese": {name:"치즈라면", image:"ramen_cheese.png"},
-  "greenOnion": {name:"대파라면", image:"ramen_greenOnion.png"},
-  "kimchi": {name:"김치라면", image:"ramen_kimchi.png"},
-  "chili": {name:"청양고추라면", image:"ramen_chili.png"},
-  "egg|cheese": {name:"계란치즈라면", image:"ramen_egg_cheese.png"},
-  "egg|greenOnion": {name:"계란대파라면", image:"ramen_egg_greenOnion.png"},
-  "egg|kimchi": {name:"계란김치라면", image:"ramen_egg_kimchi.png"},
-  "cheese|greenOnion": {name:"치즈대파라면", image:"ramen_cheese_greenOnion.png"},
-  "cheese|kimchi": {name:"치즈김치라면", image:"ramen_cheese_kimchi.png"},
-  "greenOnion|kimchi": {name:"대파김치라면", image:"ramen_greenOnion_kimchi.png"},
-  "egg|chili": {name:"청양계란라면", image:"ramen_chili_egg.png"},
-  "chili|kimchi": {name:"매운김치라면", image:"ramen_chili_kimchi.png"},
-  "chili|greenOnion": {name:"청양대파라면", image:"ramen_chili_greenOnion.png"},
-  "egg|sausage": {name:"소시지계란라면", image:"ramen_sausage_egg.png"},
-  "dumpling|greenOnion": {name:"만두대파라면", image:"ramen_greenOnion_kimchi.png"},
-};
+const STAGE_W = 1600;
+const STAGE_H = 900;
+const DAY_SECONDS = 90;
+const COOK_MS = 8000;
+const SAFE_MS = 4200;
+const WARNING_MS = 1800;
+const GUEST_PATIENCE = 30000;
 
 const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
 
 let running = false;
 let paused = false;
-let remaining = CFG.daySeconds;
+let timeLeft = DAY_SECONDS;
 let sales = 0;
 let guestCount = 0;
-let mainTimer = null;
-let activeGuest = null;
+let dayTimer = null;
+let guestTimer = null;
+let guestLeft = GUEST_PATIENCE;
+let guestLast = 0;
 let drag = null;
 
-function newPot(id){
-  return {id, phase:"empty", toppings:[], timers:[], cookStarted:0, progressTimer:null};
-}
-const pots = {pot1:newPot("pot1"), pot2:newPot("pot2")};
+const pot = {
+  phase: "empty",
+  hasEgg: false,
+  timers: [],
+  cookStart: 0,
+  progressTimer: null
+};
 
-function formatTime(s){
-  return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+function resizeStage(){
+  const scale = Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H);
+  $("#stage").style.transform = `scale(${scale})`;
 }
-function won(n){ return n.toLocaleString("ko-KR") + "원"; }
+window.addEventListener("resize", resizeStage);
+window.addEventListener("orientationchange", resizeStage);
+resizeStage();
 
+function won(v){ return v.toLocaleString("ko-KR") + "원"; }
+function formatTime(v){
+  return `${String(Math.floor(v / 60)).padStart(2,"0")}:${String(v % 60).padStart(2,"0")}`;
+}
 function renderHud(){
-  $("#time").textContent = formatTime(remaining);
-  $("#timeFill").style.width = `${remaining / CFG.daySeconds * 100}%`;
+  $("#time").textContent = formatTime(timeLeft);
+  $("#timeFill").style.width = `${Math.max(0, timeLeft / DAY_SECONDS * 100)}%`;
   $("#sales").textContent = won(sales);
   $("#guestCount").textContent = `${guestCount}명`;
 }
-function toast(msg){
+function toast(text){
   const el = $("#toast");
-  el.textContent = msg;
+  el.textContent = text;
   el.classList.add("show");
   clearTimeout(toast.t);
-  toast.t = setTimeout(() => el.classList.remove("show"), 1550);
+  toast.t = setTimeout(() => el.classList.remove("show"), 1400);
 }
-function boreumi(msg){
-  const el = $("#boreumiBubble");
-  el.textContent = msg;
+function boreumi(text){
+  const el = $("#boreumiText");
+  el.textContent = text;
   el.classList.add("show");
   clearTimeout(boreumi.t);
   boreumi.t = setTimeout(() => el.classList.remove("show"), 1400);
 }
 
-function clearPotTimers(p){
-  p.timers.forEach(clearTimeout);
-  p.timers = [];
-  clearInterval(p.progressTimer);
-  p.progressTimer = null;
+function clearPotTimers(){
+  pot.timers.forEach(clearTimeout);
+  pot.timers = [];
+  clearInterval(pot.progressTimer);
+  pot.progressTimer = null;
 }
+function renderPot(){
+  const el = $("#pot");
+  const img = $("#potImage");
+  el.className = "pot";
 
-function recipeKey(toppings){
-  return [...toppings].sort((a,b)=>RECIPE_ORDER.indexOf(a)-RECIPE_ORDER.indexOf(b)).join("|");
-}
-function currentRecipe(p){
-  return RECIPES[recipeKey(p.toppings)] || null;
-}
-
-function potEl(p){ return document.querySelector(`[data-pot="${p.id}"]`); }
-
-function renderPot(p){
-  const el = potEl(p);
-  const img = el.querySelector(".pot-image");
-  el.className = "pot-zone";
-  if (p.phase !== "empty") el.classList.add(p.phase);
-
-  if (p.phase === "empty") img.src = "./assets/foods/stage_empty.png";
-  else if (p.phase === "noodle") img.src = "./assets/foods/stage_noodle.png";
-  else if (p.phase === "water") img.src = "./assets/foods/stage_water.png";
-  else if (p.phase === "soup") img.src = "./assets/foods/stage_soup.png";
-  else if (p.phase === "burnt") img.src = "./assets/foods/stage_burnt.png";
-  else {
-    const rec = currentRecipe(p);
-    img.src = rec ? `./assets/foods/${rec.image}` : "./assets/foods/stage_boiling.png";
+  if (pot.phase === "empty") img.src = "./assets/foods/pot_empty.svg";
+  if (pot.phase === "noodle") img.src = "./assets/foods/pot_noodle.svg";
+  if (pot.phase === "water") img.src = "./assets/foods/pot_water.svg";
+  if (["cooking","ready","warning"].includes(pot.phase)){
+    img.src = pot.hasEgg ? "./assets/foods/ramen_egg.svg" : "./assets/foods/ramen.svg";
+    el.classList.add(pot.phase);
+  }
+  if (pot.phase === "burnt"){
+    img.src = pot.hasEgg ? "./assets/foods/ramen_egg.svg" : "./assets/foods/ramen.svg";
+    el.classList.add("burnt");
   }
 }
-
-function resetPot(p){
-  clearPotTimers(p);
-  p.phase = "empty";
-  p.toppings = [];
-  p.cookStarted = 0;
-  potEl(p).querySelector(".cook-progress span").style.width = "0%";
-  renderPot(p);
+function resetPot(){
+  clearPotTimers();
+  pot.phase = "empty";
+  pot.hasEgg = false;
+  pot.cookStart = 0;
+  $("#cookFill").style.width = "0%";
+  renderPot();
 }
-
-function beginAutoBase(p){
-  p.phase = "noodle";
-  renderPot(p);
-  boreumi("물과 스프는 내가 넣을게!");
-  toast("면 투입!");
-
-  p.timers.push(setTimeout(() => {
-    if (!running || p.phase !== "noodle") return;
-    p.phase = "water";
-    renderPot(p);
-    boreumi("물을 붓는 중…");
-    p.timers.push(setTimeout(() => {
-      if (!running || p.phase !== "water") return;
-      p.phase = "soup";
-      renderPot(p);
-      boreumi("스프도 자동 투입!");
-      p.timers.push(setTimeout(() => startCooking(p), CFG.autoSoupMs));
-    }, CFG.autoWaterMs));
-  }, 350));
-}
-
-function startCooking(p){
-  if (!running) return;
-  p.phase = "cooking";
-  p.cookStarted = Date.now();
-  renderPot(p);
-  boreumi("이제 토핑을 넣어줘!");
-  toast("조리 시작 · 토핑 최대 2개");
-
-  const bar = potEl(p).querySelector(".cook-progress span");
-  clearInterval(p.progressTimer);
-  p.progressTimer = setInterval(() => {
-    if (paused) return;
-    const ratio = Math.min(1, (Date.now() - p.cookStarted) / CFG.cookMs);
-    bar.style.width = `${ratio * 100}%`;
-  }, 80);
-
-  p.timers.push(setTimeout(() => {
-    if (!running || p.phase !== "cooking") return;
-    clearInterval(p.progressTimer);
-    bar.style.width = "100%";
-    p.phase = "ready";
-    renderPot(p);
-    boreumi("완성! 주문 말풍선으로 옮겨줘.");
-    toast(`${currentRecipe(p)?.name || "라면"} 완성`);
-
-    p.timers.push(setTimeout(() => {
-      if (p.phase !== "ready") return;
-      p.phase = "warning";
-      renderPot(p);
-      toast("곧 타요!");
-
-      p.timers.push(setTimeout(() => {
-        if (p.phase !== "warning") return;
-        p.phase = "burnt";
-        renderPot(p);
-        toast("탔어요! 냄비를 눌러 폐기하세요.");
-      }, CFG.warningMs));
-    }, CFG.safeMs));
-  }, CFG.cookMs));
-}
-
-function addIngredient(key, potId){
+function startBase(){
   if (!running) return toast("먼저 영업을 시작해 주세요.");
-  const p = pots[potId];
+  if (pot.phase !== "empty") return toast("빈 냄비에만 면을 넣을 수 있어요.");
 
-  if (key === "noodle"){
-    if (p.phase !== "empty") return toast("빈 냄비에만 면을 넣을 수 있어요.");
-    beginAutoBase(p);
-    return;
-  }
+  pot.phase = "noodle";
+  renderPot();
+  toast("면 투입!");
+  boreumi("물과 스프는 내가 넣을게!");
 
-  if (!["cooking"].includes(p.phase)) return toast("면을 먼저 넣고 자동 조리가 시작되면 토핑을 넣어주세요.");
-  if (p.toppings.includes(key)) return toast("이미 넣은 토핑이에요.");
-  if (p.toppings.length >= 2) return toast("토핑은 최대 2개까지 가능해요.");
+  pot.timers.push(setTimeout(() => {
+    if (!running || pot.phase !== "noodle") return;
+    pot.phase = "water";
+    renderPot();
+    boreumi("물을 붓는 중…");
 
-  const next = [...p.toppings, key];
-  const rec = RECIPES[recipeKey(next)];
-  if (!rec) return toast("등록되지 않은 레시피 조합이에요.");
+    pot.timers.push(setTimeout(() => {
+      if (!running || pot.phase !== "water") return;
+      pot.phase = "cooking";
+      pot.cookStart = Date.now();
+      renderPot();
+      boreumi("스프 투입! 계란을 넣어줘.");
+      toast("조리 시작");
 
-  p.toppings = next;
-  renderPot(p);
-  boreumi(`${NAMES[key]} 추가!`);
-  toast(`${rec.name} 조리 중`);
+      pot.progressTimer = setInterval(() => {
+        if (paused) return;
+        const ratio = Math.min(1, (Date.now() - pot.cookStart) / COOK_MS);
+        $("#cookFill").style.width = `${ratio * 100}%`;
+      }, 80);
+
+      pot.timers.push(setTimeout(() => {
+        if (!running || pot.phase !== "cooking") return;
+        clearInterval(pot.progressTimer);
+        $("#cookFill").style.width = "100%";
+        pot.phase = "ready";
+        renderPot();
+        toast(pot.hasEgg ? "계란라면 완성!" : "기본라면 완성!");
+        boreumi("주문 말풍선으로 옮겨줘!");
+
+        pot.timers.push(setTimeout(() => {
+          if (pot.phase !== "ready") return;
+          pot.phase = "warning";
+          renderPot();
+          toast("곧 타요!");
+
+          pot.timers.push(setTimeout(() => {
+            if (pot.phase !== "warning") return;
+            pot.phase = "burnt";
+            renderPot();
+            toast("탔어요. 냄비를 눌러 폐기하세요.");
+          }, WARNING_MS));
+        }, SAFE_MS));
+      }, COOK_MS));
+    }, 800));
+  }, 550));
 }
-
-const orders = Object.entries(RECIPES)
-  .filter(([k]) => ["","egg","greenOnion","kimchi","chili","egg|cheese","egg|greenOnion","egg|kimchi","chili|kimchi","chili|greenOnion"].includes(k))
-  .map(([key,v]) => ({key, ...v, toppings:key ? key.split("|") : []}));
+function addEgg(){
+  if (!running) return toast("먼저 영업을 시작해 주세요.");
+  if (pot.phase !== "cooking") return toast("자동 물·스프 투입 후 계란을 넣어주세요.");
+  if (pot.hasEgg) return toast("이미 계란이 들어갔어요.");
+  pot.hasEgg = true;
+  renderPot();
+  toast("계란 추가!");
+  boreumi("계란라면으로 만들게!");
+}
 
 function spawnGuest(){
-  if (!running || activeGuest) return;
-  const seats = $$(".seat");
-  const seatIndex = Math.floor(Math.random() * seats.length);
-  const seat = seats[seatIndex];
-  const customerFiles = ["office.png","student.png","rider.png"];
-  const order = orders[Math.floor(Math.random() * orders.length)];
-
-  activeGuest = {
-    seatIndex, order,
-    remaining: CFG.guestPatienceMs,
-    last: Date.now(),
-    interval: null
-  };
+  if (!running) return;
   guestCount++;
+  guestLeft = GUEST_PATIENCE;
+  guestLast = Date.now();
+  $(".guest-area").classList.add("active");
   renderHud();
-
-  seat.querySelector(".guest").src = `./assets/customers/${customerFiles[Math.floor(Math.random()*customerFiles.length)]}`;
-  const box = seat.querySelector(".order-icons");
-  box.innerHTML = "";
-  const ramen = document.createElement("img");
-  ramen.src = `./assets/foods/${order.image}`;
-  ramen.alt = order.name;
-  box.appendChild(ramen);
-
-  seat.classList.add("active");
-  seat.querySelector(".patience span").style.width = "100%";
   toast("손님이 왔어요!");
 
-  activeGuest.interval = setInterval(() => {
-    if (!activeGuest || paused) return;
+  clearInterval(guestTimer);
+  guestTimer = setInterval(() => {
+    if (!running || paused) return;
     const now = Date.now();
-    activeGuest.remaining -= now - activeGuest.last;
-    activeGuest.last = now;
-    const ratio = Math.max(0, activeGuest.remaining / CFG.guestPatienceMs);
-    seat.querySelector(".patience span").style.width = `${ratio*100}%`;
+    guestLeft -= now - guestLast;
+    guestLast = now;
+    const ratio = Math.max(0, guestLeft / GUEST_PATIENCE);
+    $("#patienceFill").style.width = `${ratio * 100}%`;
     if (ratio <= 0) leaveGuest("손님이 기다리다 돌아갔어요.");
-  }, 160);
+  }, 120);
 }
-
-function leaveGuest(msg){
-  if (!activeGuest) return;
-  const seat = $$(".seat")[activeGuest.seatIndex];
-  clearInterval(activeGuest.interval);
-  seat.classList.remove("active");
-  seat.querySelector(".guest").removeAttribute("src");
-  seat.querySelector(".order-icons").innerHTML = "";
-  seat.querySelector(".patience span").style.width = "0%";
-  activeGuest = null;
-  toast(msg);
-  if (running) setTimeout(spawnGuest, 2100);
+function leaveGuest(message){
+  clearInterval(guestTimer);
+  $(".guest-area").classList.remove("active");
+  $("#patienceFill").style.width = "100%";
+  toast(message);
 }
+function serve(){
+  if (!$(".guest-area").classList.contains("active")) return toast("지금은 손님이 없어요.");
+  if (!["ready","warning"].includes(pot.phase)) return toast("완성된 라면만 서빙할 수 있어요.");
+  if (!pot.hasEgg) return toast("손님 주문은 계란라면이에요.");
 
-function serve(p, seat){
-  if (!activeGuest) return toast("서빙할 손님이 없어요.");
-  if (!["ready","warning"].includes(p.phase)) return toast("완성된 라면만 서빙할 수 있어요.");
-  if ($$(".seat").indexOf(seat) !== activeGuest.seatIndex) return toast("주문한 손님에게 전달해 주세요.");
-
-  const made = currentRecipe(p);
-  if (!made || made.name !== activeGuest.order.name) return toast(`주문은 ${activeGuest.order.name}이에요.`);
-
-  sales += CFG.salePrice;
+  sales += 3500;
   renderHud();
-  resetPot(p);
+  resetPot();
   boreumi("맛있게 드세요!");
-  leaveGuest(`${made.name} 판매! +${won(CFG.salePrice)}`);
+  leaveGuest("계란라면 판매! +3,500원");
+  setTimeout(spawnGuest, 2300);
 }
 
-function getPayload(el){
-  if (el.classList.contains("item")){
-    return {kind:"ingredient", key:el.dataset.key, label:NAMES[el.dataset.key], img:el.querySelector("img").src};
+function finishDay(){
+  running = false;
+  paused = false;
+  clearInterval(dayTimer);
+  clearInterval(guestTimer);
+  $(".guest-area").classList.remove("active");
+  $("#startButton").style.display = "flex";
+  $("#startButton strong").textContent = "다시 시작";
+  toast(`영업 종료 · 매출 ${won(sales)}`);
+}
+function startDay(){
+  clearInterval(dayTimer);
+  clearInterval(guestTimer);
+  resetPot();
+  timeLeft = DAY_SECONDS;
+  sales = 0;
+  guestCount = 0;
+  running = true;
+  paused = false;
+  renderHud();
+
+  $("#startButton").style.display = "none";
+  $(".guest-area").classList.remove("active");
+  boreumi("오늘도 따뜻한 한 그릇!");
+  toast("영업 시작!");
+
+  dayTimer = setInterval(() => {
+    if (paused) return;
+    timeLeft--;
+    renderHud();
+    if (timeLeft <= 0) finishDay();
+  }, 1000);
+
+  setTimeout(spawnGuest, 1200);
+}
+
+function payloadFor(el){
+  if (el.classList.contains("ingredient")){
+    const key = el.dataset.key;
+    return {
+      type: "ingredient",
+      key,
+      label: key === "noodle" ? "면" : "계란",
+      image: el.querySelector("img").src
+    };
   }
-  if (el.classList.contains("pot-zone")){
-    const p = pots[el.dataset.pot];
-    if (["ready","warning"].includes(p.phase)){
-      const rec = currentRecipe(p);
-      return {kind:"pot", pot:p, label:rec?.name || "라면", img:potEl(p).querySelector(".pot-image").src};
-    }
+  if (el.id === "pot" && ["ready","warning"].includes(pot.phase)){
+    return {
+      type: "pot",
+      label: pot.hasEgg ? "계란라면" : "기본라면",
+      image: $("#potImage").src
+    };
   }
   return null;
 }
-
 function moveGhost(e){
   const g = $("#dragGhost");
   g.style.left = `${e.clientX}px`;
   g.style.top = `${e.clientY}px`;
 }
-function clearOver(){ $$(".drop-over").forEach(x => x.classList.remove("drop-over")); }
-
+function clearOver(){
+  document.querySelectorAll(".drop-over").forEach(el => el.classList.remove("drop-over"));
+}
 function startDrag(e, el){
   if (e.pointerType === "mouse" && e.button !== 0) return;
-  const payload = getPayload(el);
+  const payload = payloadFor(el);
   if (!payload) return;
+
   e.preventDefault();
   el.setPointerCapture?.(e.pointerId);
-  drag = {id:e.pointerId, source:el, payload};
-  const ghost = $("#dragGhost");
-  ghost.querySelector("img").src = payload.img;
-  ghost.querySelector("span").textContent = payload.label;
-  ghost.classList.add("show");
+  drag = { id: e.pointerId, payload };
+  $("#dragGhost img").src = payload.image;
+  $("#dragGhost span").textContent = payload.label;
+  $("#dragGhost").classList.add("show");
   moveGhost(e);
 }
 function moveDrag(e){
@@ -323,27 +279,26 @@ function moveDrag(e){
   e.preventDefault();
   moveGhost(e);
   clearOver();
-  const target = document.elementFromPoint(e.clientX,e.clientY);
-  if (!target) return;
-
-  if (drag.payload.kind === "ingredient"){
-    target.closest(".pot-zone")?.classList.add("drop-over");
+  const target = document.elementFromPoint(e.clientX, e.clientY);
+  if (drag.payload.type === "ingredient"){
+    target?.closest("#pot")?.classList.add("drop-over");
   } else {
-    target.closest(".seat.active .order-bubble")?.classList.add("drop-over");
+    target?.closest("#orderBubble")?.classList.add("drop-over");
   }
 }
 function endDrag(e){
   if (!drag || e.pointerId !== drag.id) return;
   e.preventDefault();
-  const target = document.elementFromPoint(e.clientX,e.clientY);
-  const pl = drag.payload;
+  const target = document.elementFromPoint(e.clientX, e.clientY);
 
-  if (pl.kind === "ingredient"){
-    const pot = target?.closest(".pot-zone");
-    pot ? addIngredient(pl.key,pot.dataset.pot) : toast("재료를 냄비에 놓아주세요.");
+  if (drag.payload.type === "ingredient"){
+    if (target?.closest("#pot")){
+      drag.payload.key === "noodle" ? startBase() : addEgg();
+    } else {
+      toast("재료를 냄비에 놓아주세요.");
+    }
   } else {
-    const bubble = target?.closest(".seat.active .order-bubble");
-    bubble ? serve(pl.pot,bubble.closest(".seat")) : toast("완성된 라면을 주문 말풍선에 놓아주세요.");
+    target?.closest("#orderBubble") ? serve() : toast("완성된 라면을 주문 말풍선에 놓아주세요.");
   }
 
   $("#dragGhost").classList.remove("show");
@@ -351,67 +306,35 @@ function endDrag(e){
   drag = null;
 }
 function bindDrag(el){
-  el.addEventListener("pointerdown",e=>startDrag(e,el));
-  el.addEventListener("pointermove",moveDrag);
-  el.addEventListener("pointerup",endDrag);
-  el.addEventListener("pointercancel",endDrag);
+  el.addEventListener("pointerdown", e => startDrag(e, el));
+  el.addEventListener("pointermove", moveDrag);
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", endDrag);
 }
 
-function discardIfBurnt(el){
-  const p = pots[el.dataset.pot];
-  if (p.phase !== "burnt") return;
-  sales = Math.max(0,sales-CFG.wasteCost);
+document.querySelectorAll(".ingredient,#pot").forEach(bindDrag);
+
+$("#pot").addEventListener("click", () => {
+  if (pot.phase !== "burnt") return;
+  sales = Math.max(0, sales - 700);
   renderHud();
-  resetPot(p);
+  resetPot();
+  toast("탄 음식 자동 폐기 · -700원");
   boreumi("다음엔 안 태울게!");
-  toast(`탄 음식 자동 폐기 · -${won(CFG.wasteCost)}`);
-}
-
-function resetDay(){
-  remaining = CFG.daySeconds; sales = 0; guestCount = 0;
-  if (activeGuest){clearInterval(activeGuest.interval);activeGuest=null;}
-  $$(".seat").forEach(s=>{s.classList.remove("active");s.querySelector(".guest").removeAttribute("src");s.querySelector(".order-icons").innerHTML="";});
-  Object.values(pots).forEach(resetPot);
-  renderHud();
-}
-
-function finishDay(){
-  running=false; paused=false; clearInterval(mainTimer);
-  if(activeGuest) leaveGuest("오늘 영업이 끝났어요.");
-  $("#startButton").hidden=false;
-  $("#startButton strong").textContent="다시 시작";
-  toast(`영업 종료 · 매출 ${won(sales)}`);
-}
-
-function startDay(){
-  clearInterval(mainTimer);
-  resetDay();
-  running=true;paused=false;
-  $("#startButton").hidden=true;
-  boreumi("오늘도 따뜻한 한 그릇!");
-  toast("영업 시작!");
-  mainTimer=setInterval(()=>{
-    if(paused)return;
-    remaining--;
-    renderHud();
-    if(remaining<=0)finishDay();
-  },1000);
-  setTimeout(spawnGuest,1800);
-}
-
-$("#startButton").addEventListener("click",startDay);
-$("#pauseButton").addEventListener("click",()=>{
-  if(!running)return toast("영업 중에 사용할 수 있어요.");
-  paused=true;$("#pauseOverlay").classList.remove("hidden");
 });
-$("#resumeButton").addEventListener("click",()=>{
-  paused=false;
-  if(activeGuest)activeGuest.last=Date.now();
+
+$("#startButton").addEventListener("click", startDay);
+$("#pauseButton").addEventListener("click", () => {
+  if (!running) return toast("영업 중에 사용할 수 있어요.");
+  paused = true;
+  $("#pauseOverlay").classList.remove("hidden");
+});
+$("#resumeButton").addEventListener("click", () => {
+  paused = false;
+  guestLast = Date.now();
   $("#pauseOverlay").classList.add("hidden");
 });
-$$(".item,.pot-zone").forEach(bindDrag);
-$$(".pot-zone").forEach(el=>el.addEventListener("click",()=>discardIfBurnt(el)));
 
-Object.values(pots).forEach(renderPot);
 renderHud();
+renderPot();
 })();
