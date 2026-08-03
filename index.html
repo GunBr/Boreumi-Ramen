@@ -4,12 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#180e0b">
-<title>보름이의 라면포차 V0.05</title>
+<title>보름이의 라면포차 V0.06</title>
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <main id="game">
   <img class="scene-bg" src="./assets/backgrounds/pocha_empty.svg" alt="">
+  <div class="moon-glow" aria-hidden="true"></div>
+  <div class="lantern-row" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
   <div class="light-overlay" aria-hidden="true"></div>
 
   <header class="hud">
@@ -42,13 +44,42 @@
   </section>
 
   <section class="main-characters">
-    <img class="boreumi" src="./assets/characters/boreumi.png" alt="보름이">
+    <div class="boreumi-wrap">
+      <img class="boreumi" src="./assets/characters/boreumi.png" alt="보름이">
+      <div class="boreumi-status" aria-live="polite"></div>
+    </div>
     <img class="ppomi" src="./assets/characters/ppomi.png" alt="뽀미">
   </section>
 
   <section class="cookline">
-    <div class="burner drop-pot" data-pot="pot1"><span class="burner-ring"></span><img class="pot-art" alt=""><div class="pot-label"></div></div>
-    <div class="burner drop-pot" data-pot="pot2"><span class="burner-ring"></span><img class="pot-art" alt=""><div class="pot-label"></div></div>
+    <div class="burner drop-pot" data-pot="pot1">
+      <span class="burner-ring"></span>
+      <div class="pot-stack" aria-label="냄비 1">
+        <img class="pot-art" src="./assets/ui/pot.svg" alt="">
+        <div class="broth-layer"></div>
+        <img class="ingredient-layer noodle-layer" src="./assets/foods/noodle.svg" alt="">
+        <img class="ingredient-layer egg-layer" src="./assets/foods/egg.svg" alt="">
+        <img class="ingredient-layer onion-layer" src="./assets/foods/greenOnion.svg" alt="">
+        <img class="ingredient-layer ricecake-layer" src="./assets/foods/riceCake.svg" alt="">
+        <img class="ingredient-layer kimchi-layer" src="./assets/foods/kimchi.svg" alt="">
+        <div class="bubble-layer"></div>
+        <div class="steam-layer"><i></i><i></i><i></i></div>
+      </div>
+    </div>
+    <div class="burner drop-pot" data-pot="pot2">
+      <span class="burner-ring"></span>
+      <div class="pot-stack" aria-label="냄비 2">
+        <img class="pot-art" src="./assets/ui/pot.svg" alt="">
+        <div class="broth-layer"></div>
+        <img class="ingredient-layer noodle-layer" src="./assets/foods/noodle.svg" alt="">
+        <img class="ingredient-layer egg-layer" src="./assets/foods/egg.svg" alt="">
+        <img class="ingredient-layer onion-layer" src="./assets/foods/greenOnion.svg" alt="">
+        <img class="ingredient-layer ricecake-layer" src="./assets/foods/riceCake.svg" alt="">
+        <img class="ingredient-layer kimchi-layer" src="./assets/foods/kimchi.svg" alt="">
+        <div class="bubble-layer"></div>
+        <div class="steam-layer"><i></i><i></i><i></i></div>
+      </div>
+    </div>
     <div class="burner locked"><span class="burner-ring"></span><div class="lock">잠금</div></div>
     <div class="grill"><div class="grill-bars"></div><span>그릴 1</span></div>
     <div class="grill locked"><div class="lock">잠금</div></div>
@@ -78,7 +109,6 @@
   </section>
 
   <button id="start" class="start"><span>●</span><small>DAY 1</small><b>영업 시작</b></button>
-  <button id="trash" class="trash">폐기</button>
   <div id="toast" class="toast"></div>
   <div id="ghost" class="ghost"><img alt=""><span></span></div>
   <div id="rotate"><div>▯</div><h1>가로로 돌려주세요</h1></div>

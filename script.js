@@ -14,14 +14,20 @@ const pots={pot1:newPot("pot1"),pot2:newPot("pot2")};
 function newPot(id){return{id,phase:"empty",ingredients:[],timers:[]}}
 function won(n){return n.toLocaleString("ko-KR")+"원"}
 function show(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(show.t);show.t=setTimeout(()=>t.classList.remove("show"),1500)}
+function boreumiSay(msg){
+ const b=document.querySelector(".boreumi-status");
+ if(!b)return;
+ b.textContent=msg;b.classList.add("show");clearTimeout(boreumiSay.t);
+ boreumiSay.t=setTimeout(()=>b.classList.remove("show"),1400);
+}
 function hud(){ $("#time").textContent=`${String(Math.floor(remain/60)).padStart(2,"0")}:${String(remain%60).padStart(2,"0")}`;$("#timeFill").style.width=(remain/CFG.day*100)+"%";$("#sales").textContent=won(sales);$("#guests").textContent=guestCount+"명"}
 function clearPotTimers(p){p.timers.forEach(clearTimeout);p.timers=[]}
 function renderPot(p){
- const el=$(`[data-pot="${p.id}"]`),img=el.querySelector(".pot-art"),lab=el.querySelector(".pot-label");
+ const el=$(`[data-pot="${p.id}"]`);
  el.className="burner drop-pot";
  if(p.phase!=="empty")el.classList.add("has-pot",p.phase);
- if(p.phase==="empty"){img.removeAttribute("src");lab.textContent=""}
- else{img.src="./assets/ui/pot.svg";lab.textContent=p.ingredients.map(x=>ingredientNames[x]).join(" + ")}
+ p.ingredients.forEach(key=>el.classList.add(`has-${key}`));
+ if(p.ingredients.includes("soup"))el.classList.add("has-soup");
 }
 function resetPot(p){clearPotTimers(p);p.phase="empty";p.ingredients=[];renderPot(p)}
 function addIngredient(key,potId){
@@ -32,12 +38,12 @@ function addIngredient(key,potId){
  const topping=p.ingredients.filter(x=>!["noodle","soup"].includes(x)).length;
  if(!["noodle","soup"].includes(key)&&topping>=2)return show("토핑은 최대 2개까지 가능해요.");
  if(p.phase==="empty"&&p.ingredients.length===0){p.phase="assembling";renderPot(p)}
- p.ingredients.push(key);renderPot(p);show(ingredientNames[key]+" 투입");
+ p.ingredients.push(key);renderPot(p);show(ingredientNames[key]+" 투입");boreumiSay("좋아, 넣어볼게!");
  if(p.ingredients.includes("noodle")&&p.ingredients.includes("soup")&&p.phase==="assembling")startCook(p);
 }
 function startCook(p){
- p.phase="cooking";renderPot(p);show("라면 조리 시작!");
- p.timers.push(setTimeout(()=>{if(!running)return;p.phase="ready";renderPot(p);show("라면 완성! 손님 말풍선으로 끌어주세요.");
+ p.phase="cooking";renderPot(p);show("라면 조리 시작!");boreumiSay("보글보글 끓는 중!");
+ p.timers.push(setTimeout(()=>{if(!running)return;p.phase="ready";renderPot(p);show("라면 완성! 손님 말풍선으로 끌어주세요.");boreumiSay("완성됐어!");
  p.timers.push(setTimeout(()=>{if(p.phase!=="ready")return;p.phase="warning";renderPot(p);show("곧 타요!");
  p.timers.push(setTimeout(()=>{if(p.phase!=="warning")return;p.phase="burnt";renderPot(p);show("탔어요. 냄비를 눌러 폐기하세요.");},CFG.warn));},CFG.safe));},CFG.cook));
 }
@@ -72,7 +78,14 @@ function serve(p,seat){
 }
 function payload(el){
  if(el.dataset.type)return{kind:el.dataset.type,key:el.dataset.key,label:el.querySelector("span").textContent,img:el.querySelector("img").src};
- if(el.dataset.pot){const p=pots[el.dataset.pot];if(["ready","warning"].includes(p.phase))return{kind:"pot",pot:p,label:recipe(p),img:"./assets/foods/ramen.svg"};if(p.phase==="burnt"){sales=Math.max(0,sales-CFG.waste);hud();resetPot(p);show("폐기 비용 -"+won(CFG.waste))}}
+ if(el.dataset.pot){
+ const p=pots[el.dataset.pot];
+ if(["ready","warning"].includes(p.phase))return{kind:"pot",pot:p,label:recipe(p),img:"./assets/foods/ramen.svg"};
+ if(p.phase==="burnt"){
+   sales=Math.max(0,sales-CFG.waste);hud();resetPot(p);
+   show("탄 음식 자동 폐기 · -"+won(CFG.waste));boreumiSay("앗, 타버렸네…");
+ }
+}
  return null;
 }
 function startDrag(e,el){
@@ -91,6 +104,12 @@ function bind(el){el.addEventListener("pointerdown",e=>startDrag(e,el));el.addEv
 function resetDay(){sales=0;guestCount=0;remain=CFG.day;if(active){clearInterval(active.interval);active=null}$$(".seat").forEach(s=>{s.classList.remove("active");s.querySelector(".guest").removeAttribute("src");s.querySelector(".order-icons").innerHTML=""});Object.values(pots).forEach(resetPot);hud()}
 function start(){clearInterval(timer);resetDay();running=true;paused=false;$("#start").hidden=true;timer=setInterval(()=>{if(paused)return;remain--;hud();if(remain<=0){running=false;clearInterval(timer);if(active)leave("영업 종료");$("#start").hidden=false;show("영업 종료 · 매출 "+won(sales))}},1000);show("영업 시작!");setTimeout(spawnGuest,2000)}
 $("#start").addEventListener("click",start);$("#pause").addEventListener("click",()=>{if(!running)return;paused=!paused;show(paused?"일시정지":"계속 영업");if(active)active.last=Date.now()});
-$("#trash").addEventListener("click",()=>{const p=Object.values(pots).find(x=>x.phase!=="empty");if(!p)return show("폐기할 음식이 없어요.");sales=Math.max(0,sales-CFG.waste);hud();resetPot(p);show("폐기 비용 -"+won(CFG.waste))});
-$$(".asset-item,.drop-pot").forEach(bind);hud();Object.values(pots).forEach(renderPot);
+$$(".asset-item,.drop-pot").forEach(bind);
+$$(".drop-pot").forEach(el=>el.addEventListener("click",()=>{
+ const p=pots[el.dataset.pot];
+ if(p.phase==="burnt"){
+   sales=Math.max(0,sales-CFG.waste);hud();resetPot(p);
+   show("탄 음식 자동 폐기 · -"+won(CFG.waste));boreumiSay("다음엔 안 태울게!");
+ }
+}));hud();Object.values(pots).forEach(renderPot);
 })();
