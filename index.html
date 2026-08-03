@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#1b0f0b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>보름이의 라면포차 V0.01</title>
+  <title>보름이의 라면포차 V0.02</title>
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -52,22 +52,22 @@
       <section class="customer-row" aria-label="손님 자리">
         <article class="customer-seat">
           <div class="patience"><span style="width:78%"></span></div>
-          <div class="order-card">손님 자리 1</div>
+          <div class="order-card"><span class="order-title">빈자리</span><span class="order-menu">영업 시작 후 손님이 와요</span></div>
         </article>
         <article class="customer-seat">
           <div class="patience"><span style="width:62%"></span></div>
-          <div class="order-card">손님 자리 2</div>
+          <div class="order-card"><span class="order-title">빈자리</span><span class="order-menu">영업 시작 후 손님이 와요</span></div>
         </article>
         <article class="customer-seat">
           <div class="patience"><span style="width:46%"></span></div>
-          <div class="order-card">손님 자리 3</div>
+          <div class="order-card"><span class="order-title">빈자리</span><span class="order-menu">영업 시작 후 손님이 와요</span></div>
         </article>
       </section>
 
       <section class="worktop" aria-label="조리대">
         <div class="station-group pots">
-          <button class="station pot" type="button" data-label="냄비 1"><span>냄비 1</span></button>
-          <button class="station pot" type="button" data-label="냄비 2"><span>냄비 2</span></button>
+          <button class="station pot" type="button" data-station="pot1" data-label="냄비 1"><span>냄비 1</span></button>
+          <button class="station pot" type="button" data-station="pot2" data-label="냄비 2"><span>냄비 2</span></button>
           <button class="station pot locked" type="button" data-label="냄비 3" disabled><span>잠금</span></button>
         </div>
 
@@ -86,12 +86,12 @@
         <div class="dock-section">
           <h2>라면 재료</h2>
           <div class="items">
-            <button class="item" type="button">면</button>
-            <button class="item" type="button">스프</button>
-            <button class="item" type="button">계란</button>
-            <button class="item" type="button">대파</button>
-            <button class="item" type="button">떡</button>
-            <button class="item" type="button">김치</button>
+            <button class="item" type="button" data-ingredient="noodle">면</button>
+            <button class="item" type="button" data-ingredient="soup">스프</button>
+            <button class="item" type="button" data-ingredient="egg">계란</button>
+            <button class="item" type="button" data-ingredient="greenOnion">대파</button>
+            <button class="item" type="button" data-ingredient="riceCake">떡</button>
+            <button class="item" type="button" data-ingredient="kimchi">김치</button>
           </div>
         </div>
         <div class="dock-section">
@@ -112,6 +112,10 @@
           </div>
         </div>
       </footer>
+
+
+      <button id="trashButton" class="utility-button trash-button" type="button">폐기</button>
+      <button id="serveButton" class="utility-button serve-button" type="button">서빙</button>
 
       <button id="startButton" class="start-button" type="button">
         <span class="full-moon">●</span>

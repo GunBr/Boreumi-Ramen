@@ -411,3 +411,95 @@ button, input { font: inherit; }
   .customer-row { top: calc(var(--safe-top) + 12.5vh); height: 19vh; }
   .worktop { bottom: calc(var(--safe-bottom) + 17vh); height: 27vh; }
 }
+
+
+/* V0.02 gameplay additions */
+.customer-seat.active .order-card {
+  background: rgba(255,248,230,.96);
+  box-shadow: 0 0 18px rgba(255,207,117,.65), 0 8px 18px rgba(0,0,0,.28);
+}
+.order-card { flex-direction: column; gap: .35vh; padding: .5vh .7vw; }
+.order-title { font-size: clamp(10px, 1.05vw, 14px); opacity: .72; }
+.order-menu { font-size: clamp(11px, 1.35vw, 18px); text-align: center; }
+
+.station.selected {
+  outline: 4px solid rgba(255,231,130,.95);
+  box-shadow: 0 0 24px rgba(255,216,85,.85), 0 12px 18px rgba(0,0,0,.38);
+}
+.station.cooking {
+  animation: cookingGlow 1.15s ease-in-out infinite;
+}
+.station.ready {
+  animation: readyGlow .9s ease-in-out infinite;
+}
+.station.ready::after {
+  content: "완성";
+  position: absolute;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ffe873;
+  color: #4d2b12;
+  font-weight: 900;
+  font-size: clamp(9px, 1vw, 13px);
+}
+.station.warning {
+  animation: warningGlow .42s ease-in-out infinite;
+}
+.station.burnt {
+  filter: saturate(.2) brightness(.55);
+}
+.station.burnt::after {
+  content: "탔어요";
+  position: absolute;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #2a1a15;
+  color: #fff0e1;
+  font-weight: 900;
+  font-size: clamp(9px, 1vw, 13px);
+}
+@keyframes cookingGlow {
+  0%,100% { box-shadow: 0 0 10px rgba(75,216,109,.45), 0 12px 18px rgba(0,0,0,.38); }
+  50% { box-shadow: 0 0 26px rgba(75,216,109,.9), 0 12px 18px rgba(0,0,0,.38); }
+}
+@keyframes readyGlow {
+  0%,100% { box-shadow: 0 0 12px rgba(255,222,86,.55), 0 12px 18px rgba(0,0,0,.38); transform: translateY(0); }
+  50% { box-shadow: 0 0 28px rgba(255,222,86,.95), 0 12px 18px rgba(0,0,0,.38); transform: translateY(-2px); }
+}
+@keyframes warningGlow {
+  0%,100% { box-shadow: 0 0 10px rgba(255,79,71,.45), 0 12px 18px rgba(0,0,0,.38); }
+  50% { box-shadow: 0 0 30px rgba(255,79,71,1), 0 12px 18px rgba(0,0,0,.38); }
+}
+
+.item.selected {
+  outline: 3px solid #ffbd55;
+  transform: translateY(-2px);
+}
+
+.utility-button {
+  position: absolute;
+  z-index: 34;
+  bottom: calc(var(--safe-bottom) + 19vh);
+  width: clamp(72px, 8.5vw, 118px);
+  padding: .9vh .8vw;
+  border-radius: 18px;
+  border: 2px solid rgba(255,239,215,.86);
+  color: #fff5e4;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(0,0,0,.35);
+}
+.trash-button {
+  left: calc(var(--safe-left) + 2vw);
+  background: linear-gradient(180deg, #5d463d, #2d211c);
+}
+.serve-button {
+  right: calc(var(--safe-right) + 13.2vw);
+  background: linear-gradient(180deg, #ff8d5f, #c54635);
+}
+.utility-button:disabled { opacity: .45; filter: grayscale(.8); }
