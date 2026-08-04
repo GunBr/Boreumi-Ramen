@@ -1,0 +1,175 @@
+/* Level 1: a small, warm, busy pocha. Future capacity stays in data/config, not as empty floor. */
+#stage[data-stall-level="1"]::before,#stage[data-stall-level="1"]::after{display:none}
+
+#stage[data-stall-level="1"] .night{
+  background-image:url("assets/art-v012/environment-cozy-pocha-level1-v6.png");
+  background-size:100% 100%;
+  background-position:center;
+  background-color:#2b130d;
+}
+#stage[data-stall-level="1"] .night::after{
+  display:block;
+  background:linear-gradient(180deg,#1607041f 0 9%,transparent 24% 72%,#12070477 100%),radial-gradient(ellipse at 50% 48%,transparent 48%,#15080555 100%);
+}
+#stage[data-stall-level="1"] .night::before,
+#stage[data-stall-level="1"] .moon,
+#stage[data-stall-level="1"] .stars,
+#stage[data-stall-level="1"] .city{display:none}
+
+/* The environment artwork already contains the tent roof, bulbs, shelves and side props. */
+#stage[data-stall-level="1"] .roof,
+#stage[data-stall-level="1"] .lamps,
+#stage[data-stall-level="1"] .backwall,
+#stage[data-stall-level="1"] .service-floor,
+#stage[data-stall-level="1"] .table-decor{display:none}
+
+/* Customer counter: close enough to make guests, Boreumi and food read as one scene. */
+#stage[data-stall-level="1"] .service-table{
+  display:block;
+  left:50%;
+  right:auto;
+  top:345px;
+  width:min(1840px,calc(100% - 70px));
+  height:92px;
+  transform:translateX(-50%);
+  border:0;
+  border-top:7px solid #e2a260;
+  border-bottom:7px solid #3a160e;
+  border-radius:5px 5px 12px 12px;
+  background:linear-gradient(180deg,#b86c3d 0 12px,#7c4128 13px 48px,#54291b 49px 100%);
+  box-shadow:0 18px 24px #130604aa,inset 0 4px #ffd09a55,inset 0 -16px 22px #210b0766;
+}
+#stage[data-stall-level="1"] .service-table::before{
+  background:repeating-linear-gradient(92deg,transparent 0 126px,#35150e55 128px 131px,transparent 133px 249px),linear-gradient(180deg,#fff3d61f,transparent 30%);
+}
+
+/* Continuous foreground counter hides full-body legs naturally; appliances sit on top. */
+#stage[data-stall-level="1"] .counter{
+  display:block;
+  z-index:42;
+  left:50%;
+  right:auto;
+  top:530px;
+  width:min(1940px,calc(100% - 34px));
+  height:318px;
+  transform:translateX(-50%);
+  border-top:9px solid #e5a568;
+  background:linear-gradient(180deg,#8c4c2d 0 18px,#5b2d1e 19px 82px,#351a13 83px 100%);
+  box-shadow:0 -14px 26px #140603aa,inset 0 5px #ffd09b44,inset 0 -28px 35px #170805aa;
+}
+
+.hud{top:16px}
+.sign{top:18px}
+
+/* Customers grow and sit immediately behind the counter. */
+#stage[data-stall-level="1"] .guest-row{
+  top:112px;
+  width:1370px;
+  height:338px;
+  gap:46px;
+}
+#stage[data-stall-level="1"] .guest-slot .bubble{width:224px;height:108px;top:0}
+#stage[data-stall-level="1"] .bubble img{width:157px;height:88px}
+#stage[data-stall-level="1"] .guest-art{width:238px;height:255px;bottom:0}
+/* Empty seats stay behind the guest counter: only the wooden backrest is visible. */
+#stage[data-stall-level="1"] .guest-seat{
+  width:145px;
+  height:128px;
+  bottom:52px;
+  overflow:hidden;
+  background-size:145px auto;
+  background-position:center top;
+  filter:drop-shadow(0 8px 8px #0009);
+}
+#stage[data-stall-level="1"] .guest-slot.active .guest-seat{opacity:.08}
+#stage[data-stall-level="1"] .guest-slot .patience{left:54px;right:54px;bottom:0;height:12px}
+
+/* No visual travel lane. Boreumi stands behind the cooking counter and swaps full-body action poses. */
+#stage[data-stall-level="1"] .characters{
+  top:260px;
+  height:410px;
+  background:none;
+  box-shadow:none;
+  overflow:visible;
+}
+#stage[data-stall-level="1"] .characters::before{display:none}
+#stage[data-stall-level="1"] .characters #boreumi.boreumi-sprite[data-mode="idle"]{
+  width:300px;
+  height:550px;
+  bottom:-140px;
+  filter:drop-shadow(0 13px 12px #000b) drop-shadow(0 0 12px #f7b65d2b);
+}
+#stage[data-stall-level="1"] .characters #boreumi.boreumi-sprite[data-mode="cooking"]{
+  width:300px;
+  height:550px;
+  bottom:-140px;
+  filter:drop-shadow(0 13px 12px #000c);
+}
+#stage[data-stall-level="1"] .characters #boreumi.boreumi-sprite[data-mode="serving"]{
+  width:360px;
+  height:600px;
+  bottom:-84px;
+}
+#stage[data-stall-level="1"] .boreumi-sprite[data-pose="noodle"]{background-image:url("assets/art-v012/boreumi-noodle-v2.png")}
+#stage[data-stall-level="1"] .boreumi-sprite[data-pose="egg"]{background-image:url("assets/art-v012/boreumi-egg-v2.png")}
+#stage[data-stall-level="1"] .boreumi-sprite[data-pose="grill"]{background-image:url("assets/art-v012/boreumi-grill-v2.png")}
+#stage[data-stall-level="1"] .boreumi-sprite[data-pose="oden"]{background-image:url("assets/art-v012/boreumi-oden-v2.png")}
+#stage[data-stall-level="1"] #boreumiText{left:calc(50% + 108px);top:110px}
+
+/* Ppomi stays fixed on the foreground counter next to Boreumi; only the pose changes. */
+#stage[data-stall-level="1"] .ppomi-perch{
+  z-index:43;
+  left:calc(50% + 300px);
+  top:430px;
+  width:175px;
+  height:170px;
+}
+#stage[data-stall-level="1"] .ppomi-perch .ppomi-sprite{width:175px;height:160px}
+
+/* Six large food stations fill the foreground instead of leaving an empty walkway. */
+#stage[data-stall-level="1"] .cook-zone{
+  z-index:44;
+  top:605px;
+  height:310px;
+  gap:12px;
+}
+#stage[data-stall-level="1"] .left-zone{left:calc(50% - 925px);width:915px}
+#stage[data-stall-level="1"] .right-zone{left:calc(50% + 10px);width:915px}
+#stage[data-stall-level="1"] .appliance,
+#stage[data-stall-level="1"] .appliance.oden{height:310px}
+#stage[data-stall-level="1"] .appliance .art{
+  inset:20px 2px 9px;
+  border:4px solid #b86f3f;
+  border-radius:23px;
+  background:linear-gradient(180deg,#3d2119e8,#160b08f4);
+  box-shadow:0 13px 18px #000b,inset 0 5px 16px #ffcf8b17;
+}
+#stage[data-stall-level="1"] .appliance.pot .art img{width:282px;height:250px}
+#stage[data-stall-level="1"] .kitchen-sprite{transform:scale(1.13)}
+#stage[data-stall-level="1"] .sprite-oden{width:84%;margin:0 auto;transform:scale(1.03)}
+#stage[data-stall-level="1"] .appliance label{font-size:18px;top:0}
+#stage[data-stall-level="1"] .appliance .bar{bottom:5px;height:9px}
+#stage[data-stall-level="1"] .appliance.cooking .art::before,
+#stage[data-stall-level="1"] .appliance.ready .art::before{
+  content:"";
+  position:absolute;
+  z-index:5;
+  left:26%;
+  right:26%;
+  top:-33px;
+  height:58px;
+  opacity:.5;
+  background:radial-gradient(ellipse at 25% 70%,#fff7dfcc 0 8%,transparent 34%),radial-gradient(ellipse at 55% 55%,#fff7dfaa 0 9%,transparent 35%),radial-gradient(ellipse at 78% 72%,#fff7df99 0 7%,transparent 32%);
+  filter:blur(5px);
+  animation:cozySteam 1.7s ease-in-out infinite alternate;
+}
+@keyframes cozySteam{to{transform:translateY(-12px) scaleX(1.14);opacity:.2}}
+
+/* Ingredient dock stays large and touch-friendly, directly under the food. */
+#stage[data-stall-level="1"] .dock{bottom:16px;height:148px;width:1880px}
+#stage[data-stall-level="1"] .start{top:438px;right:max(28px,calc((100% - 1920px)/2 + 28px))}
+#stage[data-stall-level="1"] #toast{bottom:169px}
+
+/* On wide phones the tent and counters extend; no empty future-level corridor is shown. */
+#stage[data-stall-level="1"][data-viewport="expanded"] .service-table{width:calc(100% - 70px)}
+#stage[data-stall-level="1"][data-viewport="expanded"] .counter{width:calc(100% - 34px)}

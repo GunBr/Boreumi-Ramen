@@ -1,10 +1,10 @@
 <!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#180c09"><title>보름이의 라면포차 V0.12</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="character-layout.css"></head>
-<body><style>.guest-slot>img{width:76px;height:185px;max-width:none;object-fit:cover;object-position:left center}</style><link rel="stylesheet" href="art-v012.css"><div id="viewport"><main id="stage">
-  <div class="night"><i class="moon"></i><i class="stars"></i><i class="city"></i></div><div class="stall"><i class="roof"></i><i class="lamps"></i><i class="backwall"></i><i class="counter"></i></div>
+<body><style>.guest-slot>img{width:76px;height:185px;max-width:none;object-fit:cover;object-position:left center}</style><link rel="stylesheet" href="art-v012.css"><link rel="stylesheet" href="environment-v012.css"><link rel="stylesheet" href="resolution-v012.css"><link rel="stylesheet" href="cozy-level1.css"><div id="viewport"><main id="stage" data-stall-level="1">
+  <div class="night"><i class="moon"></i><i class="stars"></i><i class="city"></i></div><div class="stall"><i class="roof"></i><i class="lamps"></i><i class="backwall"></i><i class="service-floor"></i><i class="service-table"></i><i class="table-decor decor-left"></i><i class="table-decor decor-right"></i><i class="counter"></i></div>
   <header class="hud"><div><small>DAY</small><b>1</b></div><div><small>목표 금액</small><b>10,000원</b></div><div class="clock"><small>남은 시간</small><b id="time">01:30</b><i><span id="timeFill"></span></i></div><div><small>현재 매출</small><b id="sales">0원</b></div><div><small>오늘 손님</small><b id="guestCount">0명</b></div><button id="pauseButton">Ⅱ</button></header>
   <aside class="sign"><small>보름이의</small><strong>라면<br>포차</strong></aside>
   <section id="guestRow" class="guest-row"></section>
-  <section class="characters"><div id="boreumi" class="boreumi-sprite" data-pose="noodle" role="img" aria-label="요리하는 보름이"></div><div id="boreumiText"></div></section>
+  <section class="characters"><div id="boreumi" class="boreumi-sprite" data-mode="idle" data-pose="idle" role="img" aria-label="라면포차 주인 보름이"></div><div id="boreumiText"></div></section>
   <div id="ppomiPerch" class="ppomi-perch pose-sleep" aria-label="손님 테이블 위의 뽀미"><span class="ppomi-sprite" role="img" aria-label="뽀미"></span><i aria-hidden="true">Zzz</i></div>
   <section id="cookLeft" class="cook-zone left-zone"></section><section id="cookRight" class="cook-zone right-zone"></section>
   <section class="dock"><div class="dock-label"><small>오늘의</small><b>재료</b></div>

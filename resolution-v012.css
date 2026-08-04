@@ -1,0 +1,217 @@
+/* V0.12 adaptive 1080p stage.
+   1920x1080 is the protected gameplay area; wide phones reveal up to 2340x1080. */
+#stage{
+  --stage-width:1920px;
+  --safe-left:0px;
+  width:var(--stage-width);
+  height:1080px;
+  background:#130b09;
+}
+
+/* Wide-only side wings stay decorative now and become future level expansion space. */
+#stage::before,#stage::after{
+  content:"";
+  position:absolute;
+  z-index:7;
+  top:255px;
+  bottom:168px;
+  width:var(--safe-left);
+  min-width:0;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .2s;
+  background:linear-gradient(180deg,#2e1710aa,#6d3b25aa 38%,#2a140dcc),repeating-linear-gradient(90deg,transparent 0 70px,#d6975522 72px 75px);
+  box-shadow:inset 0 0 45px #000b;
+}
+#stage::before{left:0;border-right:4px solid #a6673d66}
+#stage::after{right:0;border-left:4px solid #a6673d66}
+#stage[data-viewport="expanded"]::before,#stage[data-viewport="expanded"]::after{opacity:.72}
+
+.night{
+  background-image:url("assets/art-v012/environment-river-moon-v5.png");
+  background-size:cover;
+  background-position:center top;
+}
+.night::before,.moon{display:none}
+.stars{display:none}
+#stage[data-viewport="expanded"] .night{background-position:center -40px}
+
+.stall{inset:88px 0 154px}
+.roof{
+  left:50%;
+  right:auto;
+  top:0;
+  width:1780px;
+  height:150px;
+  transform:translateX(-50%);
+  clip-path:polygon(1% 18%,100% 0,98.6% 100%,0 100%);
+}
+.lamps{
+  left:50%;
+  right:auto;
+  top:112px;
+  width:1480px;
+  height:82px;
+  transform:translateX(-50%);
+  background:
+    radial-gradient(ellipse 16px 21px at 4% 49%,#fff4b8 0 37%,#f18a38 43% 60%,#702415 64%,transparent 68%),
+    radial-gradient(ellipse 16px 21px at 30% 49%,#fff4b8 0 37%,#f18a38 43% 60%,#702415 64%,transparent 68%),
+    radial-gradient(ellipse 16px 21px at 55% 49%,#fff4b8 0 37%,#f18a38 43% 60%,#702415 64%,transparent 68%),
+    radial-gradient(ellipse 16px 21px at 88% 49%,#fff4b8 0 37%,#f18a38 43% 60%,#702415 64%,transparent 68%);
+}
+.lamps::after{
+  background:radial-gradient(ellipse at 4% 20%,#ffb45b 0,transparent 18%),radial-gradient(ellipse at 30% 20%,#ffb45b 0,transparent 18%),radial-gradient(ellipse at 55% 20%,#ffb45b 0,transparent 18%),radial-gradient(ellipse at 88% 20%,#ffb45b 0,transparent 18%);
+}
+.backwall{
+  left:50%;
+  right:auto;
+  top:282px;
+  width:1780px;
+  height:86px;
+  transform:translateX(-50%);
+}
+.service-table{
+  left:50%;
+  right:auto;
+  top:274px;
+  width:1780px;
+  height:112px;
+  transform:translateX(-50%);
+  border-top-width:6px;
+  border-bottom-width:8px;
+}
+.service-floor{
+  left:50%;
+  right:auto;
+  top:386px;
+  width:1880px;
+  height:260px;
+  transform:translateX(-50%);
+  clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);
+  background:
+    radial-gradient(ellipse at 50% 100%,#e58c4344 0,transparent 47%),
+    repeating-linear-gradient(90deg,transparent 0 184px,#2a110b55 186px 190px,transparent 192px 374px),
+    repeating-linear-gradient(180deg,#5c3021 0 58px,#47251a 59px 62px,#6b3825 63px 121px);
+}
+.service-floor::before{
+  opacity:.14;
+  background:radial-gradient(ellipse at 28% 0,#ffc27466 0,transparent 34%),radial-gradient(ellipse at 72% 0,#ffc27455 0,transparent 34%);
+}
+.table-decor{top:225px;width:88px;height:52px}
+.decor-left{left:calc(50% - 610px)}
+.decor-right{right:calc(50% - 870px)}
+.counter{
+  left:50%;
+  right:auto;
+  top:632px;
+  width:1920px;
+  height:188px;
+  transform:translateX(-50%);
+}
+
+.hud{
+  left:calc(50% - 710px);
+  right:auto;
+  top:18px;
+  width:1640px;
+  height:92px;
+  grid-template-columns:140px 250px minmax(360px,1fr) 260px 220px 84px;
+  border-radius:20px;
+}
+.hud small{font-size:16px}.hud b{font-size:29px}
+.clock i{width:260px;height:8px}
+#pauseButton{font-size:34px}
+.sign{
+  left:calc(50% - 940px);
+  top:20px;
+  width:210px;
+  height:260px;
+}
+.sign small{font-size:17px}.sign strong{font-size:54px}
+
+.guest-row{
+  left:50%;
+  right:auto;
+  top:112px;
+  width:1440px;
+  height:302px;
+  gap:54px;
+  transform:translateX(-50%);
+}
+.guest-slot .bubble{width:190px;height:92px;border-radius:28px}
+.bubble img{width:132px;height:76px}
+.guest-art{width:205px;height:215px;bottom:11px}
+.guest-seat{width:128px;height:198px;bottom:8px}
+.guest-slot .patience{left:48px;right:48px;height:11px}
+
+.ppomi-perch{
+  left:calc(50% + 710px);
+  top:205px;
+  width:178px;
+  height:174px;
+}
+.ppomi-perch .ppomi-sprite{width:178px;height:162px}
+.ppomi-perch i{font-size:18px;padding:5px 10px}
+
+.characters{
+  left:0;
+  top:500px;
+  width:100%;
+  height:210px;
+}
+.characters::before{left:var(--safe-left);right:var(--safe-left);bottom:17px;border-bottom-width:4px}
+.characters #boreumi.boreumi-sprite[data-mode="idle"]{width:330px;height:450px;bottom:-2px}
+.characters #boreumi.boreumi-sprite[data-mode="cooking"]{width:450px;height:430px;bottom:0}
+.characters #boreumi.boreumi-sprite[data-mode="serving"]{width:410px;height:540px;bottom:12px}
+#boreumiText{left:calc(50% + 145px);top:18px;font-size:20px;padding:11px 18px}
+
+.cook-zone{
+  top:712px;
+  height:205px;
+  gap:18px;
+}
+.left-zone{
+  left:calc(50% - 920px);
+  width:900px;
+  grid-template-columns:repeat(3,1fr);
+}
+.right-zone{
+  left:calc(50% + 20px);
+  right:auto;
+  width:900px;
+  grid-template-columns:repeat(3,1fr);
+}
+.appliance,.appliance.oden{height:205px}
+.appliance .art{inset:18px 5px 10px;border-radius:25px}
+.appliance label{font-size:18px;padding:4px 13px}
+.appliance .bar{left:25px;right:25px;bottom:6px;height:9px}
+.appliance.pot .art img{width:235px;height:165px}
+.sprite-oden{width:92%}
+
+.dock{
+  left:50%;
+  right:auto;
+  bottom:18px;
+  width:1880px;
+  height:142px;
+  transform:translateX(-50%);
+  grid-template-columns:130px repeat(4,205px) 1fr;
+  gap:12px;
+  padding:11px;
+  border-radius:22px;
+}
+.dock-label,.dock-tip{font-size:18px}
+.ingredient{gap:10px}.ingredient img{width:102px;height:88px;max-width:106px;max-height:90px}.ingredient span{font-size:22px}
+.start{
+  right:max(30px,calc((100% - 1920px)/2 + 30px));
+  top:500px;
+  width:145px;
+  height:145px;
+}
+.start strong{font-size:28px}
+#toast{bottom:166px;font-size:19px;padding:12px 21px}
+#dragGhost{width:104px;height:104px}
+#dragGhost.food-drag{width:144px;height:120px}
+
+/* The current six stations stay inside the protected area; side wings remain free for later levels. */
+.cook-zone,.dock,.guest-row,.hud,.sign,.ppomi-perch{transition:left .16s,width .16s}
