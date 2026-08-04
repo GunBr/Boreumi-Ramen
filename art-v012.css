@@ -3,13 +3,30 @@
 .guest-art.customer-0{background-image:url("assets/art-v012/customer-office.png")}.guest-art.customer-1{background-image:url("assets/art-v012/customer-rider.png")}.guest-art.customer-2{background-image:url("assets/art-v012/customer-student.png")}
 .guest-slot::after{content:"";position:absolute;left:25%;right:25%;bottom:4px;height:12px;border-radius:50%;background:#15090699;filter:blur(7px);z-index:-1}
 .characters #boreumi.boreumi-sprite{position:absolute;width:205px;height:175px;background-size:contain;background-position:center bottom;background-repeat:no-repeat;filter:drop-shadow(0 13px 12px #000b);transition:left .08s cubic-bezier(.2,.9,.3,1);transform-origin:50% 100%}
-.boreumi-sprite[data-pose="noodle"]{background-image:url("assets/art-v012/boreumi-noodle.png")}.boreumi-sprite[data-pose="egg"]{background-image:url("assets/art-v012/boreumi-egg.png")}.boreumi-sprite[data-pose="grill"]{background-image:url("assets/art-v012/boreumi-grill.png")}.boreumi-sprite[data-pose="oden"]{background-image:url("assets/art-v012/boreumi-oden.png")}
+.boreumi-sprite[data-pose="noodle"]{background-image:url("assets/art-v012/boreumi-noodle-v2.png")}.boreumi-sprite[data-pose="egg"]{background-image:url("assets/art-v012/boreumi-egg-v2.png")}.boreumi-sprite[data-pose="grill"]{background-image:url("assets/art-v012/boreumi-grill-v2.png")}.boreumi-sprite[data-pose="oden"]{background-image:url("assets/art-v012/boreumi-oden-v2.png")}
 .ppomi-perch .ppomi-sprite{position:absolute;left:0;bottom:0;width:145px;height:130px;background-size:contain;background-position:center bottom;background-repeat:no-repeat;filter:drop-shadow(0 10px 11px #000a);transform-origin:50% 100%}
 .ppomi-perch.pose-sleep .ppomi-sprite{background-image:url("assets/art-v012/ppomi-sleep.png");animation:ppomiSleep 2.2s ease-in-out infinite}.ppomi-perch.pose-groom .ppomi-sprite{background-image:url("assets/art-v012/ppomi-groom.png");animation:ppomiGroom .75s ease-in-out 4}.ppomi-perch.pose-wave .ppomi-sprite{background-image:url("assets/art-v012/ppomi-wave.png");animation:ppomiWave .42s ease-in-out 7}
 .kitchen-sprite{display:block;width:100%;height:100%;background-size:contain;background-position:center;background-repeat:no-repeat;filter:drop-shadow(0 10px 8px #000c)}
-.sprite-pot{background-image:url("assets/art-v012/kitchen-pot.png")}.sprite-grill{background-image:url("assets/art-v012/kitchen-grill.png")}.sprite-oden{background-image:url("assets/art-v012/kitchen-oden.png")}.sprite-cooking-ramen{background-image:url("assets/art-v012/cooking-ramen.png")}.sprite-cooking-dumpling{background-image:url("assets/art-v012/cooking-dumpling.png")}.sprite-cooking-oden{background-image:url("assets/art-v012/cooking-oden.png")}.sprite-ramen{background-image:url("assets/art-v012/food-ramen.png")}.sprite-dumpling{background-image:url("assets/art-v012/food-dumpling.png")}.sprite-oden-food{background-image:url("assets/art-v012/food-oden.png")}
+.sprite-pot{background-image:url("assets/art-v012/kitchen-pot.png")}.sprite-grill{background-image:url("assets/art-v012/kitchen-grill.png")}.sprite-oden{background-image:url("assets/art-v012/kitchen-oden.png")}.sprite-cooking-ramen{background-image:url("assets/art-v012/cooking-ramen.png")}.sprite-cooking-dumpling{background-image:url("assets/art-v012/cooking-dumpling.png")}.sprite-cooking-oden{background-image:url("assets/art-v012/cooking-oden.png")}.sprite-ramen{background-image:url("assets/art-v012/food-ramen-v2.png")}.sprite-dumpling{background-image:url("assets/art-v012/food-dumpling-v2.png")}.sprite-oden-food{background-image:url("assets/art-v012/food-oden.png")}
 .appliance .art,.appliance.grill .art,.appliance.oden .art{background:linear-gradient(180deg,#382019dd,#160c09f0);overflow:visible}
 .appliance .art::after{content:"";position:absolute;left:12%;right:12%;bottom:5px;height:15px;border-radius:50%;background:#090403aa;filter:blur(8px);z-index:-1}
 .appliance.ready .kitchen-sprite{filter:drop-shadow(0 0 16px #ffe979) drop-shadow(0 10px 8px #000b)}
 .appliance.cooking .art{box-shadow:0 14px 20px #000a,inset 0 5px 18px #ffb55a20,0 0 18px #ffad5533}
 .guest-row{filter:drop-shadow(0 5px 18px #0005)}.cook-zone{filter:drop-shadow(0 8px 16px #0005)}
+
+/* 빈 좌석 → 손님 입장 상태 */
+.guest-seat{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);width:94px;height:145px;background:url("assets/art-v012/guest-chair.png") center bottom/contain no-repeat;filter:drop-shadow(0 9px 9px #000a);opacity:.88;transition:opacity .25s}
+.guest-slot .guest-art,.guest-slot .bubble,.guest-slot .patience{opacity:0;visibility:hidden;transition:opacity .24s,transform .24s}
+.guest-slot .guest-art{transform:translateX(-50%) translateY(12px)}
+.guest-slot.active .guest-seat{opacity:.16}
+.guest-slot.active .guest-art,.guest-slot.active .bubble,.guest-slot.active .patience{opacity:1;visibility:visible}
+.guest-slot.active .guest-art{transform:translateX(-50%) translateY(0)}
+.guest-slot.arriving .guest-art{animation:guestArrive .38s ease-out}
+@keyframes guestArrive{from{opacity:0;transform:translateX(-50%) translateY(20px) scale(.92)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
+/* 모든 드래그 미리보기는 텍스트/이모지가 아닌 실제 일러스트 */
+#dragGhost{width:84px;height:84px;padding:6px;border-radius:18px;display:block;background:#fff4dbe8}
+#dragGhost img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 6px #0006)}
+#dragGhost span{display:none}
+#dragGhost.food-drag{width:116px;height:96px;background:#fff8e9ee}
+.ingredient img{max-width:86px;max-height:68px}
