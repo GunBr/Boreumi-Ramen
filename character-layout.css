@@ -1,0 +1,111 @@
+/* V0.12 수정 레이아웃
+   손님 3명 + 뽀미 / 보름이 이동선 / 조리기구 6개 / 재료창 */
+
+/* 맨 위: 손님 세 명. 오른쪽 끝은 뽀미 자리로 비운다. */
+.guest-row{
+  left:220px;
+  right:225px;
+  top:78px;
+  height:205px;
+  gap:36px;
+}
+.guest-slot>img{height:135px!important}
+.guest-slot .bubble{width:150px;height:68px}
+.bubble img{width:100px;height:55px}
+
+/* 뽀미는 손님과 같은 줄의 오른쪽 고정 좌석에서 포즈만 바뀐다. */
+.ppomi-perch{
+  position:absolute;
+  z-index:35;
+  left:1415px;
+  top:145px;
+  width:145px;
+  height:140px;
+  pointer-events:none;
+  transform-origin:50% 100%;
+}
+.ppomi-perch img{
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:140px;
+  height:125px;
+  object-fit:contain;
+  filter:drop-shadow(0 10px 12px #000a);
+  transform-origin:50% 100%;
+}
+.ppomi-perch i{
+  position:absolute;
+  z-index:2;
+  right:-4px;
+  top:0;
+  padding:4px 8px;
+  border-radius:13px;
+  background:#fff4dd;
+  border:2px solid #75452c;
+  color:#59301f;
+  font-size:15px;
+  font-weight:900;
+  font-style:normal;
+  opacity:0;
+}
+
+/* 가운데: 보름이가 높이 변화 없이 좌우로 순간이동하는 전용 통로. */
+.characters{
+  left:0;
+  top:290px;
+  width:1600px;
+  height:175px;
+  z-index:41;
+  overflow:visible;
+}
+.characters::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:35px;
+  right:35px;
+  bottom:12px;
+  border-bottom:3px dashed #e9b46f55;
+}
+.characters #boreumi{
+  left:700px;
+  bottom:0;
+  height:175px;
+}
+#boreumiText{left:880px;top:30px}
+
+/* 그 아래: 냄비 3개, 그릴 2개, 오뎅바 1개를 같은 높이의 한 줄로 배치. */
+.cook-zone{top:465px;height:150px;gap:14px}
+.left-zone{
+  left:20px;
+  width:755px;
+  grid-template-columns:repeat(3,1fr);
+}
+.right-zone{
+  left:789px;
+  right:20px;
+  width:auto;
+  grid-template-columns:repeat(3,1fr);
+}
+.appliance,.appliance.oden{height:150px}
+.appliance.oden{grid-column:auto}
+.appliance .art{font-size:50px}
+.appliance.pot .art img{width:180px;height:120px}
+
+/* 맨 아래 재료창은 기존 모바일 터치 영역을 유지한다. */
+.dock{bottom:8px;height:106px}
+.start{right:24px;top:325px;bottom:auto;width:112px;height:112px}
+
+.ppomi-perch.pose-sleep img{animation:ppomiSleep 2.2s ease-in-out infinite}
+.ppomi-perch.pose-sleep i{opacity:1;animation:ppomiZ 1.5s ease-in-out infinite}
+.ppomi-perch.pose-groom img{animation:ppomiGroom .75s ease-in-out 4}
+.ppomi-perch.pose-groom i{opacity:1}
+.ppomi-perch.pose-groom i::after{content:" 반짝"}
+.ppomi-perch.pose-wave img{animation:ppomiWave .42s ease-in-out 7}
+.ppomi-perch.pose-wave i{opacity:1}
+.ppomi-perch.pose-wave i::after{content:" 안녕!"}
+@keyframes ppomiSleep{50%{transform:scaleY(.94) rotate(-2deg)}}
+@keyframes ppomiZ{50%{transform:translateY(-7px);opacity:.55}}
+@keyframes ppomiGroom{25%{transform:rotate(-4deg)}75%{transform:rotate(5deg) scale(1.02)}}
+@keyframes ppomiWave{25%{transform:rotate(-5deg)}75%{transform:rotate(7deg)}}
