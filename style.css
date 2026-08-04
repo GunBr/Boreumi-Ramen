@@ -1,9 +1,9 @@
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#0d0705;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+html,body{margin:0;width:100%;height:100%;min-height:100%;overflow:hidden;background:#0d0705;overscroll-behavior:none;touch-action:none;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
 button{font:inherit}
-#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0d0705}
-#stage{position:relative;width:1600px;height:900px;transform-origin:center center;overflow:hidden;color:#fff3d9;background:#140c09;box-shadow:0 0 80px #000}
+#viewport{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0d0705;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#stage{position:relative;width:1600px;height:900px;flex:0 0 auto;transform-origin:center center;will-change:transform;overflow:hidden;color:#fff3d9;background:#140c09;box-shadow:0 0 80px #000}
 .night-sky{position:absolute;inset:0;background:linear-gradient(#071529 0 45%,#1c2a38 60%,#2b1b17 100%)}
 .starfield{position:absolute;inset:0;background-image:radial-gradient(circle,#fff7ce 0 1.2px,transparent 1.8px);background-size:88px 76px;opacity:.55;animation:twinkle 4s ease-in-out infinite}
 @keyframes twinkle{50%{opacity:.82}}
@@ -85,3 +85,34 @@ linear-gradient(90deg,#07111e 0 5%,#111b29 5% 10%,#07111e 10% 14%,#111b29 14% 20
 .pause-card{padding:35px 60px;border-radius:24px;background:#3d2016;border:4px solid #b56d3f;color:white;text-align:center}.pause-card button{padding:12px 25px;border:0;border-radius:13px;background:#e94d70;color:white;font-size:20px;font-weight:900}
 .rotate-message{display:none;position:fixed;z-index:99999;inset:0;background:#160b08;color:#fff;place-items:center;font-size:24px;font-weight:900}
 @media(orientation:portrait){.rotate-message{display:grid}}
+
+
+/* V0.11: 아이폰 가로형 초광폭 화면 대응 */
+@media (orientation:landscape) and (min-aspect-ratio:19/10){
+  #stage{height:780px}
+  .stall{inset:58px 0 125px}
+  .awning{top:14px;height:104px}
+  .lantern-line{top:78px}
+  .wood-wall{top:250px;height:125px}
+  .shelf{top:125px;height:185px}
+  .guest-counter{top:365px;height:70px}
+  .cook-counter{top:520px}
+  .sign{top:14px;height:216px}
+  .guest-area{top:125px;height:285px}
+  .guest{height:205px}
+  .order-bubble{height:105px}
+  .characters{top:180px;height:350px}
+  .boreumi{height:350px}
+  .ppomi{height:132px}
+  .cook-area{top:445px;height:185px}
+  .pot{height:185px}
+  .tool{height:132px}
+  .dock{height:116px;bottom:8px}
+  .ingredient img{height:68px}
+  .start-button{bottom:132px;width:130px;height:130px}
+  .toast{bottom:136px}
+}
+
+/* 드래그 중 브라우저 스크롤/선택 방지 */
+.ingredient,#pot,#orderBubble{touch-action:none;-webkit-user-select:none;user-select:none}
+.drag-ghost{will-change:left,top,transform}

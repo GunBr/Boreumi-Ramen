@@ -2,7 +2,6 @@
 "use strict";
 
 const STAGE_W = 1600;
-const STAGE_H = 900;
 const DAY_SECONDS = 90;
 const COOK_MS = 8000;
 const SAFE_MS = 4200;
@@ -30,13 +29,31 @@ const pot = {
   progressTimer: null
 };
 
-function resizeStage(){
-  const scale = Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H);
-  $("#stage").style.transform = `scale(${scale})`;
+let stageScale = 1;
+
+function viewportSize(){
+  const vv = window.visualViewport;
+  return {
+    width: vv ? vv.width : window.innerWidth,
+    height: vv ? vv.height : window.innerHeight
+  };
 }
-window.addEventListener("resize", resizeStage);
-window.addEventListener("orientationchange", resizeStage);
-resizeStage();
+
+function resizeStage(){
+  const stage = $("#stage");
+  const {width, height} = viewportSize();
+  const baseW = stage.offsetWidth || STAGE_W;
+  const baseH = stage.offsetHeight || 900;
+
+  // 가로 화면에서 사용 가능한 브라우저 영역을 최대한 채우되 잘리지 않게 맞춤
+  stageScale = Math.min(width / baseW, height / baseH);
+  stage.style.transform = `scale(${stageScale})`;
+}
+window.addEventListener("resize", resizeStage, {passive:true});
+window.addEventListener("orientationchange", () => setTimeout(resizeStage, 120), {passive:true});
+window.visualViewport?.addEventListener("resize", resizeStage, {passive:true});
+window.visualViewport?.addEventListener("scroll", resizeStage, {passive:true});
+requestAnimationFrame(resizeStage);
 
 function won(v){ return v.toLocaleString("ko-KR") + "원"; }
 function formatTime(v){
@@ -253,13 +270,24 @@ function payloadFor(el){
   }
   return null;
 }
+function pointerClient(e){
+  // PointerEvent 좌표는 실제 브라우저 표시 영역 기준으로 사용한다.
+  // dragGhost는 transform 된 stage 밖에 있으므로 별도 배율 보정이 필요 없다.
+  return {x:e.clientX, y:e.clientY};
+}
 function moveGhost(e){
   const g = $("#dragGhost");
-  g.style.left = `${e.clientX}px`;
-  g.style.top = `${e.clientY}px`;
+  const p = pointerClient(e);
+  const lift = e.pointerType === "touch" ? 54 : 18;
+  g.style.left = `${p.x}px`;
+  g.style.top = `${p.y - lift}px`;
 }
 function clearOver(){
   document.querySelectorAll(".drop-over").forEach(el => el.classList.remove("drop-over"));
+}
+function targetAtPointer(e){
+  const p = pointerClient(e);
+  return document.elementFromPoint(p.x, p.y);
 }
 function startDrag(e, el){
   if (e.pointerType === "mouse" && e.button !== 0) return;
@@ -279,7 +307,7 @@ function moveDrag(e){
   e.preventDefault();
   moveGhost(e);
   clearOver();
-  const target = document.elementFromPoint(e.clientX, e.clientY);
+  const target = targetAtPointer(e);
   if (drag.payload.type === "ingredient"){
     target?.closest("#pot")?.classList.add("drop-over");
   } else {
@@ -289,7 +317,7 @@ function moveDrag(e){
 function endDrag(e){
   if (!drag || e.pointerId !== drag.id) return;
   e.preventDefault();
-  const target = document.elementFromPoint(e.clientX, e.clientY);
+  const target = targetAtPointer(e);
 
   if (drag.payload.type === "ingredient"){
     if (target?.closest("#pot")){
@@ -338,3 +366,8 @@ $("#resumeButton").addEventListener("click", () => {
 renderHud();
 renderPot();
 })();
+
+document.addEventListener("contextmenu", e => {
+  if (e.target.closest(".ingredient,#pot")) e.preventDefault();
+});
+document.addEventListener("dragstart", e => e.preventDefault());
