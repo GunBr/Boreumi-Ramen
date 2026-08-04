@@ -297,9 +297,11 @@ function startDrag(e, el){
   e.preventDefault();
   el.setPointerCapture?.(e.pointerId);
   drag = { id: e.pointerId, payload };
-  $("#dragGhost img").src = payload.image;
-  $("#dragGhost span").textContent = payload.label;
-  $("#dragGhost").classList.add("show");
+  const ghost = $("#dragGhost");
+  ghost.querySelector("img").src = payload.image;
+  ghost.querySelector("span").textContent = payload.label;
+  ghost.classList.toggle("pot-drag", payload.type === "pot");
+  ghost.classList.add("show");
   moveGhost(e);
 }
 function moveDrag(e){
@@ -329,7 +331,8 @@ function endDrag(e){
     target?.closest("#orderBubble") ? serve() : toast("완성된 라면을 주문 말풍선에 놓아주세요.");
   }
 
-  $("#dragGhost").classList.remove("show");
+  const ghost = $("#dragGhost");
+  ghost.classList.remove("show","pot-drag");
   clearOver();
   drag = null;
 }

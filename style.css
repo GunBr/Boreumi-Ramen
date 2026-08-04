@@ -116,3 +116,40 @@ linear-gradient(90deg,#07111e 0 5%,#111b29 5% 10%,#07111e 10% 14%,#111b29 14% 20
 /* 드래그 중 브라우저 스크롤/선택 방지 */
 .ingredient,#pot,#orderBubble{touch-action:none;-webkit-user-select:none;user-select:none}
 .drag-ghost{will-change:left,top,transform}
+
+
+/* V0.11.1: 모바일 드래그 미리보기 축소 */
+.drag-ghost{
+  gap:5px;
+  padding:5px 7px;
+  border-width:2px;
+  border-radius:12px;
+  font-size:12px;
+  background:rgba(255,241,210,.94);
+}
+.drag-ghost img{
+  width:42px;
+  height:42px;
+}
+.drag-ghost.pot-drag{
+  padding:3px;
+  background:rgba(255,241,210,.88);
+}
+.drag-ghost.pot-drag img{
+  width:68px;
+  height:50px;
+}
+.drag-ghost.pot-drag span{
+  display:none;
+}
+
+@media (orientation:landscape) and (max-height:500px){
+  .drag-ghost img{
+    width:34px;
+    height:34px;
+  }
+  .drag-ghost.pot-drag img{
+    width:58px;
+    height:42px;
+  }
+}
