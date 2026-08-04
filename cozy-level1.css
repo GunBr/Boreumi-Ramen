@@ -75,7 +75,8 @@
 #stage[data-stall-level="1"] .guest-seat{
   width:145px;
   height:128px;
-  bottom:52px;
+  /* Sink the backrest into the counter instead of ending above its top edge. */
+  bottom:-12px;
   overflow:hidden;
   background-size:145px auto;
   background-position:center top;

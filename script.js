@@ -473,6 +473,16 @@
     const toppingPayload = payload(topping);
     showGhost(toppingPayload);
     result.ingredientDragArt = !!payload($("[data-item='noodle']")).image && !!toppingPayload.image;
+    const ingredientArtV4 = {
+      noodle: "ingredient-noodle-v4.png",
+      egg: "ingredient-egg-v4.png",
+      dumpling: "ingredient-dumpling-v4.png",
+      oden: "ingredient-oden-v4.png"
+    };
+    result.ingredientArtV4 = Object.entries(ingredientArtV4).every(([item, file]) => {
+      const image = $(`[data-item="${item}"] img`);
+      return image?.src.endsWith(file) && image.complete && image.naturalWidth === 512 && image.naturalHeight === 512;
+    });
     result.ingredientGhostIllustration = $("#dragGhost").classList.contains("show")
       && $("#dragGhost img").src === toppingPayload.image
       && !$("#dragGhost span").textContent;
