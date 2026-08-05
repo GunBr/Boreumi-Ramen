@@ -488,6 +488,155 @@
   25%{transform:translateX(calc(-50% - 9px)) rotate(-2deg)}
   75%{transform:translateX(calc(-50% + 9px)) rotate(2deg)}
 }
+
+/* V0.15: 경영 루프의 보유 골드와 포차 레벨을 플레이 화면에서도 확인한다. */
+#stage[data-stall-level="1"] .wallet-badge{
+  position:absolute;
+  z-index:72;
+  top:127px;
+  right:max(24px,calc((100% - 1920px)/2 + 24px));
+  width:250px;
+  height:54px;
+  padding:7px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  border:4px solid #69371f;
+  border-radius:14px;
+  background:linear-gradient(180deg,#f6d99d,#dba85f 72%,#b87538);
+  box-shadow:inset 0 0 0 2px #fff0c58f,0 7px 12px #1809068f;
+  color:#5b2819;
+  font-size:17px;
+  font-weight:900;
+  text-shadow:0 1px #fff0c5;
+}
+#stage[data-stall-level="1"] .wallet-badge span+span{padding-left:14px;border-left:2px solid #8a4a2866}
+#stage[data-stall-level="1"] .wallet-badge b{color:#7f251c;font-size:19px;font-variant-numeric:tabular-nums}
+
+/* V0.15: 영업 정산과 업그레이드 상점. */
+#stage[data-stall-level="1"] .management-overlay{
+  position:absolute;
+  z-index:320;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding:62px 90px;
+  background:radial-gradient(circle at 50% 42%,#3f1e15b8,#100706eb 72%);
+  backdrop-filter:blur(4px);
+}
+#stage[data-stall-level="1"] .management-overlay.hidden{display:none}
+#stage[data-stall-level="1"] .management-panel{
+  width:1540px;
+  height:900px;
+  padding:34px 42px 30px;
+  display:grid;
+  grid-template-rows:106px 1fr 82px;
+  color:#542719;
+  border:10px solid #5f2b1b;
+  border-radius:30px;
+  background:radial-gradient(circle at 18% 12%,#fff5d9a8,transparent 34%),radial-gradient(circle at 82% 86%,#b7713330,transparent 38%),linear-gradient(180deg,#f8e8c2,#e7c287 58%,#d5a567);
+  box-shadow:0 26px 70px #070302e6,inset 0 0 0 4px #c985428f,inset 0 0 0 8px #ffeab68f,inset 0 -24px 38px #8d4b2630;
+  text-align:left;
+}
+#stage[data-stall-level="1"] .management-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px 20px;
+  border-bottom:3px solid #99502b55;
+}
+#stage[data-stall-level="1"] .management-heading small,
+#stage[data-stall-level="1"] .shop-heading small{display:block;color:#9a5630;font-size:17px;font-weight:900}
+#stage[data-stall-level="1"] .management-heading h2{margin:3px 0 0;color:#5d2419;font-size:42px;line-height:1}
+#stage[data-stall-level="1"] #settlementResult{
+  margin:0;
+  padding:13px 30px;
+  border:4px solid #8d4528;
+  border-radius:999px;
+  background:linear-gradient(#fff0b9,#e9ba62);
+  box-shadow:0 6px 12px #5a251858;
+  color:#a32d22;
+  font-size:27px;
+  font-weight:1000;
+}
+#stage[data-stall-level="1"] #settlementResult.failed{background:linear-gradient(#efe0c7,#cda87b);color:#7e4932}
+#stage[data-stall-level="1"] .management-body{min-height:0;display:grid;grid-template-columns:540px 1fr;gap:34px;padding:24px 10px}
+#stage[data-stall-level="1"] .settlement-column{display:grid;grid-template-rows:auto auto 62px;gap:18px}
+#stage[data-stall-level="1"] .summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+#stage[data-stall-level="1"] .summary-grid article{
+  min-height:74px;
+  padding:12px 16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border:2px solid #a66b4175;
+  border-radius:15px;
+  background:#fff4d7b8;
+  box-shadow:inset 0 -5px 9px #a8612720;
+}
+#stage[data-stall-level="1"] .summary-grid small{color:#8d5938;font-size:15px;font-weight:900}
+#stage[data-stall-level="1"] .summary-grid b{color:#64281b;font-size:24px;font-variant-numeric:tabular-nums}
+#stage[data-stall-level="1"] .reward-board{
+  padding:15px 22px 13px;
+  border:3px solid #8e4a2c;
+  border-radius:18px;
+  background:linear-gradient(150deg,#6b321f,#3c1b14);
+  color:#ffe8b7;
+  box-shadow:inset 0 0 0 2px #eab96744,0 7px 12px #4a1a1150;
+}
+#stage[data-stall-level="1"] .reward-board h3{margin:0 0 8px;color:#ffe19a;font-size:21px}
+#stage[data-stall-level="1"] .reward-board p,
+#stage[data-stall-level="1"] .reward-board strong{margin:4px 0;display:flex;justify-content:space-between;align-items:center;font-size:17px}
+#stage[data-stall-level="1"] .reward-board p b{color:#fff4cb;font-variant-numeric:tabular-nums}
+#stage[data-stall-level="1"] .reward-board strong{margin-top:9px;padding-top:9px;border-top:2px solid #f1c36f55;color:#ffd970;font-size:21px}
+#stage[data-stall-level="1"] .growth-board{display:grid;grid-template-columns:112px 1fr 150px;align-items:center;gap:12px;padding:8px 14px;border-radius:14px;background:#ad6d3b35;font-weight:900}
+#stage[data-stall-level="1"] .growth-board i{height:13px;border:2px solid #70402a;border-radius:10px;background:#6c351d55;overflow:hidden}
+#stage[data-stall-level="1"] .growth-board em{display:block;width:0;height:100%;background:linear-gradient(90deg,#e4903f,#ffd570)}
+#stage[data-stall-level="1"] .growth-board small{text-align:right;color:#865033;font-weight:900}
+#stage[data-stall-level="1"] .upgrade-column{min-width:0;padding-left:32px;border-left:3px solid #99502b4a}
+#stage[data-stall-level="1"] .shop-heading{height:66px;display:flex;align-items:flex-start;justify-content:space-between}
+#stage[data-stall-level="1"] .shop-heading h3{margin:2px 0 0;color:#5c261a;font-size:30px}
+#stage[data-stall-level="1"] .shop-heading p{margin:5px 0 0;padding:8px 15px;border-radius:999px;background:#6b321f;color:#ffe4a7;font-size:18px;font-weight:900}
+#stage[data-stall-level="1"] .shop-heading p b{color:#ffdb6e;font-variant-numeric:tabular-nums}
+#stage[data-stall-level="1"] .upgrade-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+#stage[data-stall-level="1"] .upgrade-card{
+  min-width:0;
+  min-height:218px;
+  padding:17px 18px 15px;
+  display:grid;
+  grid-template-rows:auto auto 1fr auto;
+  border:3px solid #a15e3688;
+  border-radius:20px;
+  background:linear-gradient(160deg,#fff3d5,#eac78e);
+  box-shadow:inset 0 -8px 14px #9f5a2820,0 6px 10px #60291b2f;
+}
+#stage[data-stall-level="1"] .upgrade-card header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#stage[data-stall-level="1"] .upgrade-card h4{margin:0;color:#622719;font-size:23px}
+#stage[data-stall-level="1"] .upgrade-level{padding:4px 9px;border-radius:999px;background:#8a4a2b;color:#ffe9bb;font-size:14px;font-weight:900;white-space:nowrap}
+#stage[data-stall-level="1"] .upgrade-card>small{margin-top:5px;color:#9a5c3a;font-weight:900}
+#stage[data-stall-level="1"] .upgrade-card p{margin:11px 0 8px;color:#6e402b;font-size:16px;line-height:1.35;font-weight:750}
+#stage[data-stall-level="1"] .upgrade-card button,
+#stage[data-stall-level="1"] .management-actions button{
+  border:3px solid #6d301e;
+  border-radius:13px;
+  background:linear-gradient(#efb35d,#c86e32);
+  color:#5a2117;
+  box-shadow:inset 0 2px #ffe6a9,0 4px 7px #4d1b124d;
+  font-weight:1000;
+  cursor:pointer;
+}
+#stage[data-stall-level="1"] .upgrade-card button{height:46px;font-size:17px}
+#stage[data-stall-level="1"] .upgrade-card button:disabled{cursor:default;filter:grayscale(.55);opacity:.58}
+#stage[data-stall-level="1"] .upgrade-card button:not(:disabled):active{transform:translateY(2px);filter:brightness(.96)}
+#stage[data-stall-level="1"] .management-actions{display:flex;align-items:center;justify-content:space-between;padding:12px 12px 0;border-top:3px solid #99502b55}
+#stage[data-stall-level="1"] .management-actions button{height:54px;padding:0 25px;font-size:18px}
+#stage[data-stall-level="1"] #resetProgressButton{background:linear-gradient(#ead6b7,#bf9270);color:#623b2c}
+#stage[data-stall-level="1"] #resetProgressButton.armed{background:linear-gradient(#e78867,#b64030);color:#fff2db}
+#stage[data-stall-level="1"] #nextDayButton{min-width:250px;background:linear-gradient(#ffd06b,#df8538);font-size:21px}
+#stage[data-stall-level="1"] #nextDayButton:active{transform:translateY(2px)}
+
 #stage[data-stall-level="1"] .rack-page{
   position:absolute;
   z-index:8;

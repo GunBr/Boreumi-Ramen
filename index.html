@@ -1,7 +1,8 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#180c09"><title>보름이의 라면포차 V0.14</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="character-layout.css"></head>
-<body><style>.guest-slot>img{width:76px;height:185px;max-width:none;object-fit:cover;object-position:left center}</style><link rel="stylesheet" href="art-v012.css?v=0813f"><link rel="stylesheet" href="environment-v012.css"><link rel="stylesheet" href="resolution-v012.css?v=0805m"><link rel="stylesheet" href="cozy-level1.css?v=0814a"><div id="viewport"><main id="stage" data-stall-level="1">
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#180c09"><title>보름이의 라면포차 V0.15</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="character-layout.css"></head>
+<body><style>.guest-slot>img{width:76px;height:185px;max-width:none;object-fit:cover;object-position:left center}</style><link rel="stylesheet" href="art-v012.css?v=0813f"><link rel="stylesheet" href="environment-v012.css"><link rel="stylesheet" href="resolution-v012.css?v=0805m"><link rel="stylesheet" href="cozy-level1.css?v=0815a"><div id="viewport"><main id="stage" data-stall-level="1">
   <div class="night"><i class="moon"></i><i class="stars"></i><i class="city"></i></div><div class="stall"><i class="roof"></i><i class="lamps"></i><i class="backwall"></i><i class="service-floor"></i><i class="service-table"></i><i class="table-decor decor-left"></i><i class="table-decor decor-right"></i><i class="counter"></i></div>
-  <header class="hud"><div><small>DAY</small><b>1</b></div><div><small>목표 금액</small><b>10,000원</b></div><div class="clock"><small>남은 시간</small><b id="time">01:30</b><i><span id="timeFill"></span></i></div><div><small>현재 매출</small><b id="sales">0원</b></div><div><small>오늘 손님</small><b id="guestCount">0명</b></div><button id="startButton" class="start" aria-label="영업 시작"><strong>영업 시작</strong></button><button id="pauseButton" aria-label="일시정지">Ⅱ</button></header>
+  <header class="hud"><div><small>DAY</small><b id="dayNumber">1</b></div><div><small>목표 금액</small><b id="goalAmount">10,000원</b></div><div class="clock"><small>남은 시간</small><b id="time">01:30</b><i><span id="timeFill"></span></i></div><div><small>현재 매출</small><b id="sales">0원</b></div><div><small>오늘 손님</small><b id="guestCount">0명</b></div><button id="startButton" class="start" aria-label="영업 시작"><strong>영업 시작</strong></button><button id="pauseButton" aria-label="일시정지">Ⅱ</button></header>
+  <aside id="walletBadge" class="wallet-badge" aria-label="포장마차 성장 정보"><span>포차 LV.<b id="stallLevel">1</b></span><span>보유 <b id="walletGold">0원</b></span></aside>
   <aside class="sign"><small>보름이의</small><strong>라면<br>포차</strong></aside>
   <section id="guestRow" class="guest-row"></section>
   <section class="characters"><div id="boreumi" class="boreumi-sprite" data-mode="idle" data-pose="idle" role="img" aria-label="라면포차 주인 보름이"></div><div id="boreumiText"></div></section>
@@ -10,5 +11,35 @@
   <button id="discardBin" class="discard-bin" type="button" aria-label="완성 음식 또는 탄 음식 버리기"><span aria-hidden="true"><i></i></span><strong>버리기</strong></button>
   <section class="dock" aria-label="라면 재료, 주류와 안주 진열대"></section>
   <div id="toast"></div>
+  <div id="settlementOverlay" class="management-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settlementTitle">
+    <section class="management-panel">
+      <header class="management-heading"><div><small>보름이의 영업일지</small><h2 id="settlementTitle">DAY <span id="settlementDay">1</span> 정산</h2></div><p id="settlementResult">목표 달성!</p></header>
+      <div class="management-body">
+        <section class="settlement-column" aria-label="영업 정산 결과">
+          <div class="summary-grid">
+            <article><small>목표 금액</small><b id="summaryGoal">0원</b></article>
+            <article><small>오늘 매출</small><b id="summarySales">0원</b></article>
+            <article><small>완료 주문</small><b id="summaryServed">0건</b></article>
+            <article><small>놓친 손님</small><b id="summaryMissed">0명</b></article>
+            <article><small>폐기 음식</small><b id="summaryWaste">0개</b></article>
+            <article><small>만족도</small><b id="summaryRating">-</b></article>
+          </div>
+          <div class="reward-board">
+            <h3>오늘의 보상</h3>
+            <p><span>매출 정산</span><b id="rewardSales">+0원</b></p>
+            <p><span>목표 달성 보너스</span><b id="rewardGoal">+0원</b></p>
+            <p><span>친절 보너스</span><b id="rewardService">+0원</b></p>
+            <strong><span>총 획득 골드</span><b id="rewardTotal">+0원</b></strong>
+          </div>
+          <div class="growth-board"><span>포차 LV.<b id="summaryStallLevel">1</b></span><i><em id="growthFill"></em></i><small id="growthText">다음 확장 준비 중</small></div>
+        </section>
+        <section class="upgrade-column" aria-label="업그레이드 상점">
+          <div class="shop-heading"><div><small>다음 영업 준비</small><h3>포차 업그레이드</h3></div><p>보유 골드 <b id="shopGold">0원</b></p></div>
+          <div id="upgradeList" class="upgrade-list"></div>
+        </section>
+      </div>
+      <footer class="management-actions"><button id="resetProgressButton" type="button">진행 초기화</button><button id="nextDayButton" type="button">다음 날 영업 시작</button></footer>
+    </section>
+  </div>
   <div id="pauseOverlay" class="overlay hidden"><div><h2>일시정지</h2><button id="resumeButton">계속하기</button></div></div>
-</main></div><div id="dragGhost" aria-hidden="true"><img alt="드래그 중인 재료"><span></span></div><div class="rotate">가로 모드로 돌려주세요</div><script src="script.js?v=0814a"></script></body></html>
+</main></div><div id="dragGhost" aria-hidden="true"><img alt="드래그 중인 재료"><span></span></div><div class="rotate">가로 모드로 돌려주세요</div><script src="script.js?v=0815a"></script></body></html>
