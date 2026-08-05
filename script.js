@@ -23,7 +23,7 @@
     boreumi: { idleWidth: 300, cookingWidth: 300, servingWidth: 360, idleOffset: -210 },
     daySeconds: 90,
     cooking: { tickMs: 50, defaultBurnMs: 3400 },
-    prices: { pot: 3500, grill: 2200, oden: 1800 },
+    guests: { tickMs: 100, patienceMs: 16000, wrongPenaltyMs: 2500 },
     firstArrivals: [700, 4500, 8500]
   };
 
@@ -41,6 +41,7 @@
       appliance: "pot",
       ingredients: Object.freeze(["noodle"]),
       cookMs: 4200,
+      burns: true,
       burnMs: Config.cooking.defaultBurnMs,
       sprite: "ramen-plain",
       art: FoodArt.pot
@@ -51,6 +52,7 @@
       appliance: "pot",
       ingredients: Object.freeze(["noodle", "egg"]),
       cookMs: 4200,
+      burns: true,
       burnMs: Config.cooking.defaultBurnMs,
       sprite: "ramen-egg",
       art: FoodArt.potEgg
@@ -61,6 +63,7 @@
       appliance: "grill",
       ingredients: Object.freeze(["dumpling"]),
       cookMs: 3600,
+      burns: true,
       burnMs: Config.cooking.defaultBurnMs,
       sprite: "dumpling",
       art: FoodArt.grill
@@ -71,11 +74,38 @@
       appliance: "oden",
       ingredients: Object.freeze(["oden"]),
       cookMs: 3000,
-      burnMs: Config.cooking.defaultBurnMs,
-      sprite: "oden-food",
+      burns: false,
+      burnMs: 0,
+      sprite: "oden-warm",
       art: FoodArt.oden
     })
   });
+
+  const MenuCatalog = Object.freeze({
+    ramen_plain: Object.freeze({ id: "ramen_plain", kind: "food", label: "기본 라면", art: FoodArt.pot, price: 3500 }),
+    ramen_egg: Object.freeze({ id: "ramen_egg", kind: "food", label: "계란 라면", art: FoodArt.potEgg, price: 4000 }),
+    grilled_dumpling: Object.freeze({ id: "grilled_dumpling", kind: "food", label: "군만두", art: FoodArt.grill, price: 2200 }),
+    warm_oden: Object.freeze({ id: "warm_oden", kind: "food", label: "오뎅", art: FoodArt.oden, price: 1800 }),
+    soju: Object.freeze({ id: "soju", kind: "drink", label: "소주", art: "assets/art-v012/drink-soju-v1.png", price: 1500 }),
+    beer: Object.freeze({ id: "beer", kind: "drink", label: "맥주", art: "assets/art-v012/drink-beer-v1.png", price: 2000 }),
+    somaek: Object.freeze({ id: "somaek", kind: "drink", label: "소맥", art: "assets/art-v012/drink-somaek-v1.png", price: 2500 }),
+    makgeolli: Object.freeze({ id: "makgeolli", kind: "drink", label: "막걸리", art: "assets/art-v012/drink-makgeolli-v1.png", price: 2000 })
+  });
+
+  const OrderTemplates = Object.freeze({
+    ramen_soju: Object.freeze({ id: "ramen_soju", items: Object.freeze(["ramen_plain", "soju"]) }),
+    ramen_somaek: Object.freeze({ id: "ramen_somaek", items: Object.freeze(["ramen_plain", "somaek"]) }),
+    egg_beer: Object.freeze({ id: "egg_beer", items: Object.freeze(["ramen_egg", "beer"]) }),
+    dumpling_beer: Object.freeze({ id: "dumpling_beer", items: Object.freeze(["grilled_dumpling", "beer"]) }),
+    oden_soju: Object.freeze({ id: "oden_soju", items: Object.freeze(["warm_oden", "soju"]) }),
+    oden_makgeolli: Object.freeze({ id: "oden_makgeolli", items: Object.freeze(["warm_oden", "makgeolli"]) })
+  });
+
+  const GuestOrderRotations = Object.freeze([
+    Object.freeze(["ramen_soju", "ramen_somaek", "egg_beer"]),
+    Object.freeze(["dumpling_beer", "egg_beer", "ramen_soju"]),
+    Object.freeze(["oden_makgeolli", "oden_soju", "ramen_somaek"])
+  ]);
 
   const IngredientRules = Object.freeze({
     noodle: Object.freeze({ appliance: "pot", mode: "base" }),
@@ -99,10 +129,10 @@
       label: "주류",
       className: "drink-rack",
       items: [
-        { id: "soju", label: "소주", art: "assets/art-v012/drink-soju-v1.png" },
-        { id: "beer", label: "맥주", art: "assets/art-v012/drink-beer-v1.png" },
-        { id: "somaek", label: "소맥", art: "assets/art-v012/drink-somaek-v1.png" },
-        { id: "makgeolli", label: "막걸리", art: "assets/art-v012/drink-makgeolli-v1.png" }
+        { id: "soju", label: "소주", art: "assets/art-v012/drink-soju-v1.png", draggable: true, kind: "drink" },
+        { id: "beer", label: "맥주", art: "assets/art-v012/drink-beer-v1.png", draggable: true, kind: "drink" },
+        { id: "somaek", label: "소맥", art: "assets/art-v012/drink-somaek-v1.png", draggable: true, kind: "drink" },
+        { id: "makgeolli", label: "막걸리", art: "assets/art-v012/drink-makgeolli-v1.png", draggable: true, kind: "drink" }
       ]
     },
     {
@@ -128,9 +158,13 @@
     dayTimer: null,
     cookingTimer: null,
     cookingClock: performance.now(),
+    patienceTimer: null,
+    guestClock: performance.now(),
     guestTimers: [],
     boreumiTimer: null,
-    waste: 0
+    waste: 0,
+    served: 0,
+    missed: 0
   };
 
   const Appliances = [
@@ -139,7 +173,16 @@
     { id: "oden-0", type: "oden", slot: 0, state: "empty", item: null, ingredients: [], recipeId: null, cookRemaining: 0, burnRemaining: 0 }
   ];
 
-  const Guests = ["pot", "grill", "oden"].map((order, index) => ({ index, order, active: false, serving: false }));
+  const Guests = Array.from({ length: Config.layout.currentGuestCapacity }, (_, index) => ({
+    index,
+    active: false,
+    serving: false,
+    order: null,
+    patience: 0,
+    maxPatience: Config.guests.patienceMs,
+    satisfaction: "waiting",
+    visits: 0
+  }));
 
   function assetUrl(path) {
     return new URL(path, document.baseURI).href;
@@ -171,7 +214,7 @@
     const items = rack.querySelector(".rack-items");
     items.style.setProperty("--page-columns", Math.max(2, visibleItems.length));
     items.innerHTML = visibleItems.map(item => item.draggable
-      ? `<button class="ingredient catalog-item" data-item="${item.id}" aria-label="${item.label}"><img src="${item.art}" alt=""><span class="item-name">${item.label}</span></button>`
+      ? `<button class="ingredient catalog-item${item.kind === "drink" ? " drink-item" : ""}" data-item="${item.id}" data-kind="${item.kind || "ingredient"}" aria-label="${item.label}"><img src="${item.art}" alt=""><span class="item-name">${item.label}</span></button>`
       : `<div class="drink-item catalog-item" role="img" aria-label="${item.label}"><img src="${item.art}" alt=""><span class="item-name">${item.label}</span></div>`).join("");
     const prev = rack.querySelector(".rack-prev");
     const next = rack.querySelector(".rack-next");
@@ -225,7 +268,7 @@
     const row = $("#guestRow");
     Guests.forEach(guest => {
       const name = guest.index === 0 ? "회사원" : guest.index === 1 ? "배달기사" : "학생";
-      row.insertAdjacentHTML("beforeend", `<article class="guest-slot" data-guest="${guest.index}"><div class="bubble"><img src="${FoodArt[guest.order]}" alt="주문 음식"></div><div class="guest-seat" role="img" aria-label="빈 의자"></div><div class="guest-art customer-${guest.index}" role="img" aria-label="${name}"></div><div class="patience"><i></i></div></article>`);
+      row.insertAdjacentHTML("beforeend", `<article class="guest-slot" data-guest="${guest.index}"><div class="bubble" aria-label="주문"><div class="order-items"></div><span class="satisfaction" aria-hidden="true"></span></div><div class="guest-seat" role="img" aria-label="빈 의자"></div><div class="guest-art customer-${guest.index}" role="img" aria-label="${name}"></div><div class="patience" aria-label="손님 인내심"><i></i></div></article>`);
     });
 
     renderAll();
@@ -295,7 +338,7 @@
     const recipe = recipeFor(appliance);
     let progress = 0;
     if (appliance.state === "cooking" && recipe) progress = 1 - appliance.cookRemaining / recipe.cookMs;
-    if (appliance.state === "ready" && recipe) progress = appliance.burnRemaining / recipe.burnMs;
+    if (appliance.state === "ready" && recipe) progress = recipe.burns ? appliance.burnRemaining / recipe.burnMs : 1;
     if (appliance.state === "burnt") progress = 1;
     bar.style.transition = "none";
     bar.style.width = `${Math.max(0, Math.min(1, progress)) * 100}%`;
@@ -307,6 +350,7 @@
     element.classList.toggle("ready", appliance.state === "ready");
     element.classList.toggle("cooking", appliance.state === "cooking");
     element.classList.toggle("burnt", appliance.state === "burnt");
+    element.classList.toggle("keeps-warm", appliance.state === "ready" && recipeFor(appliance)?.burns === false);
     element.dataset.state = appliance.state;
     element.dataset.recipe = appliance.recipeId || "";
     element.setAttribute("aria-label", `${appliance.type === "pot" ? `냄비 ${appliance.slot + 1}` : appliance.type === "grill" ? `그릴 ${appliance.slot + 1}` : "오뎅바"} · ${applianceStateLabel(appliance)}`);
@@ -319,11 +363,51 @@
     renderHud();
   }
 
+  function createOrder(templateId) {
+    const template = OrderTemplates[templateId];
+    return {
+      id: template.id,
+      items: template.items.map(id => ({ id, fulfilled: false }))
+    };
+  }
+
+  function assignOrder(guest) {
+    const rotation = GuestOrderRotations[guest.index];
+    const templateId = rotation[guest.visits % rotation.length];
+    guest.visits += 1;
+    guest.order = createOrder(templateId);
+  }
+
+  function pendingItems(guest) {
+    return guest.order?.items.filter(item => !item.fulfilled) || [];
+  }
+
+  function renderPatience(guest) {
+    const slot = $(`[data-guest="${guest.index}"]`);
+    if (!slot) return;
+    const ratio = guest.maxPatience ? Math.max(0, Math.min(1, guest.patience / guest.maxPatience)) : 0;
+    slot.querySelector(".patience i").style.width = `${ratio * 100}%`;
+    slot.classList.toggle("low-patience", guest.active && ratio <= .3);
+    slot.querySelector(".patience").setAttribute("aria-label", `손님 인내심 ${Math.round(ratio * 100)}%`);
+  }
+
   function renderGuest(guest) {
     const slot = $(`[data-guest="${guest.index}"]`);
     slot.classList.toggle("active", guest.active);
     slot.classList.toggle("serving", guest.serving);
-    slot.querySelector(".bubble img").src = FoodArt[guest.order];
+    slot.dataset.satisfaction = guest.satisfaction;
+    slot.classList.toggle("satisfied", ["happy", "okay", "tired"].includes(guest.satisfaction));
+    slot.classList.toggle("angry", guest.satisfaction === "angry");
+    const items = slot.querySelector(".order-items");
+    const orderItems = guest.order?.items || [];
+    items.innerHTML = orderItems.map((orderItem, index) => {
+      const menuItem = MenuCatalog[orderItem.id];
+      const itemHtml = `<span class="order-item${orderItem.fulfilled ? " fulfilled" : ""}" data-order-item="${orderItem.id}" aria-label="${menuItem.label}${orderItem.fulfilled ? " 전달 완료" : " 대기"}"><img src="${menuItem.art}" alt="${menuItem.label}"></span>`;
+      return index < orderItems.length - 1 ? `${itemHtml}<b class="order-plus" aria-hidden="true">+</b>` : itemHtml;
+    }).join("");
+    const satisfaction = slot.querySelector(".satisfaction");
+    satisfaction.textContent = guest.satisfaction === "happy" ? "♥" : guest.satisfaction === "okay" ? "✓" : guest.satisfaction === "tired" ? "…" : guest.satisfaction === "angry" ? "!" : "";
+    renderPatience(guest);
   }
 
   function clearGuestTimers() {
@@ -340,6 +424,10 @@
     const guest = Guests[index];
     if (!State.running || guest.active) return;
     guest.active = true;
+    guest.serving = false;
+    guest.satisfaction = "waiting";
+    guest.patience = guest.maxPatience;
+    assignOrder(guest);
     State.guests += 1;
     renderHud();
     renderGuest(guest);
@@ -353,8 +441,36 @@
     const guest = Guests[index];
     guest.active = false;
     guest.serving = false;
+    guest.order = null;
+    guest.patience = 0;
+    guest.satisfaction = "waiting";
     renderGuest(guest);
     if (State.running) scheduleGuest(index, 2800 + index * 450);
+  }
+
+  function expireGuest(guest) {
+    if (!guest.active || guest.serving) return;
+    guest.patience = 0;
+    guest.serving = true;
+    guest.satisfaction = "angry";
+    State.missed += 1;
+    renderGuest(guest);
+    toast(`${guest.index + 1}번 손님이 기다리다 떠나요.`);
+    const leaveTimer = setTimeout(() => dismissGuest(guest.index), 720);
+    State.guestTimers.push(leaveTimer);
+  }
+
+  function tickGuests() {
+    const now = performance.now();
+    const elapsed = Math.min(250, Math.max(0, now - State.guestClock));
+    State.guestClock = now;
+    if (!State.running || State.paused) return;
+    Guests.forEach(guest => {
+      if (!guest.active || guest.serving) return;
+      guest.patience = Math.max(0, guest.patience - elapsed);
+      if (guest.patience <= 0) expireGuest(guest);
+      else renderPatience(guest);
+    });
   }
 
   function resetGuests() {
@@ -362,6 +478,10 @@
     Guests.forEach(guest => {
       guest.active = false;
       guest.serving = false;
+      guest.order = null;
+      guest.patience = 0;
+      guest.satisfaction = "waiting";
+      guest.visits = 0;
       renderGuest(guest);
     });
   }
@@ -440,13 +560,14 @@
     if (appliance.state !== "cooking") return;
     appliance.state = "ready";
     appliance.cookRemaining = 0;
-    appliance.burnRemaining = recipeFor(appliance).burnMs;
+    appliance.burnRemaining = recipeFor(appliance).burns ? recipeFor(appliance).burnMs : 0;
     renderAppliance(appliance);
     toast(`${recipeFor(appliance).label} 완성!`);
   }
 
   function burnFood(appliance) {
     if (appliance.state !== "ready") return;
+    if (recipeFor(appliance)?.burns === false) return;
     appliance.state = "burnt";
     appliance.burnRemaining = 0;
     renderAppliance(appliance);
@@ -463,7 +584,7 @@
         appliance.cookRemaining -= elapsed;
         if (appliance.cookRemaining <= 0) completeCooking(appliance);
         else renderProgress(appliance);
-      } else if (appliance.state === "ready") {
+      } else if (appliance.state === "ready" && recipeFor(appliance)?.burns !== false) {
         appliance.burnRemaining -= elapsed;
         if (appliance.burnRemaining <= 0) burnFood(appliance);
         else renderProgress(appliance);
@@ -514,25 +635,69 @@
     toast(wasBurnt ? `${label}을(를) 버렸어요.` : `${label}을(를) 폐기했어요.`);
   }
 
-  function serve(appliance, guestIndex) {
-    const guest = Guests[guestIndex];
-    if (!guest?.active) return toast("빈자리에는 서빙할 수 없어요.");
-    if (guest.serving) return toast("지금 음식을 건네고 있어요.");
-    if (appliance.state !== "ready") return toast("완성된 음식만 서빙할 수 있어요.");
-    if (guest.order !== appliance.type) return toast("손님의 주문과 다른 음식이에요.");
+  function rejectOrderItem(guest) {
+    guest.patience = Math.max(0, guest.patience - Config.guests.wrongPenaltyMs);
+    renderPatience(guest);
+    const slot = $(`[data-guest="${guest.index}"]`);
+    slot.classList.remove("wrong-order");
+    void slot.offsetWidth;
+    slot.classList.add("wrong-order");
+    setTimeout(() => slot.classList.remove("wrong-order"), 430);
+    if (guest.patience <= 0) expireGuest(guest);
+    else toast("주문과 다른 메뉴예요. 인내심이 줄었어요.");
+  }
 
+  function satisfactionFor(guest) {
+    const ratio = guest.maxPatience ? guest.patience / guest.maxPatience : 0;
+    if (ratio >= .65) return "happy";
+    if (ratio >= .3) return "okay";
+    return "tired";
+  }
+
+  function completeOrder(guest) {
+    const price = guest.order.items.reduce((sum, item) => sum + MenuCatalog[item.id].price, 0);
     guest.serving = true;
+    guest.satisfaction = satisfactionFor(guest);
+    State.sales += price;
+    State.served += 1;
     renderGuest(guest);
-    State.sales += Config.prices[appliance.type];
-    resetAppliance(appliance);
     renderHud();
     say("맛있게 드세요!");
-    teleportToGuest(guestIndex);
-    const slot = $(`[data-guest="${guestIndex}"]`);
+    const slot = $(`[data-guest="${guest.index}"]`);
     slot.animate([{ transform: "translateY(0)" }, { transform: "translateY(-8px)" }, { transform: "translateY(0)" }], { duration: 350 });
-    const leaveTimer = setTimeout(() => dismissGuest(guestIndex), 720);
+    const leaveTimer = setTimeout(() => dismissGuest(guest.index), 720);
     State.guestTimers.push(leaveTimer);
-    toast(`판매 +${money(Config.prices[appliance.type])}`);
+    toast(`주문 완료 +${money(price)}`);
+  }
+
+  function deliverOrderItem(guestIndex, itemId, appliance = null) {
+    const guest = Guests[guestIndex];
+    if (!guest?.active) return toast("빈자리에는 서빙할 수 없어요.");
+    if (guest.serving) return toast("지금 주문을 마무리하고 있어요.");
+    const orderItem = guest.order?.items.find(item => item.id === itemId && !item.fulfilled);
+    if (!orderItem) return rejectOrderItem(guest);
+
+    orderItem.fulfilled = true;
+    if (appliance) resetAppliance(appliance);
+    teleportToGuest(guestIndex);
+    renderGuest(guest);
+    const remaining = pendingItems(guest).length;
+    if (remaining) {
+      say(`${MenuCatalog[itemId].label} 먼저 드릴게요!`);
+      toast(`${MenuCatalog[itemId].label} 전달 · ${remaining}개 남았어요.`);
+    } else {
+      completeOrder(guest);
+    }
+  }
+
+  function serve(appliance, guestIndex) {
+    if (appliance.state !== "ready") return toast("완성된 음식만 서빙할 수 있어요.");
+    deliverOrderItem(guestIndex, appliance.recipeId, appliance);
+  }
+
+  function serveDrink(drinkId, guestIndex) {
+    if (MenuCatalog[drinkId]?.kind !== "drink") return toast("서빙할 수 없는 음료예요.");
+    deliverOrderItem(guestIndex, drinkId);
   }
 
   function finishDay() {
@@ -561,7 +726,10 @@
     State.sales = 0;
     State.guests = 0;
     State.waste = 0;
+    State.served = 0;
+    State.missed = 0;
     State.cookingClock = performance.now();
+    State.guestClock = performance.now();
     $(".hud").classList.add("running");
     $("#startButton").style.removeProperty("display");
     $("#startButton").disabled = true;
@@ -587,7 +755,7 @@
   function payload(element) {
     if (element.matches(".ingredient")) {
       const image = element.querySelector("img");
-      return { kind: "item", item: element.dataset.item, image: image?.src || "" };
+      return { kind: element.dataset.kind === "drink" ? "drink" : "item", item: element.dataset.item, image: image?.src || "" };
     }
     const appliance = Appliances.find(item => item.id === element.dataset.id);
     if (appliance?.state === "ready") {
@@ -642,18 +810,39 @@
     if (!data) return;
     event.preventDefault();
     try { element.setPointerCapture?.(event.pointerId); } catch { /* Synthetic QA pointers are not browser-active pointers. */ }
-    State.drag = { pointer: event.pointerId, data };
-    showGhost(data);
-    moveGhost(event);
+    const point = pointer(event);
+    const showImmediately = ["item", "drink"].includes(data.kind);
+    State.drag = {
+      pointer: event.pointerId,
+      data,
+      startX: point.x,
+      startY: point.y,
+      moved: false,
+      ghostShown: showImmediately
+    };
+    if (showImmediately) {
+      showGhost(data);
+      moveGhost(event);
+    }
   }
 
   function moveDrag(event) {
     if (State.drag?.pointer !== event.pointerId) return;
     event.preventDefault();
+    const point = pointer(event);
+    if (!State.drag.moved) {
+      State.drag.moved = Math.hypot(point.x - State.drag.startX, point.y - State.drag.startY) >= 10;
+      if (!State.drag.moved) return;
+      if (!State.drag.ghostShown) {
+        State.drag.ghostShown = true;
+        showGhost(State.drag.data);
+      }
+    }
     moveGhost(event);
     clearOver();
     const target = targetAt(event);
     if (State.drag.data.kind === "item") target?.closest(".appliance")?.classList.add("drop-over");
+    else if (State.drag.data.kind === "drink") target?.closest(".guest-slot.active")?.classList.add("drop-over");
     else {
       target?.closest("#discardBin")?.classList.add("drop-over");
       if (State.drag.data.kind === "food") target?.closest(".guest-slot.active")?.classList.add("drop-over");
@@ -665,11 +854,18 @@
     event.preventDefault();
     const target = targetAt(event);
     const data = State.drag.data;
+    const wasTap = !State.drag.moved;
 
-    if (data.kind === "item") {
+    if (["food", "waste"].includes(data.kind) && wasTap) {
+      discardAppliance(Appliances.find(item => item.id === data.id));
+    } else if (data.kind === "item") {
       const applianceElement = target?.closest(".appliance");
       if (applianceElement) dropItem(Appliances.find(item => item.id === applianceElement.dataset.id), data.item);
       else toast("재료를 조리기구에 놓아주세요.");
+    } else if (data.kind === "drink") {
+      const guestSlot = target?.closest(".guest-slot.active");
+      if (guestSlot) serveDrink(data.item, Number(guestSlot.dataset.guest));
+      else toast("주류를 손님이나 주문 말풍선에 놓아주세요.");
     } else if (target?.closest("#discardBin")) {
       discardAppliance(Appliances.find(item => item.id === data.id));
     } else if (data.kind === "food") {
@@ -725,6 +921,12 @@
       source.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, pointerId, pointerType: "mouse", button: 0, buttons: 1, ...sourcePoint }));
       document.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, cancelable: true, pointerId, pointerType: "mouse", button: 0, buttons: 1, ...targetPoint }));
       document.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, pointerId, pointerType: "mouse", button: 0, buttons: 0, ...targetPoint }));
+    };
+    const qaPointerTap = (target, pointerId) => {
+      const rect = target.getBoundingClientRect();
+      const point = { clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2 };
+      target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, pointerId, pointerType: "mouse", button: 0, buttons: 1, ...point }));
+      document.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, pointerId, pointerType: "mouse", button: 0, buttons: 0, ...point }));
     };
     result.startButtonInHud = $("#startButton").parentElement === $(".hud") && $("#startButton").nextElementSibling === $("#pauseButton");
     const startButtonStyle = getComputedStyle($("#startButton"));
@@ -895,6 +1097,14 @@
     result.resumeButton = !State.paused && $("#pauseOverlay").classList.contains("hidden");
     activateGuest(0);
     result.arrivalState = $$(".guest-slot.active").length === 1 && $$(".guest-slot:not(.active)").length === 2;
+    result.combinationOrderAssigned = Guests[0].order?.id === "ramen_soju"
+      && Guests[0].order.items.map(item => item.id).join("|") === "ramen_plain|soju"
+      && $$(`[data-guest="0"] .order-item`).length === 2
+      && $$(`[data-guest="0"] .order-plus`).length === 1;
+    result.menuCatalogIncludesDrinks = ["soju", "beer", "somaek", "makgeolli"].every(id => MenuCatalog[id]?.kind === "drink" && MenuCatalog[id].price > 0);
+    result.drinksAreDraggable = $$(".drink-rack .drink-item").every(item => item.matches("button.ingredient") && payload(item)?.kind === "drink");
+    result.patienceStartsFull = Guests[0].patience === Guests[0].maxPatience
+      && parseFloat($(`[data-guest="0"] .patience i`).style.width) === 100;
     const topping = $("[data-item='dumpling']");
     const toppingPayload = payload(topping);
     showGhost(toppingPayload);
@@ -929,7 +1139,8 @@
       && parseFloat(signStyle.borderTopWidth) === 0;
 
     result.recipeCatalog = Object.keys(RecipeCatalog).join("|") === "ramen_plain|ramen_egg|grilled_dumpling|warm_oden"
-      && Object.values(RecipeCatalog).every(recipe => recipe.cookMs > 0 && recipe.burnMs === Config.cooking.defaultBurnMs)
+      && [RecipeCatalog.ramen_plain, RecipeCatalog.ramen_egg, RecipeCatalog.grilled_dumpling].every(recipe => recipe.cookMs > 0 && recipe.burns && recipe.burnMs === Config.cooking.defaultBurnMs)
+      && RecipeCatalog.warm_oden.cookMs > 0 && !RecipeCatalog.warm_oden.burns && RecipeCatalog.warm_oden.burnMs === 0
       && RecipeCatalog.ramen_plain.ingredients.join("|") === "noodle"
       && RecipeCatalog.ramen_egg.ingredients.join("|") === "noodle|egg";
     dropItem(Appliances[2], "dumpling");
@@ -962,10 +1173,13 @@
       && Appliances[5].recipeId === "warm_oden";
 
     const remainingBeforeCookingPause = Appliances[0].cookRemaining;
+    const patienceBeforePause = Guests[0].patience;
     $("#pauseButton").click();
     await new Promise(resolve => setTimeout(resolve, 180));
     result.cookingPauses = State.paused
       && Math.abs(Appliances[0].cookRemaining - remainingBeforeCookingPause) < 1;
+    result.patiencePauses = State.paused
+      && Math.abs(Guests[0].patience - patienceBeforePause) < 1;
     $("#resumeButton").click();
     if (qaParams.has("previewCook")) {
       State.paused = true;
@@ -979,6 +1193,9 @@
     result.noEggPlainRamen = !!$(".sprite-ramen-plain") && getComputedStyle($(".sprite-ramen-plain")).backgroundImage.includes("food-ramen-no-egg-v3");
     result.eggRamenVariant = !!$(".sprite-ramen-egg") && getComputedStyle($(".sprite-ramen-egg")).backgroundImage.includes("food-ramen-v2");
     result.completeFoodArt = !!$(".sprite-dumpling") && getComputedStyle($(".sprite-dumpling")).backgroundImage.includes("food-dumpling-v2");
+    result.odenStaysInBar = !!$(".sprite-oden-warm")
+      && getComputedStyle($(".sprite-oden-warm")).backgroundImage.includes("cooking-oden-v2.png")
+      && !$(".sprite-oden-food");
     const readyPayload = payload($(`[data-id="${Appliances[0].id}"]`));
     result.sameReadyDragArt = readyPayload?.image.includes("food-ramen-no-egg-v3.png");
     showGhost(readyPayload);
@@ -989,10 +1206,26 @@
     hideGhost();
     result.customerCharacterDropTarget = $(`[data-guest="0"] .guest-art`).closest(".guest-slot.active")?.dataset.guest === "0";
     const salesBeforeWrongOrder = State.sales;
+    const patienceBeforeWrongOrder = Guests[0].patience;
     serve(Appliances[3], 0);
     result.wrongOrderRejected = Appliances[3].state === "ready"
       && Guests[0].active
-      && State.sales === salesBeforeWrongOrder;
+      && State.sales === salesBeforeWrongOrder
+      && Guests[0].patience <= patienceBeforeWrongOrder - Config.guests.wrongPenaltyMs;
+    result.wrongOrderPenaltyVisible = $(`[data-guest="0"]`).classList.contains("wrong-order")
+      && parseFloat($(`[data-guest="0"] .patience i`).style.width) < 100;
+    const wasteBeforeReadyTap = State.waste;
+    qaPointerTap($(`[data-id="${Appliances[3].id}"]`), 904);
+    result.readyTapDiscards = Appliances[3].state === "empty"
+      && State.waste === wasteBeforeReadyTap + 1
+      && !$("#dragGhost").classList.contains("show");
+
+    Appliances[5].burnRemaining = 0;
+    burnFood(Appliances[5]);
+    await new Promise(resolve => setTimeout(resolve, 160));
+    result.odenNeverBurns = Appliances[5].state === "ready"
+      && payload($(`[data-id="${Appliances[5].id}"]`))?.kind === "food"
+      && $(`[data-id="${Appliances[5].id}"]`).classList.contains("keeps-warm");
 
     Appliances[1].burnRemaining = 70;
     renderProgress(Appliances[1]);
@@ -1014,24 +1247,64 @@
     State.drag = null;
     hideGhost();
     const wasteBeforeDiscard = State.waste;
-    qaPointerDrag($(`[data-id="${Appliances[1].id}"]`), $("#discardBin"), 902);
-    result.discardPointerDrag = Appliances[1].state === "empty" && !$("#dragGhost").classList.contains("show");
+    qaPointerTap($(`[data-id="${Appliances[1].id}"]`), 905);
+    result.burntTapDiscards = Appliances[1].state === "empty" && !$("#dragGhost").classList.contains("show");
     result.discardResetsStation = Appliances[1].state === "empty"
       && Appliances[1].recipeId === null
       && Appliances[1].ingredients.length === 0
       && State.waste === wasteBeforeDiscard + 1;
     if (qaParams.has("holdReady")) await new Promise(resolve => setTimeout(resolve, 1400));
     qaPointerDrag($(`[data-id="${Appliances[0].id}"]`), $(`[data-guest="0"] .guest-art`), 903);
-    result.foodPointerDrag = Appliances[0].state === "empty" && Guests[0].serving && !$("#dragGhost").classList.contains("show");
+    result.foodPointerDrag = Appliances[0].state === "empty" && !Guests[0].serving && !$("#dragGhost").classList.contains("show");
+    result.partialOrderStays = Guests[0].active
+      && !Guests[0].serving
+      && Guests[0].order.items.find(item => item.id === "ramen_plain")?.fulfilled
+      && !Guests[0].order.items.find(item => item.id === "soju")?.fulfilled
+      && $(`[data-guest="0"] [data-order-item="ramen_plain"]`).classList.contains("fulfilled");
     result.serveBackPose = $("#boreumi").dataset.mode === "serving" && $("#boreumi").dataset.pose === "serve";
     const serveRect = $("#boreumi").getBoundingClientRect();
     const guestRowRect = $("#guestRow").getBoundingClientRect();
     const stageScale = $("#stage").getBoundingClientRect().width / Config.stage.currentWidth;
     const serveClearance = (serveRect.bottom - guestRowRect.bottom) / stageScale;
     result.serveOnFloor = parseFloat(getComputedStyle($("#boreumi")).height) >= 290 && serveClearance > 90;
+    const sojuButton = $(`.drink-item[data-item="soju"]`);
+    const sojuPayload = payload(sojuButton);
+    showGhost(sojuPayload);
+    result.drinkGhostIllustration = $("#dragGhost").classList.contains("show")
+      && $("#dragGhost img").src === sojuPayload.image
+      && !$("#dragGhost span").textContent;
+    State.drag = null;
+    hideGhost();
+    qaPointerDrag(sojuButton, $(`[data-guest="0"] .bubble`), 906);
+    result.drinkPointerServe = Guests[0].serving
+      && Guests[0].order.items.every(item => item.fulfilled)
+      && State.sales === MenuCatalog.ramen_plain.price + MenuCatalog.soju.price
+      && State.served === 1;
+    result.satisfactionAssigned = ["happy", "okay", "tired"].includes(Guests[0].satisfaction)
+      && $(`[data-guest="0"]`).classList.contains("satisfied")
+      && getComputedStyle($(`[data-guest="0"] .satisfaction`)).display === "grid";
     await new Promise(resolve => setTimeout(resolve, 850));
     result.guestLeavesAfterServe = !Guests[0].active && !$(`[data-guest="0"]`).classList.contains("active");
     result.returnsToIdle = $("#boreumi").dataset.mode === "idle" && $("#boreumi").dataset.pose === "idle";
+
+    if (!Guests[1].active) activateGuest(1);
+    if (!Guests[2].active) activateGuest(2);
+    const waitingGuestPatience = Guests[2].patience;
+    const missedBeforeTimeout = State.missed;
+    Guests[1].patience = 60;
+    renderPatience(Guests[1]);
+    await new Promise(resolve => setTimeout(resolve, 180));
+    result.unservedGuestTimesOut = Guests[1].active
+      && Guests[1].serving
+      && Guests[1].satisfaction === "angry"
+      && State.missed === missedBeforeTimeout + 1
+      && $(`[data-guest="1"]`).classList.contains("angry");
+    result.guestTimersIndependent = Guests[2].active
+      && !Guests[2].serving
+      && Guests[2].patience < waitingGuestPatience;
+    await new Promise(resolve => setTimeout(resolve, 760));
+    result.timedOutGuestLeavesWithoutSale = !Guests[1].active
+      && State.sales === MenuCatalog.ramen_plain.price + MenuCatalog.soju.price;
 
     const stage = $("#stage").getBoundingClientRect();
     const dock = $(".dock").getBoundingClientRect();
@@ -1056,6 +1329,7 @@
 
   build();
   State.cookingTimer = setInterval(tickCooking, Config.cooking.tickMs);
+  State.patienceTimer = setInterval(tickGuests, Config.guests.tickMs);
   $$(".ingredient,.appliance").forEach(bindDrag);
   document.addEventListener("pointermove", moveDrag, { passive: false });
   document.addEventListener("pointerup", endDrag, { passive: false });

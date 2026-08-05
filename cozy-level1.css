@@ -380,6 +380,98 @@
   pointer-events:none;
 }
 #stage[data-stall-level="1"] .ingredient:active{transform:translateY(2px);filter:brightness(.97)}
+#stage[data-stall-level="1"] .drink-item.ingredient{cursor:grab;touch-action:none}
+#stage[data-stall-level="1"] .drink-item.ingredient:active{cursor:grabbing;transform:translateY(2px);filter:brightness(.97)}
+
+/* V0.14: 한 손님의 복합 주문, 부분 서빙, 인내심과 만족도를 한 말풍선에서 읽는다. */
+#stage[data-stall-level="1"] .guest-slot .bubble{
+  padding:10px 14px 13px;
+  overflow:visible;
+}
+#stage[data-stall-level="1"] .order-items{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+#stage[data-stall-level="1"] .order-item{
+  position:relative;
+  width:78px;
+  height:76px;
+  flex:0 0 78px;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  transition:opacity .2s,filter .2s,transform .2s;
+}
+#stage[data-stall-level="1"] .order-item img{
+  width:76px;
+  height:72px;
+  object-fit:contain;
+  filter:drop-shadow(0 4px 4px #5b2f2445);
+}
+#stage[data-stall-level="1"] .order-plus{
+  flex:0 0 18px;
+  color:#6e3b24;
+  font-size:25px;
+  line-height:1;
+  font-weight:1000;
+  text-shadow:0 1px #fff;
+}
+#stage[data-stall-level="1"] .order-item.fulfilled img{
+  opacity:.28;
+  filter:grayscale(.75) sepia(.2);
+  transform:scale(.92);
+}
+#stage[data-stall-level="1"] .order-item.fulfilled::after{
+  content:"✓";
+  position:absolute;
+  inset:auto 3px 1px auto;
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#58a745;
+  color:#fffbea;
+  border:3px solid #fff7df;
+  box-shadow:0 3px 7px #35170b66;
+  font-size:18px;
+  font-weight:1000;
+}
+#stage[data-stall-level="1"] .satisfaction{
+  position:absolute;
+  z-index:4;
+  right:-15px;
+  top:-18px;
+  width:42px;
+  height:42px;
+  display:none;
+  place-items:center;
+  border-radius:50%;
+  background:#fff6d9;
+  border:4px solid #8b4c2a;
+  color:#e34c61;
+  box-shadow:0 5px 10px #2e12096b;
+  font-size:24px;
+  font-weight:1000;
+}
+#stage[data-stall-level="1"] .guest-slot.satisfied .satisfaction,
+#stage[data-stall-level="1"] .guest-slot.angry .satisfaction{display:grid}
+#stage[data-stall-level="1"] .guest-slot[data-satisfaction="okay"] .satisfaction{color:#5c9d45}
+#stage[data-stall-level="1"] .guest-slot[data-satisfaction="tired"] .satisfaction{color:#a06f38}
+#stage[data-stall-level="1"] .guest-slot.angry .satisfaction{background:#ffe4d9;color:#d94236;border-color:#923a27}
+#stage[data-stall-level="1"] .guest-slot.low-patience .patience i{background:linear-gradient(90deg,#ffb348,#eb4c3d)}
+#stage[data-stall-level="1"] .guest-slot.low-patience .patience{box-shadow:0 0 12px #ff5038a8}
+#stage[data-stall-level="1"] .guest-slot.wrong-order .bubble{animation:wrongOrderV014 .38s ease}
+#stage[data-stall-level="1"] .guest-slot.angry .bubble{border-color:#a93b2e;filter:saturate(.9)}
+@keyframes wrongOrderV014{
+  0%,100%{transform:translateX(-50%)}
+  25%{transform:translateX(calc(-50% - 9px)) rotate(-2deg)}
+  75%{transform:translateX(calc(-50% + 9px)) rotate(2deg)}
+}
 #stage[data-stall-level="1"] .rack-page{
   position:absolute;
   z-index:8;
@@ -421,6 +513,8 @@
 /* V0.13 cooking feedback: ready food counts down to burnt; the waste target appears only while food is held. */
 #stage[data-stall-level="1"] .appliance.ready .bar i{background:linear-gradient(90deg,#ff5a3d,#ffc14d 55%,#fff09a)}
 #stage[data-stall-level="1"] .appliance.ready .bar{box-shadow:0 0 10px #ffc45b99,inset 0 2px 3px #2b0d0866}
+#stage[data-stall-level="1"] .appliance.ready.keeps-warm .bar i{background:linear-gradient(90deg,#66c86f,#b8e989,#fff0a1)}
+#stage[data-stall-level="1"] .appliance.ready.keeps-warm .bar{box-shadow:0 0 10px #8bd88199,inset 0 2px 3px #173b1c66}
 #stage[data-stall-level="1"] .appliance.burnt .bar i{background:linear-gradient(90deg,#35130e,#7b251a,#2a0d09)}
 #stage[data-stall-level="1"] .discard-bin{
   position:absolute;
