@@ -22,8 +22,8 @@
     },
     boreumi: { idleWidth: 300, cookingWidth: 300, servingWidth: 360, idleOffset: -210 },
     daySeconds: 90,
-    cooking: { tickMs: 50, defaultBurnMs: 3400 },
-    guests: { tickMs: 100, patienceMs: 16000, wrongPenaltyMs: 2500 },
+    cooking: { tickMs: 50, defaultBurnMs: 10000 },
+    guests: { tickMs: 100, patienceMs: 40000, wrongPenaltyMs: 2500 },
     firstArrivals: [700, 4500, 8500]
   };
 
@@ -1105,6 +1105,17 @@
     result.drinksAreDraggable = $$(".drink-rack .drink-item").every(item => item.matches("button.ingredient") && payload(item)?.kind === "drink");
     result.patienceStartsFull = Guests[0].patience === Guests[0].maxPatience
       && parseFloat($(`[data-guest="0"] .patience i`).style.width) === 100;
+    const activeBubbleRect = $(`[data-guest="0"] .bubble`).getBoundingClientRect();
+    const activePatienceRect = $(`[data-guest="0"] .patience`).getBoundingClientRect();
+    result.patienceBelowOrderBubble = activePatienceRect.top >= activeBubbleRect.bottom - 1
+      && activePatienceRect.top - activeBubbleRect.bottom <= 10 * buttonStageScale
+      && activePatienceRect.width >= 155 * buttonStageScale
+      && getComputedStyle($(`[data-guest="0"] .patience`)).visibility === "visible"
+      && parseInt(getComputedStyle($(`[data-guest="0"] .patience`)).zIndex, 10) > parseInt(getComputedStyle($(`[data-guest="0"] .bubble`)).zIndex, 10);
+    result.relaxedGameTiming = Config.guests.patienceMs === 40000
+      && Config.cooking.defaultBurnMs === 10000
+      && Config.guests.patienceMs > RecipeCatalog.ramen_plain.cookMs * 8
+      && Config.cooking.defaultBurnMs > RecipeCatalog.ramen_plain.cookMs * 2;
     const topping = $("[data-item='dumpling']");
     const toppingPayload = payload(topping);
     showGhost(toppingPayload);
