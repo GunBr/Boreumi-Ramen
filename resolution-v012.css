@@ -110,17 +110,19 @@
 }
 
 .hud{
-  left:calc(50% - 710px);
+  left:calc(50% - 730px);
   right:auto;
   top:18px;
-  width:1640px;
-  height:92px;
-  grid-template-columns:140px 250px minmax(360px,1fr) 260px 220px 84px;
+  width:1660px;
+  height:106px;
+  grid-template-columns:154px 250px minmax(271px,1fr) 260px 220px 178px 10px 72px 50px;
   border-radius:20px;
 }
-.hud small{font-size:16px}.hud b{font-size:29px}
-.clock i{width:260px;height:8px}
-#pauseButton{font-size:34px}
+.hud small{font-size:16px;line-height:1}.hud b{font-size:29px;line-height:1.05}
+.clock i{width:250px;height:9px}
+#pauseButton{font-size:31px}
+#startButton{grid-column:6;transform:translateX(-24px)}#pauseButton{grid-column:8;transform:translateX(-47px)}
+.hud.running{grid-template-columns:154px 250px minmax(271px,1fr) 260px 220px 178px 10px 72px 50px}
 .sign{
   left:calc(50% - 940px);
   top:20px;
@@ -195,13 +197,13 @@
   width:1880px;
   height:142px;
   transform:translateX(-50%);
-  grid-template-columns:130px repeat(4,205px) 1fr;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
   gap:12px;
   padding:11px;
   border-radius:22px;
 }
-.dock-label,.dock-tip{font-size:18px}
-.ingredient{gap:10px}.ingredient img{width:102px;height:88px;max-width:106px;max-height:90px}.ingredient span{font-size:22px}
+.dock-tip{font-size:18px}
+.ingredient{gap:0}.ingredient img{width:126px;height:108px;max-width:132px;max-height:112px}.ingredient span{font-size:22px}
 .start{
   right:max(30px,calc((100% - 1920px)/2 + 30px));
   top:500px;

@@ -23,43 +23,150 @@
 #stage[data-stall-level="1"] .service-floor,
 #stage[data-stall-level="1"] .table-decor{display:none}
 
-/* Customer counter: close enough to make guests, Boreumi and food read as one scene. */
+/* Customer counter: the thin top continues beneath Ppomi; a recessed apron hides cropped seats and guests. */
 #stage[data-stall-level="1"] .service-table{
   display:block;
-  left:50%;
+  left:calc(50% + 30px);
   right:auto;
   top:345px;
-  width:min(1840px,calc(100% - 70px));
-  height:92px;
+  width:min(1880px,calc(100% - 36px));
+  height:48px;
   transform:translateX(-50%);
   border:0;
-  border-top:7px solid #e2a260;
-  border-bottom:7px solid #3a160e;
-  border-radius:5px 5px 12px 12px;
-  background:linear-gradient(180deg,#b86c3d 0 12px,#7c4128 13px 48px,#54291b 49px 100%);
-  box-shadow:0 18px 24px #130604aa,inset 0 4px #ffd09a55,inset 0 -16px 22px #210b0766;
+  border-top:4px solid #c48855;
+  border-bottom:5px solid #30130d;
+  border-radius:7px 7px 12px 12px;
+  background:linear-gradient(180deg,#8d5033 0 8px,#673620 9px 31px,#452318 32px 100%);
+  box-shadow:0 10px 15px #13060488,inset 0 2px #f4c28a44,inset 0 -10px 15px #210b075c;
 }
 #stage[data-stall-level="1"] .service-table::before{
-  background:repeating-linear-gradient(92deg,transparent 0 126px,#35150e55 128px 131px,transparent 133px 249px),linear-gradient(180deg,#fff3d61f,transparent 30%);
+  opacity:.24;
+  background:linear-gradient(180deg,#fff0d238,transparent 42%);
 }
-
-/* Continuous foreground counter hides full-body legs naturally; appliances sit on top. */
-#stage[data-stall-level="1"] .counter{
-  display:block;
-  z-index:42;
+#stage[data-stall-level="1"] .service-table::after{
+  content:"";
+  position:absolute;
   left:50%;
   right:auto;
-  top:530px;
-  width:min(1940px,calc(100% - 34px));
-  height:318px;
+  top:34px;
+  bottom:auto;
+  width:700px;
+  height:138px;
   transform:translateX(-50%);
-  border-top:9px solid #e5a568;
-  background:linear-gradient(180deg,#8c4c2d 0 18px,#5b2d1e 19px 82px,#351a13 83px 100%);
-  box-shadow:0 -14px 26px #140603aa,inset 0 5px #ffd09b44,inset 0 -28px 35px #170805aa;
+  border:0;
+  border-radius:0;
+  opacity:1;
+  background:linear-gradient(180deg,#2b1a1238,#1a0d0a5c),url("assets/art-v012/guest-center-wood-panel-v2.png") center/cover no-repeat;
+  box-shadow:inset 0 6px 9px #18080555,inset 0 -11px 16px #12060466;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 4%,#000 96%,transparent 100%);
+  filter:brightness(1.16) saturate(.82);
 }
 
+/* Appliance artwork remains unobstructed; the environment already supplies its work surface. */
+#stage[data-stall-level="1"] .counter{
+  display:none;
+}
+#stage[data-stall-level="1"] .counter::after{display:none}
+
 .hud{top:16px}
-.sign{top:18px}
+
+/* The status bar is a painted pocha board rather than a modern dark panel. */
+#stage[data-stall-level="1"] .hud{
+  padding:14px 64px;
+  border:0;
+  border-radius:0;
+  overflow:visible;
+  background:url("assets/art-v012/hud-panel-v1.png") center/100% 100% no-repeat;
+  box-shadow:none;
+  filter:drop-shadow(0 9px 11px #160704a6);
+}
+#stage[data-stall-level="1"] .hud>div{
+  position:relative;
+  min-width:0;
+  gap:4px;
+  padding:0 12px;
+  border:0;
+  text-align:center;
+  color:#652315;
+  text-shadow:0 2px 1px #ffe2a166;
+}
+#stage[data-stall-level="1"] .hud>div:first-child{
+  align-self:center;
+  justify-self:center;
+  width:128px;
+  height:86px;
+  overflow:visible;
+  padding:9px 12px 7px;
+  border:3px solid #85502d;
+  border-radius:9px;
+  background:linear-gradient(180deg,#fff1c9 0%,#f2d39c 68%,#dfb878 100%);
+  box-shadow:inset 0 0 0 2px #fff7dcaa,inset 0 -7px 10px #a6632930,0 4px 7px #3a160c78;
+}
+#stage[data-stall-level="1"] .hud>div:first-child::before{
+  content:"";
+  position:absolute;
+  left:25px;
+  top:-9px;
+  width:9px;
+  height:16px;
+  border-radius:5px;
+  background:linear-gradient(90deg,#4b2818,#d69951 48%,#5a2e1b);
+  box-shadow:68px 0 0 #754224,68px 0 0 1px #3f2116;
+}
+#stage[data-stall-level="1"] .hud>div:first-child::after{display:none}
+#stage[data-stall-level="1"] .hud>div:first-child small{font-size:16px;line-height:1;color:#754025;text-shadow:0 1px #fff9e7}
+#stage[data-stall-level="1"] .hud>div:first-child b{min-height:34px;font-size:32px;line-height:1.02;color:#4f2116;text-shadow:0 2px #fff1c5}
+#stage[data-stall-level="1"] .hud>div:not(:nth-of-type(5))::after{
+  content:"";
+  position:absolute;
+  right:0;
+  top:11px;
+  bottom:11px;
+  width:2px;
+  background:linear-gradient(180deg,transparent,#8b4d27 25% 75%,transparent);
+  box-shadow:1px 0 #ffd58488;
+}
+#stage[data-stall-level="1"] .hud small{display:block;margin:0;color:#7b4025;text-shadow:0 1px #ffe8b3;font-weight:900;white-space:nowrap}
+#stage[data-stall-level="1"] .hud b{display:block;min-height:31px;margin:0;color:#5d1f16;text-shadow:0 2px #ffe2a1aa;white-space:nowrap;font-variant-numeric:tabular-nums}
+#stage[data-stall-level="1"] .clock i{flex:none;margin-top:0;height:9px;border:2px solid #8b4b27;background:#6b321f66;box-shadow:inset 0 2px 3px #3c160d66}
+#stage[data-stall-level="1"] .clock span{background:linear-gradient(90deg,#d94839,#f0a348 70%,#ffe18a)}
+#stage[data-stall-level="1"] #pauseButton{
+  align-self:center;
+  justify-self:stretch;
+  width:100%;
+  height:82px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:url("assets/art-v012/pause-button-v2.png") center/86px 86px no-repeat;
+  color:#6d2419;
+  box-shadow:none;
+  filter:drop-shadow(0 5px 6px #12080688);
+  font-size:31px;
+  font-weight:950;
+  white-space:nowrap;
+  text-shadow:-1px -1px 0 #fff0bd,1px -1px 0 #fff0bd,-1px 1px 0 #fff0bd,1px 1px 0 #fff0bd,0 3px 4px #7d3b2444;
+}
+#stage[data-stall-level="1"] #pauseButton:active{transform:translate(-47px,2px);filter:brightness(.96) drop-shadow(0 2px 3px #12080688)}
+
+/* A painted full-moon sign replaces the flat red plaque; live text keeps the Korean lettering crisp. */
+#stage[data-stall-level="1"] .sign{
+  top:18px;
+  width:226px;
+  height:236px;
+  padding:57px 25px 25px;
+  border:0;
+  border-radius:0;
+  background:url("assets/art-v012/sign-full-moon-v1.png") center/contain no-repeat;
+  box-shadow:none;
+  color:#742519;
+  text-shadow:-2px -2px 0 #ffeec2,2px -2px 0 #ffeec2,-2px 2px 0 #ffeec2,2px 2px 0 #ffeec2,0 4px 5px #7d3b2455;
+  filter:drop-shadow(0 12px 15px #120806a8) drop-shadow(0 0 18px #ffd87652);
+}
+#stage[data-stall-level="1"] .sign small{font-size:17px;line-height:1.05;font-weight:950}
+#stage[data-stall-level="1"] .sign strong{font-size:43px;line-height:.89;letter-spacing:-2px}
 
 /* Customers grow and sit immediately behind the counter. */
 #stage[data-stall-level="1"] .guest-row{
@@ -117,11 +224,11 @@
 #stage[data-stall-level="1"] .boreumi-sprite[data-pose="oden"]{background-image:url("assets/art-v012/boreumi-oden-v2.png")}
 #stage[data-stall-level="1"] #boreumiText{left:calc(50% + 108px);top:110px}
 
-/* Ppomi stays fixed on the foreground counter next to Boreumi; only the pose changes. */
+/* Ppomi stays fixed at the far-right end of the guest table; only the pose changes. */
 #stage[data-stall-level="1"] .ppomi-perch{
-  z-index:43;
-  left:calc(50% + 300px);
-  top:430px;
+  z-index:16;
+  left:calc(50% + 710px);
+  top:263px;
   width:175px;
   height:170px;
 }
@@ -132,22 +239,24 @@
   z-index:44;
   top:605px;
   height:310px;
-  gap:12px;
+  gap:18px;
 }
 #stage[data-stall-level="1"] .left-zone{left:calc(50% - 925px);width:915px}
 #stage[data-stall-level="1"] .right-zone{left:calc(50% + 10px);width:915px}
 #stage[data-stall-level="1"] .appliance,
 #stage[data-stall-level="1"] .appliance.oden{height:310px}
 #stage[data-stall-level="1"] .appliance .art{
-  inset:20px 2px 9px;
-  border:4px solid #b86f3f;
-  border-radius:23px;
-  background:linear-gradient(180deg,#3d2119e8,#160b08f4);
-  box-shadow:0 13px 18px #000b,inset 0 5px 16px #ffcf8b17;
+  inset:0 2px 9px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
 }
+#stage[data-stall-level="1"] .appliance.drop-over .art{outline:0;filter:none}
+#stage[data-stall-level="1"] .appliance.drop-over .kitchen-sprite{filter:drop-shadow(0 0 22px #ffe56d) drop-shadow(0 10px 8px #000c)}
 #stage[data-stall-level="1"] .appliance.pot .art img{width:282px;height:250px}
-#stage[data-stall-level="1"] .kitchen-sprite{transform:scale(1.13)}
-#stage[data-stall-level="1"] .sprite-oden{width:84%;margin:0 auto;transform:scale(1.03)}
+#stage[data-stall-level="1"] .kitchen-sprite{transform:scale(1.04)}
+#stage[data-stall-level="1"] .sprite-oden{width:90%;margin:0 auto;transform:scale(1.04);background-size:contain}
 #stage[data-stall-level="1"] .appliance label{font-size:18px;top:0}
 #stage[data-stall-level="1"] .appliance .bar{bottom:5px;height:9px}
 #stage[data-stall-level="1"] .appliance.cooking .art::before,
@@ -166,11 +275,223 @@
 }
 @keyframes cozySteam{to{transform:translateY(-12px) scaleX(1.14);opacity:.2}}
 
-/* Ingredient dock stays large and touch-friendly, directly under the food. */
-#stage[data-stall-level="1"] .dock{bottom:16px;height:148px;width:1880px}
-#stage[data-stall-level="1"] .start{top:438px;right:max(28px,calc((100% - 1920px)/2 + 28px))}
+/* Data-driven ramen, drink and anju cases use repeatable painted modules instead of a fixed four-slot strip. */
+#stage[data-stall-level="1"] .dock{
+  bottom:10px;
+  height:154px;
+  width:1880px;
+  padding:0;
+  gap:10px;
+  display:flex;
+  align-items:stretch;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  overflow:visible;
+  isolation:isolate;
+}
+#stage[data-stall-level="1"] .dock::before{display:none}
+#stage[data-stall-level="1"] .dock::after{content:"";position:absolute;z-index:-1;left:3%;right:3%;bottom:-5px;height:11px;border-radius:50%;background:#120604a0;filter:blur(7px)}
+#stage[data-stall-level="1"] .inventory-rack{
+  position:relative;
+  flex:var(--visible-slots) 1 0;
+  min-width:0;
+  height:100%;
+  padding:7px 1px 0;
+  border:18px solid transparent;
+  border-image-source:url("assets/art-v012/dock-rack-frame-v1.png");
+  border-image-slice:28 31 28 31;
+  border-image-width:18px 20px;
+  border-image-repeat:stretch;
+  background:#32170f;
+  isolation:isolate;
+}
+#stage[data-stall-level="1"] .rack-title{
+  position:absolute;
+  z-index:5;
+  left:20px;
+  right:20px;
+  top:-17px;
+  height:18px;
+  margin:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#f8dca5;
+  font-size:14px;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-shadow:-1px -1px #4a1c0f,1px -1px #4a1c0f,-1px 1px #4a1c0f,1px 1px #4a1c0f,0 2px 3px #2c0d08;
+}
+#stage[data-stall-level="1"] .rack-items{
+  position:relative;
+  z-index:2;
+  width:100%;
+  height:112px;
+  display:grid;
+  grid-template-columns:repeat(var(--page-columns),minmax(0,1fr));
+  gap:0;
+}
+#stage[data-stall-level="1"] .ingredient,
+#stage[data-stall-level="1"] .drink-item{
+  position:relative;
+  z-index:1;
+  min-width:0;
+  height:108px;
+  padding:3px 6px 2px;
+  border:0;
+  border-radius:13px;
+  background:url("assets/art-v012/dock-slot-v1.png") center/100% 100% no-repeat;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  overflow:visible;
+  box-shadow:none;
+}
+#stage[data-stall-level="1"] .ingredient::after,
+#stage[data-stall-level="1"] .drink-item::after{
+  display:none;
+}
+#stage[data-stall-level="1"] .ingredient img,
+#stage[data-stall-level="1"] .drink-item img{
+  width:128px;
+  height:70px;
+  max-width:none;
+  max-height:none;
+  object-fit:contain;
+  pointer-events:none;
+  filter:drop-shadow(0 4px 4px #5c2c1845);
+}
+#stage[data-stall-level="1"] .drink-item img{width:112px;height:70px}
+#stage[data-stall-level="1"] .item-name{
+  position:relative;
+  z-index:2;
+  flex:none;
+  min-height:18px;
+  color:#5d2c19;
+  font-size:15px;
+  line-height:18px;
+  font-weight:950;
+  white-space:nowrap;
+  text-shadow:0 1px #fff9e5;
+  pointer-events:none;
+}
+#stage[data-stall-level="1"] .ingredient:active{transform:translateY(2px);filter:brightness(.97)}
+#stage[data-stall-level="1"] .rack-page{
+  position:absolute;
+  z-index:8;
+  top:42px;
+  width:28px;
+  height:48px;
+  padding:0;
+  border:2px solid #d29a58;
+  border-radius:12px;
+  background:linear-gradient(180deg,#704021,#3d1b10);
+  box-shadow:0 3px 6px #180704aa,inset 0 1px #f7ca8666;
+  color:#ffe2a8;
+  font-size:29px;
+  line-height:1;
+  font-weight:900;
+  text-shadow:0 2px 2px #2b0d08;
+}
+#stage[data-stall-level="1"] .rack-prev{left:-15px}
+#stage[data-stall-level="1"] .rack-next{right:-15px}
+#stage[data-stall-level="1"] .rack-page:disabled{opacity:.36}
+#stage[data-stall-level="1"] .rack-page[hidden],
+#stage[data-stall-level="1"] .rack-page-index[hidden]{display:none}
+#stage[data-stall-level="1"] .rack-page-index{
+  position:absolute;
+  z-index:8;
+  left:50%;
+  bottom:-15px;
+  transform:translateX(-50%);
+  min-width:36px;
+  padding:2px 7px;
+  border-radius:8px;
+  background:#3d1a10;
+  color:#f8dca5;
+  font-size:12px;
+  line-height:1;
+  text-align:center;
+}
+
+/* V0.13 cooking feedback: ready food counts down to burnt; the waste target appears only while food is held. */
+#stage[data-stall-level="1"] .appliance.ready .bar i{background:linear-gradient(90deg,#ff5a3d,#ffc14d 55%,#fff09a)}
+#stage[data-stall-level="1"] .appliance.ready .bar{box-shadow:0 0 10px #ffc45b99,inset 0 2px 3px #2b0d0866}
+#stage[data-stall-level="1"] .appliance.burnt .bar i{background:linear-gradient(90deg,#35130e,#7b251a,#2a0d09)}
+#stage[data-stall-level="1"] .discard-bin{
+  position:absolute;
+  z-index:115;
+  left:50%;
+  top:625px;
+  width:132px;
+  height:76px;
+  padding:6px 13px;
+  border:4px solid #5a1d15;
+  border-radius:18px;
+  background:linear-gradient(180deg,#c34c35,#7e241c 64%,#49140f);
+  box-shadow:inset 0 0 0 2px #ef9b5c88,inset 0 -8px 12px #3d100c88,0 8px 15px #160604aa;
+  color:#ffe2aa;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  opacity:0;
+  pointer-events:none;
+  transform:translate(-50%,12px) scale(.88);
+  transition:opacity .12s,transform .12s,filter .12s;
+}
+#stage[data-drag-kind="food"] .discard-bin,
+#stage[data-drag-kind="waste"] .discard-bin{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1)}
+#stage[data-stall-level="1"] .discard-bin>span{position:relative;width:32px;height:31px;border:3px solid #ffe1a5;border-top:0;border-radius:3px 3px 7px 7px;transform:translateY(3px)}
+#stage[data-stall-level="1"] .discard-bin>span::before{content:"";position:absolute;left:-5px;right:-5px;top:-8px;height:5px;border-radius:4px;background:#ffe1a5;box-shadow:8px -5px 0 -1px #ffe1a5,16px -5px 0 -1px #ffe1a5}
+#stage[data-stall-level="1"] .discard-bin>span i{position:absolute;left:8px;top:5px;width:3px;height:18px;border-radius:2px;background:#ffe1a5;box-shadow:10px 0 #ffe1a5}
+#stage[data-stall-level="1"] .discard-bin strong{font-size:19px;line-height:1;white-space:nowrap;text-shadow:0 2px 3px #3b0f0c}
+#stage[data-stall-level="1"] .discard-bin.drop-over{filter:brightness(1.25) drop-shadow(0 0 14px #ffbc62);transform:translate(-50%,-3px) scale(1.05)}
+#dragGhost.waste-drag{width:132px;height:108px;background:#3b2119e8;border-color:#d36b48}
+#dragGhost.waste-drag img{filter:grayscale(.78) sepia(.25) brightness(.52) contrast(1.18) drop-shadow(0 6px 6px #0008)}
+
+/* The opening action now lives in the HUD immediately before pause. */
+#stage[data-stall-level="1"] .hud>.start{
+  position:relative;
+  z-index:auto;
+  inset:auto;
+  align-self:center;
+  width:100%;
+  height:82px;
+  padding:0 18px;
+  border:0;
+  border-radius:0;
+  background:url("assets/art-v012/start-button-v1.png") center/contain no-repeat;
+  box-shadow:none;
+  color:#6d2419;
+  text-shadow:-1px -1px 0 #fff0bd,1px -1px 0 #fff0bd,-1px 1px 0 #fff0bd,1px 1px 0 #fff0bd,0 3px 4px #7d3b2444;
+  filter:drop-shadow(0 5px 6px #12080688);
+}
+#stage[data-stall-level="1"] .hud>.start strong{font-size:22px;white-space:nowrap}
+#stage[data-stall-level="1"] .hud>.start:active:not(:disabled){transform:translate(-24px,2px);filter:brightness(.96) drop-shadow(0 2px 3px #12080688)}
+#stage[data-stall-level="1"] .hud>.start:disabled{
+  cursor:default;
+  opacity:.94;
+  color:#72432c;
+  filter:saturate(.78) drop-shadow(0 4px 5px #12080670);
+}
+#stage[data-stall-level="1"] .hud>.start:disabled strong::before{
+  content:"";
+  display:inline-block;
+  width:9px;
+  height:9px;
+  margin-right:7px;
+  border-radius:50%;
+  background:#68a94b;
+  box-shadow:0 0 7px #a9df6b;
+  vertical-align:2px;
+}
 #stage[data-stall-level="1"] #toast{bottom:169px}
 
 /* On wide phones the tent and counters extend; no empty future-level corridor is shown. */
-#stage[data-stall-level="1"][data-viewport="expanded"] .service-table{width:calc(100% - 70px)}
+#stage[data-stall-level="1"][data-viewport="expanded"] .service-table{width:calc(100% - 36px)}
 #stage[data-stall-level="1"][data-viewport="expanded"] .counter{width:calc(100% - 34px)}
