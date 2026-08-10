@@ -4,7 +4,8 @@
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
   const IsQA = new URLSearchParams(location.search).has("qa");
-  const SaveKey = IsQA ? "boreumi-ramen-v015-qa" : "boreumi-ramen-v015";
+  const SaveKey = IsQA ? "boreumi-ramen-v016-qa" : "boreumi-ramen-v016";
+  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v016-audio-qa" : "boreumi-ramen-v016-audio";
 
   const Config = {
     stage: {
@@ -272,6 +273,106 @@
     lastSettlement: null
   };
 
+  const Sound = {
+    enabled: (() => {
+      try { return localStorage.getItem(AudioPreferenceKey) !== "off"; }
+      catch { return true; }
+    })(),
+    context: null,
+    bgmTimer: null,
+    bgmStep: 0,
+    ensure() {
+      if (!this.enabled || IsQA) return null;
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+      if (!this.context) this.context = new AudioContextClass();
+      if (this.context.state === "suspended") this.context.resume().catch(() => undefined);
+      return this.context;
+    },
+    tone(frequency, duration = .18, volume = .025, type = "sine", delay = 0) {
+      const context = this.ensure();
+      if (!context) return;
+      const startAt = context.currentTime + delay;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, startAt);
+      gain.gain.setValueAtTime(.0001, startAt);
+      gain.gain.exponentialRampToValueAtTime(Math.max(.0002, volume), startAt + .025);
+      gain.gain.exponentialRampToValueAtTime(.0001, startAt + duration);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(startAt);
+      oscillator.stop(startAt + duration + .03);
+    },
+    noise(duration = .12, volume = .018) {
+      const context = this.ensure();
+      if (!context) return;
+      const frameCount = Math.max(1, Math.floor(context.sampleRate * duration));
+      const buffer = context.createBuffer(1, frameCount, context.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let index = 0; index < frameCount; index += 1) data[index] = (Math.random() * 2 - 1) * (1 - index / frameCount);
+      const source = context.createBufferSource();
+      const gain = context.createGain();
+      source.buffer = buffer;
+      gain.gain.value = volume;
+      source.connect(gain).connect(context.destination);
+      source.start();
+    },
+    sfx(name) {
+      if (!this.enabled) return;
+      if (name === "cook") { this.noise(.11, .012); this.tone(392, .11, .018, "triangle"); }
+      else if (name === "drop") { this.tone(520, .1, .022, "triangle"); }
+      else if (name === "complete") { this.tone(659, .26, .025, "sine"); this.tone(880, .34, .022, "sine", .1); }
+      else if (name === "serve") { this.tone(880, .16, .026, "triangle"); this.tone(1175, .2, .02, "triangle", .07); }
+      else if (name === "guest") { this.tone(392, .17, .016, "sine"); this.tone(523, .2, .014, "sine", .08); }
+      else if (name === "burn") { this.noise(.28, .028); this.tone(146, .34, .03, "sawtooth"); }
+      else if (name === "wrong") { this.tone(196, .2, .025, "square"); }
+      else if (name === "discard") { this.noise(.09, .018); this.tone(262, .1, .015, "triangle"); }
+      else if (name === "upgrade") { [523, 659, 784].forEach((note, index) => this.tone(note, .34, .018, "sine", index * .07)); }
+      else if (name === "finish") { [392, 494, 587, 784].forEach((note, index) => this.tone(note, .5, .016, "sine", index * .11)); }
+    },
+    haptic(pattern = 10) {
+      if (!this.enabled || typeof navigator.vibrate !== "function") return;
+      navigator.vibrate(pattern);
+    },
+    playBgmBeat() {
+      const melody = [262, 330, 392, 330, 294, 392, 440, 392];
+      const note = melody[this.bgmStep++ % melody.length];
+      this.tone(note, 1.25, .009, "sine");
+      this.tone(note / 2, 1.45, .006, "triangle");
+    },
+    startBgm() {
+      if (!this.enabled || !State.running || State.paused || this.bgmTimer) return;
+      if (!this.ensure()) return;
+      this.playBgmBeat();
+      this.bgmTimer = setInterval(() => this.playBgmBeat(), 1450);
+    },
+    stopBgm() {
+      clearInterval(this.bgmTimer);
+      this.bgmTimer = null;
+    },
+    syncButton() {
+      const button = $("#soundButton");
+      if (!button) return;
+      button.setAttribute("aria-pressed", String(this.enabled));
+      button.setAttribute("aria-label", this.enabled ? "소리 끄기" : "소리 켜기");
+      button.querySelector("span").textContent = this.enabled ? "♪" : "♩";
+      $("#stage").dataset.audio = this.enabled ? "on" : "off";
+    },
+    setEnabled(enabled) {
+      this.enabled = Boolean(enabled);
+      try { localStorage.setItem(AudioPreferenceKey, this.enabled ? "on" : "off"); } catch { /* Preference remains in memory. */ }
+      this.syncButton();
+      if (this.enabled) {
+        this.ensure();
+        this.startBgm();
+        this.sfx("drop");
+      } else {
+        this.stopBgm();
+      }
+    }
+  };
+
   const Appliances = [
     ...Array.from({ length: 3 }, (_, index) => ({ id: `pot-${index}`, type: "pot", slot: index, state: "empty", item: null, ingredients: [], recipeId: null, cookRemaining: 0, burnRemaining: 0 })),
     ...Array.from({ length: 2 }, (_, index) => ({ id: `grill-${index}`, type: "grill", slot: index, state: "empty", item: null, ingredients: [], recipeId: null, cookRemaining: 0, burnRemaining: 0 })),
@@ -427,6 +528,47 @@
     say.timer = setTimeout(() => element.classList.remove("show"), 1100);
   }
 
+  function stagePointFor(element) {
+    const stage = $("#stage");
+    const stageRect = stage.getBoundingClientRect();
+    const targetRect = element.getBoundingClientRect();
+    const scale = stageRect.width / Config.stage.currentWidth || 1;
+    return {
+      x: (targetRect.left + targetRect.width / 2 - stageRect.left) / scale,
+      y: (targetRect.top + targetRect.height * .48 - stageRect.top) / scale
+    };
+  }
+
+  function burstAt(element, kind = "drop", count = 8) {
+    if (!element) return;
+    const layer = $("#fxLayer");
+    const point = stagePointFor(element);
+    for (let index = 0; index < count; index += 1) {
+      const particle = document.createElement("i");
+      const angle = Math.PI * 2 * index / count + Math.random() * .28;
+      const distance = 38 + Math.random() * 42;
+      particle.className = `fx-particle ${kind}`;
+      particle.style.setProperty("--x", `${point.x}px`);
+      particle.style.setProperty("--y", `${point.y}px`);
+      particle.style.setProperty("--tx", `${Math.cos(angle) * distance}px`);
+      particle.style.setProperty("--ty", `${Math.sin(angle) * distance}px`);
+      layer.append(particle);
+      setTimeout(() => particle.remove(), 900);
+    }
+  }
+
+  function floatFeedback(element, text, kind = "sale") {
+    if (!element) return;
+    const point = stagePointFor(element);
+    const feedback = document.createElement("strong");
+    feedback.className = `float-feedback ${kind}`;
+    feedback.textContent = text;
+    feedback.style.setProperty("--x", `${point.x}px`);
+    feedback.style.setProperty("--y", `${point.y}px`);
+    $("#fxLayer").append(feedback);
+    setTimeout(() => feedback.remove(), 1120);
+  }
+
   function spriteFor(appliance) {
     if (appliance.state === "empty") return appliance.type;
     if (appliance.state === "cooking") return `cooking-${appliance.type === "pot" ? "ramen" : appliance.type === "grill" ? "dumpling" : "oden"}`;
@@ -463,7 +605,7 @@
     element.dataset.state = appliance.state;
     element.dataset.recipe = appliance.recipeId || "";
     element.setAttribute("aria-label", `${appliance.type === "pot" ? `냄비 ${appliance.slot + 1}` : appliance.type === "grill" ? `그릴 ${appliance.slot + 1}` : "오뎅바"} · ${applianceStateLabel(appliance)}`);
-    art.innerHTML = `<i class="kitchen-sprite sprite-${spriteFor(appliance)}"></i>`;
+    art.innerHTML = `<i class="kitchen-sprite sprite-${spriteFor(appliance)}"></i><span class="cook-fx" aria-hidden="true"><i></i><i></i><i></i></span>`;
     renderProgress(appliance);
   }
 
@@ -544,6 +686,8 @@
     const slot = $(`[data-guest="${index}"]`);
     slot.classList.add("arriving");
     setTimeout(() => slot.classList.remove("arriving"), 430);
+    Sound.sfx("guest");
+    burstAt(slot, "drop", 6);
     toast(`${index + 1}번 자리에 손님이 왔어요!`);
   }
 
@@ -565,6 +709,9 @@
     guest.satisfaction = "angry";
     State.missed += 1;
     renderGuest(guest);
+    Sound.sfx("wrong");
+    Sound.haptic([20, 25, 35]);
+    floatFeedback($(`[data-guest="${guest.index}"]`), "기다리다 떠나요", "warning");
     toast(`${guest.index + 1}번 손님이 기다리다 떠나요.`);
     const leaveTimer = setTimeout(() => dismissGuest(guest.index), 720);
     State.guestTimers.push(leaveTimer);
@@ -641,6 +788,7 @@
     const pose = appliance.type === "pot" ? (appliance.item === "egg" ? "egg" : "noodle") : appliance.type;
     animateBoreumi("cooking", pose, laneLeftFor(target, Config.boreumi.cookingWidth));
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 920);
+    burstAt($(`[data-id="${appliance.id}"]`), "drop", 5);
     say(text);
   }
 
@@ -663,6 +811,8 @@
     appliance.cookRemaining = effectiveCookMs(recipe);
     appliance.burnRemaining = effectiveBurnMs(recipe);
     renderAppliance(appliance);
+    Sound.sfx("cook");
+    Sound.haptic(8);
     teleport(appliance, appliance.type === "pot" ? "조리 시작!" : appliance.type === "grill" ? "노릇하게 구울게!" : "따끈하게 데울게!");
   }
 
@@ -672,6 +822,10 @@
     appliance.cookRemaining = 0;
     appliance.burnRemaining = effectiveBurnMs(recipeFor(appliance));
     renderAppliance(appliance);
+    Sound.sfx("complete");
+    Sound.haptic([12, 24, 12]);
+    burstAt($(`[data-id="${appliance.id}"]`), "complete", 10);
+    floatFeedback($(`[data-id="${appliance.id}"]`), "완성!", "sale");
     toast(`${recipeFor(appliance).label} 완성!`);
   }
 
@@ -681,6 +835,10 @@
     appliance.state = "burnt";
     appliance.burnRemaining = 0;
     renderAppliance(appliance);
+    Sound.sfx("burn");
+    Sound.haptic([35, 28, 55]);
+    burstAt($(`[data-id="${appliance.id}"]`), "burn", 9);
+    floatFeedback($(`[data-id="${appliance.id}"]`), "타버렸어요!", "warning");
     toast(`${recipeFor(appliance).label}이(가) 타버렸어요!`);
   }
 
@@ -717,6 +875,8 @@
       appliance.item = item;
       appliance.recipeId = resolveRecipeId(appliance);
       renderAppliance(appliance);
+      Sound.sfx("drop");
+      Sound.haptic(8);
       teleport(appliance, "계란 톡!");
       return;
     }
@@ -741,6 +901,9 @@
     const label = recipeFor(appliance)?.label || "음식";
     State.waste += 1;
     resetAppliance(appliance);
+    Sound.sfx("discard");
+    Sound.haptic(10);
+    burstAt($(`[data-id="${appliance.id}"]`), "drop", 5);
     say("깔끔하게 치울게!");
     toast(wasBurnt ? `${label}을(를) 버렸어요.` : `${label}을(를) 폐기했어요.`);
   }
@@ -753,6 +916,8 @@
     void slot.offsetWidth;
     slot.classList.add("wrong-order");
     setTimeout(() => slot.classList.remove("wrong-order"), 430);
+    Sound.sfx("wrong");
+    Sound.haptic(22);
     if (guest.patience <= 0) expireGuest(guest);
     else toast("주문과 다른 메뉴예요. 인내심이 줄었어요.");
   }
@@ -776,6 +941,7 @@
     say("맛있게 드세요!");
     const slot = $(`[data-guest="${guest.index}"]`);
     slot.animate([{ transform: "translateY(0)" }, { transform: "translateY(-8px)" }, { transform: "translateY(0)" }], { duration: 350 });
+    floatFeedback(slot, `+${money(price)}`, "sale");
     const leaveTimer = setTimeout(() => dismissGuest(guest.index), 720);
     State.guestTimers.push(leaveTimer);
     toast(`주문 완료 +${money(price)}`);
@@ -792,6 +958,9 @@
     if (appliance) resetAppliance(appliance);
     teleportToGuest(guestIndex);
     renderGuest(guest);
+    Sound.sfx("serve");
+    Sound.haptic(16);
+    burstAt($(`[data-guest="${guestIndex}"]`), "serve", 8);
     const remaining = pendingItems(guest).length;
     if (remaining) {
       say(`${MenuCatalog[itemId].label} 먼저 드릴게요!`);
@@ -874,6 +1043,8 @@
     saveProgress();
     renderHud();
     renderUpgradeShop();
+    Sound.sfx("upgrade");
+    Sound.haptic([10, 20, 10]);
     toast(`${UpgradeCatalog[key].title} LV.${Progress.upgrades[key]} 강화!`);
   }
 
@@ -966,6 +1137,8 @@
     State.paused = false;
     clearInterval(State.dayTimer);
     clearGuestTimers();
+    Sound.stopBgm();
+    Sound.sfx("finish");
     setBoreumiIdle();
     $(".hud").classList.remove("running");
     $("#startButton").style.removeProperty("display");
@@ -996,6 +1169,8 @@
     State.ratings = { happy: 0, okay: 0, tired: 0 };
     State.cookingClock = performance.now();
     State.guestClock = performance.now();
+    Sound.ensure();
+    Sound.startBgm();
     $(".hud").classList.add("running");
     $("#startButton").style.removeProperty("display");
     $("#startButton").disabled = true;
@@ -1058,14 +1233,13 @@
     ghost.querySelector("img").src = data.image;
     ghost.querySelector("span").textContent = "";
     ghost.classList.toggle("food-drag", data.kind === "food");
-    ghost.classList.toggle("waste-drag", data.kind === "waste");
     ghost.classList.add("show");
     $("#stage").dataset.dragKind = data.kind;
   }
 
   function hideGhost() {
     const ghost = $("#dragGhost");
-    ghost.classList.remove("show", "food-drag", "waste-drag");
+    ghost.classList.remove("show", "food-drag");
     ghost.querySelector("img").removeAttribute("src");
     delete $("#stage").dataset.dragKind;
   }
@@ -1099,6 +1273,7 @@
     if (!State.drag.moved) {
       State.drag.moved = Math.hypot(point.x - State.drag.startX, point.y - State.drag.startY) >= 10;
       if (!State.drag.moved) return;
+      if (State.drag.data.kind === "waste") return;
       if (!State.drag.ghostShown) {
         State.drag.ghostShown = true;
         showGhost(State.drag.data);
@@ -1109,10 +1284,7 @@
     const target = targetAt(event);
     if (State.drag.data.kind === "item") target?.closest(".appliance")?.classList.add("drop-over");
     else if (State.drag.data.kind === "drink") target?.closest(".guest-slot.active")?.classList.add("drop-over");
-    else {
-      target?.closest("#discardBin")?.classList.add("drop-over");
-      if (State.drag.data.kind === "food") target?.closest(".guest-slot.active")?.classList.add("drop-over");
-    }
+    else if (State.drag.data.kind === "food") target?.closest(".guest-slot.active")?.classList.add("drop-over");
   }
 
   function endDrag(event) {
@@ -1132,14 +1304,12 @@
       const guestSlot = target?.closest(".guest-slot.active");
       if (guestSlot) serveDrink(data.item, Number(guestSlot.dataset.guest));
       else toast("주류를 손님이나 주문 말풍선에 놓아주세요.");
-    } else if (target?.closest("#discardBin")) {
-      discardAppliance(Appliances.find(item => item.id === data.id));
     } else if (data.kind === "food") {
       const guestSlot = target?.closest(".guest-slot.active");
       if (guestSlot) serve(Appliances.find(item => item.id === data.id), Number(guestSlot.dataset.guest));
       else toast("완성 음식을 손님이나 주문 말풍선에 놓아주세요.");
-    } else {
-      toast("탄 음식은 버리기 통에 놓아주세요.");
+    } else if (data.kind === "waste") {
+      toast("탄 음식은 짧게 눌러 바로 버릴 수 있어요.");
     }
 
     State.drag = null;
@@ -1179,6 +1349,17 @@
     dockSlotImage.src = "assets/art-v012/dock-slot-v1.png";
     await Promise.all([dockFrameImage.decode().catch(() => undefined), dockSlotImage.decode().catch(() => undefined)]);
     const result = {};
+    result.ambienceLayerPresent = !!$("#atmosphereLayer") && $("#atmosphereLayer").children.length === 3;
+    result.fxLayerPresent = !!$("#fxLayer");
+    result.soundControlPresent = $("#soundButton")?.getAttribute("aria-pressed") === String(Sound.enabled);
+    const soundBeforeToggle = Sound.enabled;
+    Sound.setEnabled(!soundBeforeToggle);
+    result.soundControlToggles = Sound.enabled !== soundBeforeToggle
+      && $("#soundButton").getAttribute("aria-pressed") === String(!soundBeforeToggle);
+    Sound.setEnabled(soundBeforeToggle);
+    result.stationEffectsPresent = $$(".appliance .cook-fx").length === Appliances.length;
+    burstAt($(`[data-id="${Appliances[0].id}"]`), "complete", 4);
+    result.feedbackParticlesRender = $$("#fxLayer .fx-particle").length === 4;
     const qaPointerDrag = (source, target, pointerId) => {
       const sourceRect = source.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
@@ -1514,15 +1695,7 @@
     const salesBeforeBurntServe = State.sales;
     serve(Appliances[1], 0);
     result.burntCannotServe = Appliances[1].state === "burnt" && State.sales === salesBeforeBurntServe;
-    showGhost(burntPayload);
-    await new Promise(resolve => setTimeout(resolve, 160));
-    const discardStyle = getComputedStyle($("#discardBin"));
-    result.discardTargetAppears = $("#stage").dataset.dragKind === "waste"
-      && parseFloat(discardStyle.opacity) >= .95
-      && discardStyle.pointerEvents === "auto"
-      && $("#dragGhost").classList.contains("waste-drag");
-    State.drag = null;
-    hideGhost();
+    result.dragDiscardRemoved = !$("#discardBin") && !document.querySelector(".discard-bin");
     const wasteBeforeDiscard = State.waste;
     qaPointerTap($(`[data-id="${Appliances[1].id}"]`), 905);
     result.burntTapDiscards = Appliances[1].state === "empty" && !$("#dragGhost").classList.contains("show");
@@ -1703,6 +1876,7 @@
   }
 
   build();
+  Sound.syncButton();
   State.cookingTimer = setInterval(tickCooking, Config.cooking.tickMs);
   State.patienceTimer = setInterval(tickGuests, Config.guests.tickMs);
   $$(".ingredient,.appliance").forEach(bindDrag);
@@ -1715,12 +1889,19 @@
   $("#pauseButton").addEventListener("click", () => {
     if (!State.running) return toast("영업 중에 사용할 수 있어요.");
     State.paused = true;
+    Sound.stopBgm();
+    Sound.sfx("drop");
+    $("#stage").classList.add("paused-fx");
     $("#pauseOverlay").classList.remove("hidden");
   });
   $("#resumeButton").addEventListener("click", () => {
     State.paused = false;
+    $("#stage").classList.remove("paused-fx");
+    Sound.startBgm();
+    Sound.sfx("drop");
     $("#pauseOverlay").classList.add("hidden");
   });
+  $("#soundButton").addEventListener("click", () => Sound.setEnabled(!Sound.enabled));
   document.addEventListener("dragstart", event => event.preventDefault());
   window.addEventListener("resize", resize, { passive: true });
   window.visualViewport?.addEventListener("resize", resize, { passive: true });

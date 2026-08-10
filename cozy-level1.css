@@ -675,44 +675,12 @@
   text-align:center;
 }
 
-/* V0.13 cooking feedback: ready food counts down to burnt; the waste target appears only while food is held. */
+/* V0.13 cooking feedback: ready food counts down to burnt. A short tap discards food immediately. */
 #stage[data-stall-level="1"] .appliance.ready .bar i{background:linear-gradient(90deg,#ff5a3d,#ffc14d 55%,#fff09a)}
 #stage[data-stall-level="1"] .appliance.ready .bar{box-shadow:0 0 10px #ffc45b99,inset 0 2px 3px #2b0d0866}
 #stage[data-stall-level="1"] .appliance.ready.keeps-warm .bar i{background:linear-gradient(90deg,#66c86f,#b8e989,#fff0a1)}
 #stage[data-stall-level="1"] .appliance.ready.keeps-warm .bar{box-shadow:0 0 10px #8bd88199,inset 0 2px 3px #173b1c66}
 #stage[data-stall-level="1"] .appliance.burnt .bar i{background:linear-gradient(90deg,#35130e,#7b251a,#2a0d09)}
-#stage[data-stall-level="1"] .discard-bin{
-  position:absolute;
-  z-index:115;
-  left:50%;
-  top:625px;
-  width:132px;
-  height:76px;
-  padding:6px 13px;
-  border:4px solid #5a1d15;
-  border-radius:18px;
-  background:linear-gradient(180deg,#c34c35,#7e241c 64%,#49140f);
-  box-shadow:inset 0 0 0 2px #ef9b5c88,inset 0 -8px 12px #3d100c88,0 8px 15px #160604aa;
-  color:#ffe2aa;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  opacity:0;
-  pointer-events:none;
-  transform:translate(-50%,12px) scale(.88);
-  transition:opacity .12s,transform .12s,filter .12s;
-}
-#stage[data-drag-kind="food"] .discard-bin,
-#stage[data-drag-kind="waste"] .discard-bin{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1)}
-#stage[data-stall-level="1"] .discard-bin>span{position:relative;width:32px;height:31px;border:3px solid #ffe1a5;border-top:0;border-radius:3px 3px 7px 7px;transform:translateY(3px)}
-#stage[data-stall-level="1"] .discard-bin>span::before{content:"";position:absolute;left:-5px;right:-5px;top:-8px;height:5px;border-radius:4px;background:#ffe1a5;box-shadow:8px -5px 0 -1px #ffe1a5,16px -5px 0 -1px #ffe1a5}
-#stage[data-stall-level="1"] .discard-bin>span i{position:absolute;left:8px;top:5px;width:3px;height:18px;border-radius:2px;background:#ffe1a5;box-shadow:10px 0 #ffe1a5}
-#stage[data-stall-level="1"] .discard-bin strong{font-size:19px;line-height:1;white-space:nowrap;text-shadow:0 2px 3px #3b0f0c}
-#stage[data-stall-level="1"] .discard-bin.drop-over{filter:brightness(1.25) drop-shadow(0 0 14px #ffbc62);transform:translate(-50%,-3px) scale(1.05)}
-#dragGhost.waste-drag{width:132px;height:108px;background:#3b2119e8;border-color:#d36b48}
-#dragGhost.waste-drag img{filter:grayscale(.78) sepia(.25) brightness(.52) contrast(1.18) drop-shadow(0 6px 6px #0008)}
-
 /* The opening action now lives in the HUD immediately before pause. */
 #stage[data-stall-level="1"] .hud>.start{
   position:relative;
