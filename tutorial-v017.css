@@ -1,0 +1,30 @@
+/* V0.17 플레이 시스템: 첫 주문을 실제 조작으로 익히는 단계별 안내. */
+#stage[data-stall-level="1"] .help-button{
+  position:absolute;z-index:74;top:127px;right:max(350px,calc((100% - 1920px)/2 + 350px));
+  width:54px;height:54px;padding:0;border:4px solid #69371f;border-radius:14px;
+  background:linear-gradient(180deg,#f6d99d,#dba85f 72%,#b87538);color:#6c281b;
+  box-shadow:inset 0 0 0 2px #fff0c58f,0 7px 12px #1809068f;
+  display:grid;place-items:center;font-size:29px;line-height:1;font-weight:950;text-shadow:0 1px #fff0c5;
+}
+#stage[data-stall-level="1"] .help-button:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px #fff0c58f,0 4px 7px #1809068f}
+
+.tutorial-focus{z-index:205!important;filter:brightness(1.12) drop-shadow(0 0 16px #ffe36f)!important;outline:6px solid #ffe48a;outline-offset:7px;animation:tutorialPulse 1.05s ease-in-out infinite!important}
+.ingredient.tutorial-focus,.appliance.tutorial-focus{position:relative!important}
+.guest-row.tutorial-focus{outline-offset:-5px;border-radius:28px}
+.tutorial-path{position:absolute;z-index:204;left:0;top:0;width:100px;height:8px;transform-origin:0 50%;pointer-events:none;border-radius:99px;background:linear-gradient(90deg,#fff1a5,#ff9b4a);box-shadow:0 0 13px #ffb952,0 3px 6px #2a0a04aa;animation:pathGlow .78s ease-in-out infinite alternate}
+.tutorial-path::before{content:"드래그";position:absolute;left:50%;top:-37px;transform:translateX(-50%);padding:4px 10px;border:2px solid #6a321e;border-radius:99px;background:#fff0c8;color:#6c2b1c;font-size:16px;font-weight:950;white-space:nowrap}
+.tutorial-path::after{content:"";position:absolute;right:-2px;top:50%;transform:translateY(-50%);border-left:20px solid #ff9b4a;border-top:13px solid transparent;border-bottom:13px solid transparent;filter:drop-shadow(2px 2px 2px #4d160a88)}
+.tutorial-path.hidden{display:none}
+
+.tutorial-coach{position:absolute;z-index:260;left:50%;bottom:164px;transform:translateX(-50%);width:690px;min-height:150px;padding:20px 22px 18px 138px;border:5px solid #6b321e;border-radius:27px;background:linear-gradient(180deg,#fff0c9,#e9bd7a 76%,#ca8547);box-shadow:inset 0 0 0 3px #fff8dcaa,inset 0 -12px 18px #8c431b30,0 15px 30px #180705b8;color:#5d2819;text-shadow:0 1px #fff4cf}
+.tutorial-coach.hidden{display:none}
+.tutorial-portrait{position:absolute;left:14px;bottom:0;width:116px;height:139px;background:url("assets/art-v012/boreumi-idle-v3.png") center top/182px auto no-repeat;filter:drop-shadow(0 8px 7px #3d120b55)}
+.tutorial-copy small{display:block;color:#a14b26;font-size:16px;font-weight:950}.tutorial-copy h2{margin:2px 0 5px;font-size:27px;line-height:1.1;color:#69291b}.tutorial-copy p{margin:0 0 11px;font-size:18px;line-height:1.38;font-weight:800}
+.tutorial-actions{display:flex;justify-content:flex-end;gap:9px}.tutorial-actions button,.help-panel footer button{min-width:112px;padding:9px 17px;border:3px solid #71321f;border-radius:13px;background:linear-gradient(#fff2ca,#e5b36f);color:#612719;font-size:16px;font-weight:950;box-shadow:0 4px 7px #4c190c3d}.tutorial-actions button:last-child,.help-panel footer button:last-child{background:linear-gradient(#e85d3e,#a72d25);color:#fff2d1;text-shadow:0 2px #681b18}.tutorial-actions .hidden{display:none}
+
+.help-overlay{position:absolute;z-index:350;inset:0;display:grid;place-items:center;padding:62px 100px;background:radial-gradient(circle at 50% 40%,#4b2819b5,#100705ee 74%);backdrop-filter:blur(5px)}
+.help-overlay.hidden{display:none}.help-panel{width:1180px;padding:34px 42px 32px;border:7px solid #5c281a;border-radius:34px;background:linear-gradient(180deg,#f4d39a,#d49350 76%,#9b552f);box-shadow:inset 0 0 0 4px #fff0bf80,inset 0 -18px 30px #61251655,0 24px 45px #0d0403c7;color:#5b2819}.help-panel header{text-align:center}.help-panel header small{font-size:17px;font-weight:950;color:#984421}.help-panel h2{margin:3px 0 24px;font-size:38px}.help-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:17px}.help-grid article{position:relative;min-height:210px;padding:28px 18px 20px;border:4px solid #8a4c29;border-radius:23px;background:linear-gradient(#fff1ca,#e8bc7d);box-shadow:inset 0 0 0 2px #fff9df,0 8px 13px #56200f40;text-align:center}.help-grid article>b{display:grid;place-items:center;width:42px;height:42px;margin:-48px auto 13px;border:4px solid #7a3420;border-radius:50%;background:#d94e35;color:#fff4d8;font-size:22px}.help-grid strong{display:block;margin-bottom:12px;font-size:23px}.help-grid p{margin:0;font-size:18px;line-height:1.45;font-weight:750}.help-panel footer{display:flex;justify-content:center;gap:14px;margin-top:27px}.help-panel footer button{min-width:210px;font-size:18px;padding:12px 20px}
+
+@keyframes tutorialPulse{50%{outline-color:#fff5bb;filter:brightness(1.2) drop-shadow(0 0 25px #ffc85d)!important}}
+@keyframes pathGlow{to{filter:brightness(1.18);opacity:.82}}
+@media(prefers-reduced-motion:reduce){.tutorial-focus,.tutorial-path{animation:none!important}}

@@ -1,0 +1,30 @@
+{
+  "id": "./",
+  "name": "보름이의 라면포차",
+  "short_name": "라면포차",
+  "description": "보름이와 뽀미가 함께 운영하는 따뜻한 라면 포장마차 게임",
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#120806",
+  "theme_color": "#180c09",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "assets/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

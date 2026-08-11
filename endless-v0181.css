@@ -1,0 +1,10 @@
+/* V0.18.1 · The DAY counter never ends, so the calendar card scales long numbers instead of overflowing. */
+#stage[data-day-digits="4"] .hud>div:first-child b{font-size:27px}
+#stage[data-day-digits="5"] .hud>div:first-child b{font-size:23px;letter-spacing:-1px}
+#stage[data-day-digits="6"] .hud>div:first-child b{font-size:20px;letter-spacing:-1.5px}
+#stage[data-day-digits="7"] .hud>div:first-child b,
+#stage[data-day-digits="8"] .hud>div:first-child b,
+#stage[data-day-digits="9"] .hud>div:first-child b{font-size:16px;letter-spacing:-1.5px}
+
+/* Random visitors are assigned to seats at runtime; every sprite keeps the same approved framing. */
+#stage .guest-art{background-size:contain;background-position:center bottom;background-repeat:no-repeat}

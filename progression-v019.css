@@ -1,0 +1,82 @@
+/* V0.19 · DAY and paid-stall progression share one expandable seating system. */
+.guest-slot[hidden],.appliance[hidden]{display:none!important}
+
+#stage .guest-row[data-capacity="3"]{width:1370px;grid-template-columns:repeat(3,minmax(0,1fr));gap:46px}
+#stage .guest-row[data-capacity="4"]{width:1460px;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+#stage .guest-row[data-capacity="5"]{width:1480px;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+#stage .guest-row[data-capacity="4"] .guest-art{width:226px;height:252px}
+#stage .guest-row[data-capacity="4"] .guest-slot .bubble{width:216px}
+#stage .guest-row[data-capacity="5"] .guest-art{width:205px;height:240px}
+#stage .guest-row[data-capacity="5"] .guest-slot .bubble{width:194px}
+#stage .guest-row[data-capacity="5"] .guest-slot .patience{width:158px}
+
+#stage .guest-row[data-capacity="6"],
+#stage .guest-row[data-capacity="7"],
+#stage .guest-row[data-capacity="8"],
+#stage .guest-row[data-capacity="10"]{
+  width:calc(100% - 600px);
+  grid-template-columns:repeat(var(--seat-count),minmax(0,1fr));
+  gap:12px;
+}
+#stage .guest-row[data-capacity="6"]{--seat-count:6}
+#stage .guest-row[data-capacity="7"]{--seat-count:7}
+#stage .guest-row[data-capacity="8"]{--seat-count:8}
+#stage .guest-row[data-capacity="10"]{--seat-count:10}
+#stage .guest-row[data-capacity="6"] .guest-art,
+#stage .guest-row[data-capacity="7"] .guest-art{width:210px;height:244px}
+#stage .guest-row[data-capacity="6"] .guest-slot .bubble,
+#stage .guest-row[data-capacity="7"] .guest-slot .bubble{width:202px;height:104px}
+#stage .guest-row[data-capacity="8"] .guest-art{width:180px;height:232px}
+#stage .guest-row[data-capacity="8"] .guest-slot .bubble{width:178px;height:100px;padding-left:8px;padding-right:8px}
+#stage .guest-row[data-capacity="10"] .guest-art{width:154px;height:218px}
+#stage .guest-row[data-capacity="10"] .guest-slot .bubble{width:154px;height:94px;padding:8px 7px 11px}
+#stage .guest-row[data-capacity="8"] .order-item{width:64px;height:68px;flex-basis:64px}
+#stage .guest-row[data-capacity="8"] .order-item img{width:62px;height:64px}
+#stage .guest-row[data-capacity="8"] .order-plus{flex-basis:14px;font-size:21px}
+#stage .guest-row[data-capacity="10"] .order-items{gap:2px}
+#stage .guest-row[data-capacity="10"] .order-item{width:54px;height:62px;flex-basis:54px}
+#stage .guest-row[data-capacity="10"] .order-item img{width:52px;height:58px}
+#stage .guest-row[data-capacity="10"] .order-plus{flex-basis:10px;font-size:18px}
+#stage .guest-row[data-capacity="6"] .guest-slot .patience,
+#stage .guest-row[data-capacity="7"] .guest-slot .patience,
+#stage .guest-row[data-capacity="8"] .guest-slot .patience,
+#stage .guest-row[data-capacity="10"] .guest-slot .patience{top:109px;width:158px}
+
+#stage[data-guest-capacity="6"] .sign,
+#stage[data-guest-capacity="7"] .sign,
+#stage[data-guest-capacity="8"] .sign,
+#stage[data-guest-capacity="10"] .sign{left:24px}
+#stage[data-guest-capacity="6"] .ppomi-perch,
+#stage[data-guest-capacity="7"] .ppomi-perch,
+#stage[data-guest-capacity="8"] .ppomi-perch,
+#stage[data-guest-capacity="10"] .ppomi-perch{left:auto;right:24px}
+
+/* The wooden apron expands with the customer table while leaving both decorative wings visible. */
+#stage[data-guest-capacity="5"] .service-table::after{width:1160px}
+#stage[data-guest-capacity="6"] .service-table::after,
+#stage[data-guest-capacity="7"] .service-table::after,
+#stage[data-guest-capacity="8"] .service-table::after,
+#stage[data-guest-capacity="10"] .service-table::after{width:calc(100% - 620px);max-width:none}
+
+/* Appliance unlocks keep every active station centered instead of leaving empty grid holes. */
+#stage[data-growth-level="1"] .left-zone{left:calc(50% - 620px);width:610px;grid-template-columns:repeat(2,minmax(0,1fr))}
+#stage[data-growth-level="1"] .right-zone{left:calc(50% + 10px);width:610px;grid-template-columns:repeat(2,minmax(0,1fr))}
+#stage[data-growth-level="2"] .left-zone{left:calc(50% - 782px);width:915px;grid-template-columns:repeat(3,minmax(0,1fr))}
+#stage[data-growth-level="2"] .right-zone{left:calc(50% + 153px);width:610px;grid-template-columns:repeat(2,minmax(0,1fr))}
+#stage[data-growth-level="3"] .left-zone,
+#stage[data-growth-level="4"] .left-zone,
+#stage[data-growth-level="5"] .left-zone{left:calc(50% - 925px);width:915px;grid-template-columns:repeat(3,minmax(0,1fr))}
+#stage[data-growth-level="3"] .right-zone,
+#stage[data-growth-level="4"] .right-zone,
+#stage[data-growth-level="5"] .right-zone{left:calc(50% + 10px);width:915px;grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* Three station cards and one paid stall card remain readable in the existing 2×2 shop. */
+#stage .upgrade-card p{font-size:15px;line-height:1.32}
+#stage .upgrade-card p b{color:#7b2d1e}
+#stage .stall-upgrade-card{background:linear-gradient(180deg,#fff0bd,#e9b568 72%,#cf8145);box-shadow:inset 0 0 0 2px #fff8d5,0 8px 16px #6a2a1645,0 0 18px #ffc85a42}
+#stage .stall-upgrade-card .upgrade-level{background:#a9472b}
+#stage .stall-upgrade-card button:not(:disabled){background:linear-gradient(#ffd76d,#e98c37);color:#642516}
+
+/* Wide earned layouts reveal real side wings; the protected kitchen remains full size in the center. */
+#stage[data-layout-width="2160"]::before,#stage[data-layout-width="2160"]::after,
+#stage[data-layout-width="2340"]::before,#stage[data-layout-width="2340"]::after{opacity:.84}
