@@ -7,12 +7,12 @@
   const IsQA = UrlParams.has("qa");
   const PreviewLevel = Math.max(0, Math.min(5, Math.floor(Number(UrlParams.get("level")) || 0)));
   const PreviewDay = Math.max(0, Math.floor(Number(UrlParams.get("day")) || 0));
-  const SaveKey = IsQA ? "boreumi-ramen-v021-qa" : "boreumi-ramen-v021";
-  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v021-audio-qa" : "boreumi-ramen-v021-audio";
-  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v021-tutorial-qa" : "boreumi-ramen-v021-tutorial";
-  const LegacySaveKeys = ["boreumi-ramen-v020", "boreumi-ramen-v019", "boreumi-ramen-v0181", "boreumi-ramen-v018", "boreumi-ramen-v017", "boreumi-ramen-v016", "boreumi-ramen-v015"];
-  const LegacyAudioPreferenceKeys = ["boreumi-ramen-v020-audio", "boreumi-ramen-v019-audio", "boreumi-ramen-v0181-audio", "boreumi-ramen-v018-audio", "boreumi-ramen-v017-audio", "boreumi-ramen-v016-audio"];
-  const LegacyTutorialPreferenceKeys = ["boreumi-ramen-v020-tutorial", "boreumi-ramen-v019-tutorial", "boreumi-ramen-v0181-tutorial", "boreumi-ramen-v018-tutorial", "boreumi-ramen-v017-tutorial"];
+  const SaveKey = IsQA ? "boreumi-ramen-v022-qa" : "boreumi-ramen-v022";
+  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v022-audio-qa" : "boreumi-ramen-v022-audio";
+  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v022-tutorial-qa" : "boreumi-ramen-v022-tutorial";
+  const LegacySaveKeys = ["boreumi-ramen-v021", "boreumi-ramen-v020", "boreumi-ramen-v019", "boreumi-ramen-v0181", "boreumi-ramen-v018", "boreumi-ramen-v017", "boreumi-ramen-v016", "boreumi-ramen-v015"];
+  const LegacyAudioPreferenceKeys = ["boreumi-ramen-v021-audio", "boreumi-ramen-v020-audio", "boreumi-ramen-v019-audio", "boreumi-ramen-v0181-audio", "boreumi-ramen-v018-audio", "boreumi-ramen-v017-audio", "boreumi-ramen-v016-audio"];
+  const LegacyTutorialPreferenceKeys = ["boreumi-ramen-v021-tutorial", "boreumi-ramen-v020-tutorial", "boreumi-ramen-v019-tutorial", "boreumi-ramen-v0181-tutorial", "boreumi-ramen-v018-tutorial", "boreumi-ramen-v017-tutorial"];
 
   const Config = {
     stage: {
@@ -186,7 +186,7 @@
 
   function freshProgress() {
     return {
-      version: 5,
+      version: 6,
       day: 1,
       gold: 0,
       stallLevel: 1,
@@ -251,6 +251,7 @@
   }
 
   let Progress = loadProgress();
+  window.BoreumiBoot?.markDataReady();
   let qaRandomSeed = 181;
 
   function randomUnit() {
@@ -478,6 +479,7 @@
   const State = {
     running: false,
     paused: false,
+    tutorialMode: false,
     helpPausedGame: false,
     time: Config.daySeconds,
     sales: 0,
@@ -655,8 +657,8 @@
       catch { return false; }
     })(),
     steps: Object.freeze({
-      welcome: Object.freeze({ order: 1, eyebrow: "첫 안내 · 1/6", title: "보름이의 포차에 어서 오세요", text: "먼저 상단의 영업 시작 버튼을 눌러 첫 손님을 맞아볼까요?" }),
-      waitGuest: Object.freeze({ order: 2, eyebrow: "주문 받기 · 2/6", title: "빈자리에 손님이 찾아와요", text: "손님이 앉으면 말풍선의 음식과 주류 주문을 확인해 주세요." }),
+      welcome: Object.freeze({ order: 1, eyebrow: "연습 포차 · 1/6", title: "보름이의 연습 포차에 어서 오세요", text: "실제 영업과 분리된 연습이에요. DAY 시간과 손님 인내심은 줄어들지 않아요." }),
+      waitGuest: Object.freeze({ order: 2, eyebrow: "주문 확인 · 2/6", title: "연습 손님의 주문을 확인해요", text: "첫 손님은 기본 라면과 소주를 주문했어요. 이 주문은 튜토리얼 동안 바뀌지 않아요." }),
       addNoodle: Object.freeze({ order: 3, eyebrow: "라면 조리 · 3/6", title: "면을 냄비에 넣어주세요", text: "하단의 면 일러스트를 빈 냄비까지 끌어서 놓으면 조리가 즉시 시작돼요." }),
       waitCooking: Object.freeze({ order: 4, eyebrow: "조리 기다리기 · 4/6", title: "진행 막대를 확인하세요", text: "보름이가 조리하는 동안 다른 주문을 준비할 수 있어요. 완성 후에는 타기 전에 서빙해요." }),
       serveFood: Object.freeze({ order: 5, eyebrow: "음식 서빙 · 5/6", title: "완성된 라면을 손님에게", text: "완성 라면을 주문한 손님 캐릭터나 말풍선까지 끌어서 전달해 주세요." }),
@@ -677,8 +679,8 @@
     },
     elementsForStep() {
       const guest = this.activeGuest();
-      if (this.step === "welcome") return { focus: [$("#startButton")] };
-      if (this.step === "waitGuest") return { focus: [$("#guestRow")] };
+      if (this.step === "welcome") return { focus: [$("#tutorialStageBadge")] };
+      if (this.step === "waitGuest") return { focus: [guest ? $(`[data-guest="${guest.index}"]`) : $("#guestRow")] };
       if (this.step === "addNoodle") {
         const source = $('.ingredient[data-item="noodle"]');
         const target = $$('.appliance.pot').find(element => element.dataset.state === "empty") || $('.appliance.pot');
@@ -724,7 +726,9 @@
       $("#tutorialStep").textContent = copy.eyebrow;
       $("#tutorialTitle").textContent = copy.title;
       $("#tutorialText").textContent = copy.text;
-      $("#tutorialActionButton").classList.toggle("hidden", this.step !== "done");
+      const actionVisible = ["welcome", "waitGuest", "done"].includes(this.step);
+      $("#tutorialActionButton").classList.toggle("hidden", !actionVisible);
+      $("#tutorialActionButton").textContent = this.step === "welcome" ? "주문 확인" : this.step === "waitGuest" ? "조리 연습 시작" : "영업 화면으로";
       $("#tutorialSkipButton").classList.toggle("hidden", this.step === "done");
       coach.classList.remove("hidden");
       this.elementsForStep().focus.filter(Boolean).forEach(element => element.classList.add("tutorial-focus"));
@@ -738,7 +742,7 @@
       Sound.sfx(step === "done" ? "upgrade" : "drop");
     },
     inferStep() {
-      if (!State.running) return "welcome";
+      if (!State.tutorialMode) return "welcome";
       const guest = this.activeGuest();
       if (!guest) return "waitGuest";
       const readyPot = Appliances.some(appliance => appliance.type === "pot" && appliance.state === "ready");
@@ -748,11 +752,95 @@
       const pendingFood = guest.order?.items.some(item => !item.fulfilled && MenuCatalog[item.id]?.kind === "food");
       return pendingFood ? "addNoodle" : "serveDrink";
     },
-    start(fromContext = false) {
+    enterPractice() {
+      clearInterval(State.dayTimer);
+      clearGuestTimers();
+      clearTakeoutTimers();
+      resetGuests();
+      resetTakeoutOrders();
+      resetCompletionPass();
+      Appliances.forEach(resetAppliance);
+      State.running = true;
+      State.paused = false;
+      State.tutorialMode = true;
+      State.time = Config.daySeconds;
+      State.sales = 0;
+      State.guests = 1;
+      State.waste = 0;
+      State.served = 0;
+      State.missed = 0;
+      State.takeoutServed = 0;
+      State.takeoutMissed = 0;
+      State.takeoutPenalty = 0;
+      State.ratings = { happy: 0, okay: 0, tired: 0 };
+      State.cookingClock = performance.now();
+      State.guestClock = performance.now();
+      const guest = Guests[0];
+      guest.customerId = CustomerById.office ? "office" : CustomerCatalog[0].id;
+      guest.active = true;
+      guest.serving = false;
+      guest.satisfaction = "waiting";
+      guest.maxPatience = Config.guests.patienceMs;
+      guest.patience = guest.maxPatience;
+      guest.order = createOrder("ramen_plain", "soju");
+      renderGuest(guest);
+      $("#stage").dataset.tutorial = "true";
+      $("#tutorialStageBadge").hidden = false;
+      $(".hud").classList.add("running");
+      $("#startButton").disabled = true;
+      $("#startButton").setAttribute("aria-label", "연습중");
+      $("#startButton strong").textContent = "연습중";
+      renderHud();
+      setBoreumiIdle();
+    },
+    exitPractice() {
+      if (!State.tutorialMode) return;
+      clearInterval(State.dayTimer);
+      clearGuestTimers();
+      clearTakeoutTimers();
+      Sound.stopBgm();
+      State.running = false;
+      State.paused = false;
+      State.tutorialMode = false;
+      State.time = Config.daySeconds;
+      State.sales = 0;
+      State.guests = 0;
+      State.waste = 0;
+      State.served = 0;
+      State.missed = 0;
+      State.takeoutServed = 0;
+      State.takeoutMissed = 0;
+      State.takeoutPenalty = 0;
+      State.ratings = { happy: 0, okay: 0, tired: 0 };
+      resetGuests();
+      resetTakeoutOrders();
+      resetCompletionPass();
+      Appliances.forEach(resetAppliance);
+      $("#stage").dataset.tutorial = "false";
+      $("#tutorialStageBadge").hidden = true;
+      $(".hud").classList.remove("running");
+      $("#startButton").disabled = false;
+      $("#startButton").setAttribute("aria-label", "영업 시작");
+      $("#startButton strong").textContent = "영업 시작";
+      renderHud();
+      setBoreumiIdle();
+    },
+    start() {
       clearTimeout(this.closeTimer);
+      if (State.running && !State.tutorialMode) {
+        toast("현재 영업을 마친 뒤 연습 포차를 이용해 주세요.");
+        return false;
+      }
       $("#helpOverlay")?.classList.add("hidden");
+      this.enterPractice();
       this.active = true;
-      this.setStep(fromContext ? this.inferStep() : "welcome");
+      this.setStep("welcome");
+      return true;
+    },
+    advance() {
+      if (this.step === "welcome") this.setStep("waitGuest");
+      else if (this.step === "waitGuest") this.setStep("addNoodle");
+      else if (this.step === "done") this.close(false);
     },
     close(markComplete = false) {
       clearTimeout(this.closeTimer);
@@ -764,18 +852,16 @@
       this.step = null;
       this.clearFocus();
       $("#tutorialCoach")?.classList.add("hidden");
+      this.exitPractice();
     },
     complete() {
       this.completed = true;
       try { localStorage.setItem(TutorialPreferenceKey, "done"); } catch { /* Tutorial status remains in memory. */ }
       this.setStep("done");
-      this.closeTimer = setTimeout(() => this.close(), 4800);
     },
     handle(event, data = {}) {
       if (!this.active) return;
-      if (event === "started" && this.step === "welcome") this.setStep("waitGuest");
-      else if (event === "guest" && this.step === "waitGuest") this.setStep("addNoodle");
-      else if (event === "cooking" && this.step === "addNoodle" && data.appliance?.type === "pot") this.setStep("waitCooking");
+      if (event === "cooking" && this.step === "addNoodle" && data.appliance?.type === "pot") this.setStep("waitCooking");
       else if (event === "ready" && this.step === "waitCooking" && data.appliance?.type === "pot") this.setStep("serveFood");
       else if (event === "served" && this.step === "serveFood" && data.kind === "food") this.setStep("serveDrink");
       else if (event === "served" && this.step === "serveDrink" && data.kind === "drink") this.complete();
@@ -783,10 +869,12 @@
     scheduleFirstRun() {
       const forced = new URLSearchParams(location.search).has("tutorial");
       if (IsQA || (this.completed && !forced)) return;
-      setTimeout(() => {
+      const launch = () => setTimeout(() => {
         if (!$("#helpOverlay").classList.contains("hidden")) return;
-        this.start(State.running);
-      }, 520);
+        this.start();
+      }, 260);
+      if (window.BoreumiBoot?.state.complete) launch();
+      else window.addEventListener("boreumi:ready", launch, { once: true });
     }
   };
 
@@ -905,11 +993,12 @@
   function resize() {
     const viewport = window.visualViewport || window;
     const stage = $("#stage");
-    const viewportRatio = viewport.width / viewport.height;
+    const logicalViewport = window.BoreumiPWA?.logicalViewport || { width: viewport.width, height: viewport.height };
+    const viewportRatio = logicalViewport.width / logicalViewport.height;
     const adaptiveWidth = Math.round(Config.stage.height * viewportRatio);
     const requiredWidth = stageWidthForCapacity();
     const stageWidth = Math.max(requiredWidth, Math.min(Config.stage.maxWidth, adaptiveWidth));
-    const scale = Math.min(viewport.width / stageWidth, viewport.height / Config.stage.height);
+    const scale = Math.min(logicalViewport.width / stageWidth, logicalViewport.height / Config.stage.height);
     Config.stage.currentWidth = stageWidth;
     stage.style.width = `${stageWidth}px`;
     stage.style.setProperty("--stage-width", `${stageWidth}px`);
@@ -929,11 +1018,11 @@
     const dayText = String(effectiveDay());
     $("#dayNumber").textContent = dayText;
     $("#stage").dataset.dayDigits = String(dayText.length);
-    $("#goalAmount").textContent = money(State.goal);
-    $("#time").textContent = `${String(Math.floor(State.time / 60)).padStart(2, "0")}:${String(State.time % 60).padStart(2, "0")}`;
-    $("#timeFill").style.width = `${State.time / Config.daySeconds * 100}%`;
-    $("#sales").textContent = money(State.sales);
-    $("#guestCount").textContent = State.guests + "명";
+    $("#goalAmount").textContent = State.tutorialMode ? "연습 전용" : money(State.goal);
+    $("#time").textContent = State.tutorialMode ? "시간 정지" : `${String(Math.floor(State.time / 60)).padStart(2, "0")}:${String(State.time % 60).padStart(2, "0")}`;
+    $("#timeFill").style.width = State.tutorialMode ? "100%" : `${State.time / Config.daySeconds * 100}%`;
+    $("#sales").textContent = State.tutorialMode ? "저장 안 됨" : money(State.sales);
+    $("#guestCount").textContent = State.tutorialMode ? "연습 1명" : State.guests + "명";
     $("#stallLevel").textContent = String(effectiveStallLevel());
     $("#walletGold").textContent = money(Progress.gold);
   }
@@ -1397,7 +1486,7 @@
     const now = performance.now();
     const elapsed = Math.min(250, Math.max(0, now - State.guestClock));
     State.guestClock = now;
-    if (!State.running || State.paused) return;
+    if (!State.running || State.paused || State.tutorialMode) return;
     Guests.forEach(guest => {
       if (!guest.active || guest.serving) return;
       guest.patience = Math.max(0, guest.patience - elapsed);
@@ -1457,13 +1546,15 @@
 
   function setBoreumiIdle(delay = 0) {
     clearTimeout(State.boreumiTimer);
-    State.boreumiTimer = setTimeout(() => {
+    const applyIdlePose = () => {
       const boreumi = $("#boreumi");
       boreumi.dataset.mode = "idle";
       boreumi.dataset.pose = "idle";
       setBoreumiIdlePosition();
       boreumi.classList.remove("teleport", "action");
-    }, delay);
+    };
+    if (delay <= 0) applyIdlePose();
+    else State.boreumiTimer = setTimeout(applyIdlePose, delay);
   }
 
   function teleport(appliance, text) {
@@ -1549,7 +1640,7 @@
         appliance.cookRemaining -= elapsed;
         if (appliance.cookRemaining <= 0) completeCooking(appliance);
         else renderProgress(appliance);
-      } else if (appliance.state === "ready" && recipeFor(appliance)?.burns !== false) {
+      } else if (appliance.state === "ready" && !State.tutorialMode && recipeFor(appliance)?.burns !== false) {
         appliance.burnRemaining -= elapsed;
         if (appliance.burnRemaining <= 0) burnFood(appliance);
         else renderProgress(appliance);
@@ -1632,7 +1723,7 @@
   }
 
   function rejectOrderItem(guest) {
-    guest.patience = Math.max(0, guest.patience - Config.guests.wrongPenaltyMs);
+    if (!State.tutorialMode) guest.patience = Math.max(0, guest.patience - Config.guests.wrongPenaltyMs);
     renderPatience(guest);
     const slot = $(`[data-guest="${guest.index}"]`);
     slot.classList.remove("wrong-order");
@@ -1641,8 +1732,8 @@
     setTimeout(() => slot.classList.remove("wrong-order"), 430);
     Sound.sfx("wrong");
     Sound.haptic(22);
-    if (guest.patience <= 0) expireGuest(guest);
-    else toast("주문과 다른 메뉴예요. 인내심이 줄었어요.");
+    if (!State.tutorialMode && guest.patience <= 0) expireGuest(guest);
+    else toast(State.tutorialMode ? "연습 주문은 기본 라면과 소주예요." : "주문과 다른 메뉴예요. 인내심이 줄었어요.");
   }
 
   function satisfactionFor(guest) {
@@ -1653,6 +1744,17 @@
   }
 
   function completeOrder(guest) {
+    if (State.tutorialMode) {
+      guest.serving = true;
+      guest.satisfaction = "happy";
+      renderGuest(guest);
+      say("연습 주문 완성!");
+      const practiceSlot = $(`[data-guest="${guest.index}"]`);
+      burstAt(practiceSlot, "serve", 10);
+      floatFeedback(practiceSlot, "연습 완료", "sale");
+      toast("잘했어요! 실제 영업 기록에는 영향을 주지 않아요.");
+      return;
+    }
     const price = guest.order.items.reduce((sum, item) => sum + menuPriceWithUpgrade(item.id), 0);
     guest.serving = true;
     guest.satisfaction = satisfactionFor(guest);
@@ -2072,9 +2174,10 @@
 
   function moveGhost(event) {
     const point = pointer(event);
+    const logicalPoint = window.BoreumiPWA?.toLogicalPoint?.(point) || point;
     const ghost = $("#dragGhost");
-    ghost.style.left = point.x + "px";
-    ghost.style.top = (point.y - (event.pointerType === "touch" ? 48 : 18)) + "px";
+    ghost.style.left = logicalPoint.x + "px";
+    ghost.style.top = (logicalPoint.y - (event.pointerType === "touch" ? 48 : 18)) + "px";
   }
 
   function clearOver() {
@@ -2235,6 +2338,7 @@
   async function browserQA() {
     const qaParams = new URLSearchParams(location.search);
     if (!qaParams.has("qa")) return;
+    if (window.BoreumiBoot?.readyPromise) await window.BoreumiBoot.readyPromise;
     await Promise.all($$(".dock img").map(image => image.complete
       ? Promise.resolve()
       : image.decode().catch(() => undefined)));
@@ -2246,15 +2350,21 @@
     const result = {};
     let pwaManifest = null;
     let pwaCssSource = "";
+    let experienceCssSource = "";
+    let bootSource = "";
     let serviceWorkerSource = "";
     try {
-      const [manifestResponse, cssResponse, workerResponse] = await Promise.all([
+      const [manifestResponse, cssResponse, experienceResponse, bootResponse, workerResponse] = await Promise.all([
         fetch("app.webmanifest", { cache: "no-store" }),
-        fetch("pwa-v021.css", { cache: "no-store" }),
+        fetch("pwa-v022.css", { cache: "no-store" }),
+        fetch("experience-v022.css", { cache: "no-store" }),
+        fetch("boot-v022.js", { cache: "no-store" }),
         fetch("service-worker.js", { cache: "no-store" })
       ]);
       pwaManifest = await manifestResponse.json();
       pwaCssSource = await cssResponse.text();
+      experienceCssSource = await experienceResponse.text();
+      bootSource = await bootResponse.text();
       serviceWorkerSource = await workerResponse.text();
     } catch {
       // Individual checks below report the unavailable PWA resource.
@@ -2275,6 +2385,16 @@
     result.pwaSafeAreaReady = pwaCssSource.includes("safe-area-inset-left")
       && pwaCssSource.includes("safe-area-inset-right")
       && pwaCssSource.includes("100dvh");
+    result.portraitLandscapeFallbackReady = pwaCssSource.includes('data-force-landscape="true"')
+      && pwaCssSource.includes("rotate(90deg)")
+      && typeof window.BoreumiPWA?.toLogicalPoint === "function";
+    result.loadingScreenPresent = !!$("#bootLoading")
+      && !!$("#bootProgress")
+      && bootSource.includes("criticalAssets")
+      && experienceCssSource.includes("data-boot=\"ready\"");
+    result.loadingCompletesBeforeGame = document.documentElement.dataset.boot === "ready"
+      && window.BoreumiBoot?.state.complete === true
+      && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
     result.serviceWorkerRegistered = !!serviceWorkerRegistration && window.BoreumiPWA?.serviceWorkerRegistered === true;
     result.offlineGameCacheReady = serviceWorkerSource.includes("CACHE_GAME")
       && serviceWorkerSource.includes("GAME_ASSETS")
@@ -2291,11 +2411,19 @@
     burstAt($(`[data-id="${Appliances[0].id}"]`), "complete", 4);
     result.feedbackParticlesRender = $$("#fxLayer .fx-particle").length === 4;
     result.tutorialControlsPresent = !!$("#helpButton") && !!$("#tutorialCoach") && !!$("#helpOverlay");
-    result.legacySaveMigrationReady = LegacySaveKeys.includes("boreumi-ramen-v020") && SaveKey.includes("v021");
-    Tutorial.start(false);
+    result.legacySaveMigrationReady = LegacySaveKeys.includes("boreumi-ramen-v021") && SaveKey.includes("v022");
+    Tutorial.start();
     result.tutorialWelcomeVisible = !$("#tutorialCoach").classList.contains("hidden")
       && $("#tutorialTitle").textContent.includes("어서 오세요");
-    result.tutorialStartHighlighted = $("#startButton").classList.contains("tutorial-focus");
+    const tutorialTimeBeforeQA = State.time;
+    await new Promise(resolve => setTimeout(resolve, 120));
+    result.tutorialIsolatedStage = State.tutorialMode
+      && State.running
+      && $("#stage").dataset.tutorial === "true"
+      && !$("#tutorialStageBadge").hidden
+      && State.time === tutorialTimeBeforeQA;
+    result.tutorialFixedOrder = Tutorial.activeGuest()?.order?.items.map(item => item.id).join("+") === "ramen_plain+soju"
+      && Tutorial.activeGuest()?.patience === Tutorial.activeGuest()?.maxPatience;
     Tutorial.setStep("addNoodle");
     await new Promise(resolve => setTimeout(resolve, 50));
     result.tutorialPathVisible = !$("#tutorialPath").classList.contains("hidden");
@@ -2329,6 +2457,25 @@
       target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, pointerId, pointerType: "mouse", button: 0, buttons: 1, ...point }));
       document.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true, pointerId, pointerType: "mouse", button: 0, buttons: 0, ...point }));
     };
+    const tutorialProgressBeforeQA = JSON.stringify(Progress);
+    Tutorial.start();
+    Tutorial.advance();
+    Tutorial.advance();
+    const tutorialPotQA = Appliances.find(appliance => appliance.type === "pot" && appliance.state === "empty");
+    const tutorialGuestQA = Tutorial.activeGuest();
+    dropItem(tutorialPotQA, "noodle");
+    tutorialPotQA.cookRemaining = 0;
+    completeCooking(tutorialPotQA);
+    serve(tutorialPotQA, 0);
+    serveDrink("soju", 0);
+    result.tutorialPracticeFlowCompletes = Tutorial.step === "done"
+      && tutorialGuestQA?.satisfaction === "happy"
+      && State.sales === 0
+      && State.served === 0
+      && JSON.stringify(Progress) === tutorialProgressBeforeQA;
+    Tutorial.close(false);
+    Tutorial.completed = false;
+    localStorage.removeItem(TutorialPreferenceKey);
     result.startButtonInHud = $("#startButton").parentElement === $(".hud") && $("#startButton").nextElementSibling === $("#pauseButton");
     const startButtonStyle = getComputedStyle($("#startButton"));
     const pauseButtonStyle = getComputedStyle($("#pauseButton"));
@@ -2857,7 +3004,7 @@
       && savedProgress?.stationLevels?.grill === 2
       && savedProgress?.stationLevels?.oden === 2
       && savedProgress?.stallLevel === 2
-      && savedProgress?.version === 5
+      && savedProgress?.version === 6
       && savedProgress?.stats?.completedDays === 1
       && savedProgress?.regulars?.[qaFirstCustomerId]?.served === 1
       && savedProgress?.storyLog?.length >= 1;
@@ -3101,22 +3248,29 @@
   $("#helpButton").addEventListener("click", openHelp);
   $("#closeHelpButton").addEventListener("click", () => closeHelp(true));
   $("#restartTutorialButton").addEventListener("click", () => {
-    closeHelp(true);
-    Tutorial.start(true);
+    if (State.running && !State.tutorialMode) {
+      closeHelp(true);
+      toast("현재 영업을 마친 뒤 연습 포차를 이용해 주세요.");
+      return;
+    }
+    closeHelp(false);
+    Tutorial.start();
   });
   $("#tutorialSkipButton").addEventListener("click", () => {
     Tutorial.close(true);
     toast("단계별 안내를 건너뛰었어요. ? 버튼에서 다시 볼 수 있어요.");
   });
-  $("#tutorialActionButton").addEventListener("click", () => Tutorial.close(true));
+  $("#tutorialActionButton").addEventListener("click", () => Tutorial.advance());
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && !$("#helpOverlay").classList.contains("hidden")) closeHelp(true);
   });
   document.addEventListener("dragstart", event => event.preventDefault());
   window.addEventListener("resize", resize, { passive: true });
   window.visualViewport?.addEventListener("resize", resize, { passive: true });
+  window.addEventListener("boreumi:viewport", resize, { passive: true });
   resize();
   startPpomiPoses();
+  window.BoreumiBoot?.markGameReady();
   Tutorial.scheduleFirstRun();
   browserQA();
 })();
