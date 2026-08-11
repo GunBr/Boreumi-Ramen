@@ -1,0 +1,96 @@
+/* V0.23: mobile touch comfort, update UI and save recovery controls. */
+button,.ingredient,.appliance,.pass-slot,.guest-slot.active{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation
+}
+.ingredient,.appliance,.pass-slot{touch-action:none}
+
+.help-button,.sound-button{isolation:isolate}
+.help-button::before,.sound-button::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:-34px;
+  border-radius:32px
+}
+
+.update-banner{
+  position:fixed;
+  z-index:31000;
+  left:50%;
+  top:max(14px,var(--pwa-safe-top));
+  transform:translateX(-50%);
+  min-width:min(620px,88vw);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  padding:14px 18px;
+  border:3px solid #d99950;
+  border-radius:18px;
+  background:linear-gradient(165deg,#5b291bfa,#2a110dfa);
+  box-shadow:inset 0 0 0 2px #ffe1a35c,0 12px 32px #000b;
+  color:#ffedc8
+}
+.update-banner[hidden]{display:none!important}
+.update-banner span{display:flex;flex-direction:column;line-height:1.25}
+.update-banner small{font-size:13px;color:#f2bc75;font-weight:900}
+.update-banner strong{font-size:18px}
+.update-banner button{
+  min-height:44px;
+  padding:8px 17px;
+  border:2px solid #71321f;
+  border-radius:12px;
+  background:linear-gradient(#fff0be,#e0a45e);
+  color:#5b2418;
+  font-weight:950
+}
+.update-banner .update-later{min-width:44px;padding:8px;background:#3b1b14;color:#f4d6aa}
+
+.mobile-care{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:20px;
+  align-items:center;
+  margin-top:20px;
+  padding:16px 20px;
+  border:3px solid #85502f;
+  border-radius:18px;
+  background:#5128174f;
+  box-shadow:inset 0 0 0 2px #fff0c24a
+}
+.mobile-care-status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 18px}
+.mobile-care-status p{display:flex;justify-content:space-between;gap:16px;margin:0;font-size:15px;font-weight:850}
+.mobile-care-status span{color:#fff0c8}
+.mobile-care-actions{display:flex;gap:8px}
+.mobile-care-actions button{
+  min-width:138px;
+  min-height:120px;
+  padding:9px 13px;
+  border:3px solid #71321f;
+  border-radius:12px;
+  background:linear-gradient(#fff1c5,#dfa45e);
+  color:#5c2518;
+  font-weight:950
+}
+.tutorial-actions button,.help-panel footer button{min-height:96px}
+.mobile-care-actions button:disabled{filter:grayscale(.8);opacity:.55}
+
+#startButton.first-day-ready{animation:firstDayReady 1.05s ease-in-out infinite alternate}
+@keyframes firstDayReady{to{filter:brightness(1.18);box-shadow:0 0 0 7px #ffe39d55,0 0 32px #ffc65d}}
+
+html[data-force-landscape="true"] .update-banner{
+  top:max(14px,var(--pwa-safe-left))
+}
+
+@media(max-height:500px){
+  .update-banner{min-width:min(600px,82vw);padding:9px 13px;gap:11px}
+  .update-banner strong{font-size:15px}
+  .update-banner button{min-height:36px;padding:6px 12px}
+  .mobile-care{margin-top:13px;padding:10px 14px;gap:12px}
+  .mobile-care-actions button{min-width:120px;min-height:120px;padding:6px 9px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #startButton.first-day-ready{animation:none;filter:brightness(1.13)}
+}

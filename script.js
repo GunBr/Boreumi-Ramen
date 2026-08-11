@@ -7,12 +7,19 @@
   const IsQA = UrlParams.has("qa");
   const PreviewLevel = Math.max(0, Math.min(5, Math.floor(Number(UrlParams.get("level")) || 0)));
   const PreviewDay = Math.max(0, Math.floor(Number(UrlParams.get("day")) || 0));
-  const SaveKey = IsQA ? "boreumi-ramen-v022-qa" : "boreumi-ramen-v022";
-  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v022-audio-qa" : "boreumi-ramen-v022-audio";
-  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v022-tutorial-qa" : "boreumi-ramen-v022-tutorial";
-  const LegacySaveKeys = ["boreumi-ramen-v021", "boreumi-ramen-v020", "boreumi-ramen-v019", "boreumi-ramen-v0181", "boreumi-ramen-v018", "boreumi-ramen-v017", "boreumi-ramen-v016", "boreumi-ramen-v015"];
-  const LegacyAudioPreferenceKeys = ["boreumi-ramen-v021-audio", "boreumi-ramen-v020-audio", "boreumi-ramen-v019-audio", "boreumi-ramen-v0181-audio", "boreumi-ramen-v018-audio", "boreumi-ramen-v017-audio", "boreumi-ramen-v016-audio"];
-  const LegacyTutorialPreferenceKeys = ["boreumi-ramen-v021-tutorial", "boreumi-ramen-v020-tutorial", "boreumi-ramen-v019-tutorial", "boreumi-ramen-v0181-tutorial", "boreumi-ramen-v018-tutorial", "boreumi-ramen-v017-tutorial"];
+  const SaveKey = IsQA ? "boreumi-ramen-v023-qa" : "boreumi-ramen-v023";
+  const BackupKey = IsQA ? "boreumi-ramen-v023-backup-qa" : "boreumi-ramen-v023-backup";
+  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v023-audio-qa" : "boreumi-ramen-v023-audio";
+  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v023-tutorial-qa" : "boreumi-ramen-v023-tutorial";
+  const LegacySaveKeys = ["boreumi-ramen-v022", "boreumi-ramen-v021", "boreumi-ramen-v020", "boreumi-ramen-v019", "boreumi-ramen-v0181", "boreumi-ramen-v018", "boreumi-ramen-v017", "boreumi-ramen-v016", "boreumi-ramen-v015"];
+  const LegacyAudioPreferenceKeys = ["boreumi-ramen-v022-audio", "boreumi-ramen-v021-audio", "boreumi-ramen-v020-audio", "boreumi-ramen-v019-audio", "boreumi-ramen-v0181-audio", "boreumi-ramen-v018-audio", "boreumi-ramen-v017-audio", "boreumi-ramen-v016-audio"];
+  const LegacyTutorialPreferenceKeys = ["boreumi-ramen-v022-tutorial", "boreumi-ramen-v021-tutorial", "boreumi-ramen-v020-tutorial", "boreumi-ramen-v019-tutorial", "boreumi-ramen-v0181-tutorial", "boreumi-ramen-v018-tutorial", "boreumi-ramen-v017-tutorial"];
+  const StorageStatus = {
+    loadedFrom: "fresh",
+    recovered: false,
+    lastSavedAt: 0,
+    lastError: ""
+  };
 
   const Config = {
     stage: {
@@ -45,10 +52,10 @@
   };
 
   const FoodArt = {
-    pot: "assets/art-v012/food-ramen-no-egg-v3.png",
-    potEgg: "assets/art-v012/food-ramen-v2.png",
-    grill: "assets/art-v012/food-dumpling-v2.png",
-    oden: "assets/art-v012/food-oden.png"
+    pot: "assets/art-v012/food-ramen-no-egg-v3.webp",
+    potEgg: "assets/art-v012/food-ramen-v2.webp",
+    grill: "assets/art-v012/food-dumpling-v2.webp",
+    oden: "assets/art-v012/food-oden.webp"
   };
 
   const RecipeCatalog = Object.freeze({
@@ -103,31 +110,31 @@
     ramen_egg: Object.freeze({ id: "ramen_egg", kind: "food", label: "계란 라면", art: FoodArt.potEgg, price: 4000 }),
     grilled_dumpling: Object.freeze({ id: "grilled_dumpling", kind: "food", label: "군만두", art: FoodArt.grill, price: 2200 }),
     warm_oden: Object.freeze({ id: "warm_oden", kind: "food", label: "오뎅", art: FoodArt.oden, price: 1800 }),
-    soju: Object.freeze({ id: "soju", kind: "drink", label: "소주", art: "assets/art-v012/drink-soju-v1.png", price: 1500 }),
-    beer: Object.freeze({ id: "beer", kind: "drink", label: "맥주", art: "assets/art-v012/drink-beer-v1.png", price: 2000 }),
-    somaek: Object.freeze({ id: "somaek", kind: "drink", label: "소맥", art: "assets/art-v012/drink-somaek-v1.png", price: 2500 }),
-    makgeolli: Object.freeze({ id: "makgeolli", kind: "drink", label: "막걸리", art: "assets/art-v012/drink-makgeolli-v1.png", price: 2000 })
+    soju: Object.freeze({ id: "soju", kind: "drink", label: "소주", art: "assets/art-v012/drink-soju-v1.webp", price: 1500 }),
+    beer: Object.freeze({ id: "beer", kind: "drink", label: "맥주", art: "assets/art-v012/drink-beer-v1.webp", price: 2000 }),
+    somaek: Object.freeze({ id: "somaek", kind: "drink", label: "소맥", art: "assets/art-v012/drink-somaek-v1.webp", price: 2500 }),
+    makgeolli: Object.freeze({ id: "makgeolli", kind: "drink", label: "막걸리", art: "assets/art-v012/drink-makgeolli-v1.webp", price: 2000 })
   });
 
   const CustomerCatalog = Object.freeze([
-    Object.freeze({ id: "office", name: "회사원", art: "assets/art-v012/customer-office.png" }),
-    Object.freeze({ id: "rider", name: "배달기사", art: "assets/art-v012/customer-rider.png" }),
-    Object.freeze({ id: "student", name: "학생", art: "assets/art-v012/customer-student.png" }),
-    Object.freeze({ id: "baker", name: "빵집 직원", art: "assets/art-v012/customer-baker-v2.png" }),
-    Object.freeze({ id: "grandma", name: "반찬가게 할머니", art: "assets/art-v012/customer-grandma-v1.png" }),
-    Object.freeze({ id: "driver", name: "택시기사", art: "assets/art-v012/customer-driver-v1.png" }),
-    Object.freeze({ id: "nurse", name: "야간 간호사", art: "assets/art-v012/customer-nurse-v1.png" }),
-    Object.freeze({ id: "florist", name: "꽃집 사장", art: "assets/art-v012/customer-florist-v1.png" }),
-    Object.freeze({ id: "firefighter", name: "소방관", art: "assets/art-v012/customer-firefighter-v1.png" }),
-    Object.freeze({ id: "musician", name: "버스커", art: "assets/art-v012/customer-musician-v1.png" }),
-    Object.freeze({ id: "teacher", name: "초등 교사", art: "assets/art-v012/customer-teacher-v1.png" }),
-    Object.freeze({ id: "fisher", name: "새벽 어부", art: "assets/art-v012/customer-fisher-v1.png" }),
-    Object.freeze({ id: "merchant", name: "시장 상인", art: "assets/art-v012/customer-merchant-v1.png" }),
-    Object.freeze({ id: "police", name: "동네 순경", art: "assets/art-v012/customer-police-v1.png" }),
-    Object.freeze({ id: "cleaner", name: "환경미화원", art: "assets/art-v012/customer-cleaner-v1.png" }),
-    Object.freeze({ id: "artist", name: "웹툰 작가", art: "assets/art-v012/customer-artist-v1.png" }),
-    Object.freeze({ id: "guard", name: "야간 경비원", art: "assets/art-v012/customer-guard-v1.png" }),
-    Object.freeze({ id: "traveler", name: "여행객", art: "assets/art-v012/customer-traveler-v1.png" })
+    Object.freeze({ id: "office", name: "회사원", art: "assets/art-v012/customer-office.webp" }),
+    Object.freeze({ id: "rider", name: "배달기사", art: "assets/art-v012/customer-rider.webp" }),
+    Object.freeze({ id: "student", name: "학생", art: "assets/art-v012/customer-student.webp" }),
+    Object.freeze({ id: "baker", name: "빵집 직원", art: "assets/art-v012/customer-baker-v2.webp" }),
+    Object.freeze({ id: "grandma", name: "반찬가게 할머니", art: "assets/art-v012/customer-grandma-v1.webp" }),
+    Object.freeze({ id: "driver", name: "택시기사", art: "assets/art-v012/customer-driver-v1.webp" }),
+    Object.freeze({ id: "nurse", name: "야간 간호사", art: "assets/art-v012/customer-nurse-v1.webp" }),
+    Object.freeze({ id: "florist", name: "꽃집 사장", art: "assets/art-v012/customer-florist-v1.webp" }),
+    Object.freeze({ id: "firefighter", name: "소방관", art: "assets/art-v012/customer-firefighter-v1.webp" }),
+    Object.freeze({ id: "musician", name: "버스커", art: "assets/art-v012/customer-musician-v1.webp" }),
+    Object.freeze({ id: "teacher", name: "초등 교사", art: "assets/art-v012/customer-teacher-v1.webp" }),
+    Object.freeze({ id: "fisher", name: "새벽 어부", art: "assets/art-v012/customer-fisher-v1.webp" }),
+    Object.freeze({ id: "merchant", name: "시장 상인", art: "assets/art-v012/customer-merchant-v1.webp" }),
+    Object.freeze({ id: "police", name: "동네 순경", art: "assets/art-v012/customer-police-v1.webp" }),
+    Object.freeze({ id: "cleaner", name: "환경미화원", art: "assets/art-v012/customer-cleaner-v1.webp" }),
+    Object.freeze({ id: "artist", name: "웹툰 작가", art: "assets/art-v012/customer-artist-v1.webp" }),
+    Object.freeze({ id: "guard", name: "야간 경비원", art: "assets/art-v012/customer-guard-v1.webp" }),
+    Object.freeze({ id: "traveler", name: "여행객", art: "assets/art-v012/customer-traveler-v1.webp" })
   ]);
   const CustomerById = Object.freeze(Object.fromEntries(CustomerCatalog.map(customer => [customer.id, customer])));
   const FoodOrderPool = Object.freeze(Object.values(MenuCatalog).filter(item => item.kind === "food").map(item => item.id));
@@ -186,7 +193,7 @@
 
   function freshProgress() {
     return {
-      version: 6,
+      version: 7,
       day: 1,
       gold: 0,
       stallLevel: 1,
@@ -227,30 +234,80 @@
     return clean;
   }
 
+  function decodeProgress(serialized) {
+    if (!serialized) return null;
+    const raw = JSON.parse(serialized);
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) throw new Error("invalid-save");
+    return sanitizeProgress(raw);
+  }
+
+  function recoverSerializedProgress(primarySerialized, backupSerialized) {
+    try {
+      const primary = decodeProgress(primarySerialized);
+      if (primary) return { progress: primary, source: "primary", recovered: false };
+    } catch { /* Try the automatic backup below. */ }
+    try {
+      const backup = decodeProgress(backupSerialized);
+      if (backup) return { progress: backup, source: "backup", recovered: true };
+    } catch { /* A fresh save is safer than loading malformed data. */ }
+    return { progress: freshProgress(), source: "fresh", recovered: false };
+  }
+
   function loadProgress() {
     try {
-      if (IsQA) localStorage.removeItem(SaveKey);
-      let serialized = localStorage.getItem(SaveKey);
-      if (!serialized && !IsQA) {
-        const legacyKey = LegacySaveKeys.find(key => localStorage.getItem(key));
-        if (legacyKey) serialized = localStorage.getItem(legacyKey);
+      if (IsQA) {
+        localStorage.removeItem(SaveKey);
+        localStorage.removeItem(BackupKey);
       }
-      return sanitizeProgress(JSON.parse(serialized || "null"));
-    } catch {
-      return freshProgress();
+      const recovery = recoverSerializedProgress(localStorage.getItem(SaveKey), localStorage.getItem(BackupKey));
+      if (recovery.source !== "fresh") {
+        StorageStatus.loadedFrom = recovery.source;
+        StorageStatus.recovered = recovery.recovered;
+        if (recovery.recovered) localStorage.setItem(SaveKey, JSON.stringify(recovery.progress));
+        return recovery.progress;
+      }
+      if (!IsQA) {
+        const legacyKey = LegacySaveKeys.find(key => localStorage.getItem(key));
+        const legacy = legacyKey ? decodeProgress(localStorage.getItem(legacyKey)) : null;
+        if (legacy) {
+          StorageStatus.loadedFrom = legacyKey;
+          localStorage.setItem(SaveKey, JSON.stringify(legacy));
+          return legacy;
+        }
+      }
+    } catch (error) {
+      StorageStatus.lastError = String(error?.message || error);
     }
+    StorageStatus.loadedFrom = "fresh";
+    return freshProgress();
   }
 
   function saveProgress() {
     try {
-      localStorage.setItem(SaveKey, JSON.stringify(Progress));
+      const serialized = JSON.stringify(Progress);
+      const existing = localStorage.getItem(SaveKey);
+      if (existing && existing !== serialized) {
+        try {
+          decodeProgress(existing);
+          localStorage.setItem(BackupKey, existing);
+        } catch { /* Never replace a healthy backup with malformed data. */ }
+      }
+      localStorage.setItem(SaveKey, serialized);
+      StorageStatus.loadedFrom = "primary";
+      StorageStatus.recovered = false;
+      StorageStatus.lastSavedAt = Date.now();
+      StorageStatus.lastError = "";
+      updateMobileCare();
       return true;
-    } catch {
+    } catch (error) {
+      StorageStatus.lastError = String(error?.message || error);
+      updateMobileCare();
       return false;
     }
   }
 
   let Progress = loadProgress();
+  window.BoreumiStorage = Object.assign(StorageStatus, { recoverSerializedProgress });
   window.BoreumiBoot?.markDataReady();
   let qaRandomSeed = 181;
 
@@ -448,8 +505,8 @@
       label: "라면 재료",
       className: "ingredient-rack",
       items: [
-        { id: "noodle", label: "면", art: "assets/art-v012/ingredient-noodle-v4.png", draggable: true },
-        { id: "egg", label: "계란", art: "assets/art-v012/ingredient-egg-v4.png", draggable: true }
+        { id: "noodle", label: "면", art: "assets/art-v012/ingredient-noodle-v4.webp", draggable: true },
+        { id: "egg", label: "계란", art: "assets/art-v012/ingredient-egg-v4.webp", draggable: true }
       ]
     },
     {
@@ -457,10 +514,10 @@
       label: "주류",
       className: "drink-rack",
       items: [
-        { id: "soju", label: "소주", art: "assets/art-v012/drink-soju-v1.png", draggable: true, kind: "drink" },
-        { id: "beer", label: "맥주", art: "assets/art-v012/drink-beer-v1.png", draggable: true, kind: "drink" },
-        { id: "somaek", label: "소맥", art: "assets/art-v012/drink-somaek-v1.png", draggable: true, kind: "drink" },
-        { id: "makgeolli", label: "막걸리", art: "assets/art-v012/drink-makgeolli-v1.png", draggable: true, kind: "drink" }
+        { id: "soju", label: "소주", art: "assets/art-v012/drink-soju-v1.webp", draggable: true, kind: "drink" },
+        { id: "beer", label: "맥주", art: "assets/art-v012/drink-beer-v1.webp", draggable: true, kind: "drink" },
+        { id: "somaek", label: "소맥", art: "assets/art-v012/drink-somaek-v1.webp", draggable: true, kind: "drink" },
+        { id: "makgeolli", label: "막걸리", art: "assets/art-v012/drink-makgeolli-v1.webp", draggable: true, kind: "drink" }
       ]
     },
     {
@@ -468,8 +525,8 @@
       label: "안주",
       className: "snack-rack",
       items: [
-        { id: "dumpling", label: "군만두", art: "assets/art-v012/ingredient-dumpling-v4.png", draggable: true },
-        { id: "oden", label: "오뎅", art: "assets/art-v012/ingredient-oden-v4.png", draggable: true }
+        { id: "dumpling", label: "군만두", art: "assets/art-v012/ingredient-dumpling-v4.webp", draggable: true },
+        { id: "oden", label: "오뎅", art: "assets/art-v012/ingredient-oden-v4.webp", draggable: true }
       ]
     }
   ];
@@ -824,6 +881,7 @@
       $("#startButton strong").textContent = "영업 시작";
       renderHud();
       setBoreumiIdle();
+      if (this.completed) announceFirstDayReady();
     },
     start() {
       clearTimeout(this.closeTimer);
@@ -1996,6 +2054,10 @@
       resetArmTimer = setTimeout(disarmResetButton, 3500);
       return;
     }
+    try {
+      localStorage.removeItem(SaveKey);
+      localStorage.removeItem(BackupKey);
+    } catch { /* The in-memory reset still works. */ }
     Progress = freshProgress();
     saveProgress();
     Tutorial.completed = false;
@@ -2093,6 +2155,7 @@
 
   function start() {
     if (State.running || !$("#settlementOverlay").classList.contains("hidden")) return;
+    $("#startButton").classList.remove("first-day-ready");
     clearInterval(State.dayTimer);
     setBoreumiIdle();
     resetGuests();
@@ -2313,6 +2376,92 @@
     setInterval(() => setPpomiPose(poses[index = ++index % poses.length]), 4800);
   }
 
+  function announceFirstDayReady() {
+    if (Progress.day !== 1 || Progress.stats.completedDays !== 0) return;
+    $("#startButton")?.classList.add("first-day-ready");
+    toast("연습 완료! 영업 시작을 누르면 실제 첫날이 시작돼요.");
+  }
+
+  function updateMobileCare() {
+    const offline = $("#offlineCacheStatus");
+    const save = $("#saveRecoveryStatus");
+    const pwa = window.BoreumiPWA;
+    if (offline) {
+      if (document.documentElement.dataset.offline === "unavailable") offline.textContent = "온라인 실행 필요";
+      else if (pwa?.offlineCache?.complete) offline.textContent = `${pwa.offlineCache.total}개 준비 완료`;
+      else if (pwa?.offlineCache?.total) offline.textContent = `${pwa.offlineCache.loaded}/${pwa.offlineCache.total} 저장 중`;
+      else offline.textContent = pwa?.serviceWorkerRegistered ? "기본 화면 준비됨" : "확인 중";
+    }
+    if (save) {
+      let hasBackup = false;
+      try { hasBackup = !!localStorage.getItem(BackupKey); } catch { /* Status below reports an error. */ }
+      save.textContent = StorageStatus.lastError
+        ? "저장 확인 필요"
+        : StorageStatus.recovered
+          ? "자동 백업 복구됨"
+          : hasBackup ? "정상 · 자동 백업 있음" : "정상";
+    }
+    const importingLocked = State.running;
+    if ($("#importSaveButton")) $("#importSaveButton").disabled = importingLocked;
+  }
+
+  function exportedProgressText() {
+    return JSON.stringify({
+      format: "boreumi-ramen-save",
+      exportVersion: 1,
+      gameVersion: "0.23",
+      exportedAt: new Date().toISOString(),
+      progress: Progress
+    }, null, 2);
+  }
+
+  function exportProgressFile() {
+    saveProgress();
+    const blob = new Blob([exportedProgressText()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `boreumi-ramen-day-${Progress.day}-backup.json`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("현재 진행 상황을 파일로 저장했어요.");
+  }
+
+  function importProgressText(text) {
+    if (State.running) throw new Error("영업 또는 연습을 마친 뒤 불러와 주세요.");
+    const parsed = JSON.parse(text);
+    const raw = parsed?.format === "boreumi-ramen-save" ? parsed.progress : parsed;
+    if (!raw || typeof raw !== "object" || !Number.isFinite(Number(raw.day))) throw new Error("보름이의 라면포차 저장 파일이 아니에요.");
+    Progress = sanitizeProgress(raw);
+    if (!saveProgress()) throw new Error("기기에 저장하지 못했어요.");
+    State.goal = goalForDay();
+    applyStallLevel();
+    renderHud();
+    updateMobileCare();
+    return Progress;
+  }
+
+  async function importProgressFile(file) {
+    if (!file) return;
+    try {
+      importProgressText(await file.text());
+      toast(`DAY ${Progress.day} 저장 기록을 불러왔어요.`);
+      closeHelp(true);
+    } catch (error) {
+      toast(String(error?.message || "저장 파일을 불러오지 못했어요."));
+    } finally {
+      $("#importSaveInput").value = "";
+    }
+  }
+
+  Object.assign(window.BoreumiStorage, {
+    backupKey: BackupKey,
+    exportText: exportedProgressText,
+    importText: importProgressText
+  });
+
   function openHelp() {
     Tutorial.close(false);
     State.helpPausedGame = State.running && !State.paused;
@@ -2322,6 +2471,8 @@
       $("#stage").classList.add("paused-fx");
     }
     $("#helpOverlay").classList.remove("hidden");
+    updateMobileCare();
+    window.BoreumiPWA?.ensurePersistentStorage?.();
     Sound.sfx("drop");
   }
 
@@ -2344,26 +2495,29 @@
       : image.decode().catch(() => undefined)));
     const dockFrameImage = new Image();
     const dockSlotImage = new Image();
-    dockFrameImage.src = "assets/art-v012/dock-rack-frame-v1.png";
-    dockSlotImage.src = "assets/art-v012/dock-slot-v1.png";
+    dockFrameImage.src = "assets/art-v012/dock-rack-frame-v1.webp";
+    dockSlotImage.src = "assets/art-v012/dock-slot-v1.webp";
     await Promise.all([dockFrameImage.decode().catch(() => undefined), dockSlotImage.decode().catch(() => undefined)]);
     const result = {};
     let pwaManifest = null;
     let pwaCssSource = "";
     let experienceCssSource = "";
+    let mobileCssSource = "";
     let bootSource = "";
     let serviceWorkerSource = "";
     try {
-      const [manifestResponse, cssResponse, experienceResponse, bootResponse, workerResponse] = await Promise.all([
+      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, bootResponse, workerResponse] = await Promise.all([
         fetch("app.webmanifest", { cache: "no-store" }),
-        fetch("pwa-v022.css", { cache: "no-store" }),
-        fetch("experience-v022.css", { cache: "no-store" }),
-        fetch("boot-v022.js", { cache: "no-store" }),
+        fetch("pwa-v023.css", { cache: "no-store" }),
+        fetch("experience-v023.css", { cache: "no-store" }),
+        fetch("mobile-v023.css", { cache: "no-store" }),
+        fetch("boot-v023.js", { cache: "no-store" }),
         fetch("service-worker.js", { cache: "no-store" })
       ]);
       pwaManifest = await manifestResponse.json();
       pwaCssSource = await cssResponse.text();
       experienceCssSource = await experienceResponse.text();
+      mobileCssSource = await mobileResponse.text();
       bootSource = await bootResponse.text();
       serviceWorkerSource = await workerResponse.text();
     } catch {
@@ -2395,10 +2549,23 @@
     result.loadingCompletesBeforeGame = document.documentElement.dataset.boot === "ready"
       && window.BoreumiBoot?.state.complete === true
       && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
+    result.parallelCriticalLoading = bootSource.includes("preloadCriticalAssets")
+      && bootSource.includes("Promise.all")
+      && window.BoreumiBoot?.state.version === "0.23";
     result.serviceWorkerRegistered = !!serviceWorkerRegistration && window.BoreumiPWA?.serviceWorkerRegistered === true;
     result.offlineGameCacheReady = serviceWorkerSource.includes("CACHE_GAME")
       && serviceWorkerSource.includes("GAME_ASSETS")
       && serviceWorkerSource.includes("request.mode === \"navigate\"");
+    result.offlineCacheProgressReady = serviceWorkerSource.includes("CACHE_PROGRESS")
+      && !!$("#offlineCacheStatus")
+      && typeof window.BoreumiPWA?.offlineCache === "object";
+    result.updateFlowReady = !!$("#updateBanner")
+      && !!$("#applyUpdateButton")
+      && typeof window.BoreumiPWA?.checkForUpdate === "function"
+      && serviceWorkerSource.includes("SKIP_WAITING");
+    result.mobileTouchComfort = mobileCssSource.includes("touch-action:manipulation")
+      && mobileCssSource.includes(".help-button::before")
+      && mobileCssSource.includes("inset:-34px");
     result.ambienceLayerPresent = !!$("#atmosphereLayer") && $("#atmosphereLayer").children.length === 3;
     result.fxLayerPresent = !!$("#fxLayer");
     result.soundControlPresent = $("#soundButton")?.getAttribute("aria-pressed") === String(Sound.enabled);
@@ -2411,7 +2578,16 @@
     burstAt($(`[data-id="${Appliances[0].id}"]`), "complete", 4);
     result.feedbackParticlesRender = $$("#fxLayer .fx-particle").length === 4;
     result.tutorialControlsPresent = !!$("#helpButton") && !!$("#tutorialCoach") && !!$("#helpOverlay");
-    result.legacySaveMigrationReady = LegacySaveKeys.includes("boreumi-ramen-v021") && SaveKey.includes("v022");
+    result.legacySaveMigrationReady = LegacySaveKeys.includes("boreumi-ramen-v022") && SaveKey.includes("v023");
+    const recoveryProbe = recoverSerializedProgress("{broken", JSON.stringify({ ...freshProgress(), day: 9 }));
+    const exportProbe = JSON.parse(exportedProgressText());
+    result.saveRecoveryReady = !!$("#exportSaveButton")
+      && !!$("#importSaveButton")
+      && recoveryProbe.source === "backup"
+      && recoveryProbe.recovered
+      && recoveryProbe.progress.day === 9
+      && exportProbe.format === "boreumi-ramen-save"
+      && exportProbe.gameVersion === "0.23";
     Tutorial.start();
     result.tutorialWelcomeVisible = !$("#tutorialCoach").classList.contains("hidden")
       && $("#tutorialTitle").textContent.includes("어서 오세요");
@@ -2474,6 +2650,9 @@
       && State.served === 0
       && JSON.stringify(Progress) === tutorialProgressBeforeQA;
     Tutorial.close(false);
+    result.tutorialFirstDayHandoff = $("#startButton").classList.contains("first-day-ready")
+      && !$("#startButton").disabled
+      && $("#startButton strong").textContent === "영업 시작";
     Tutorial.completed = false;
     localStorage.removeItem(TutorialPreferenceKey);
     result.startButtonInHud = $("#startButton").parentElement === $(".hud") && $("#startButton").nextElementSibling === $("#pauseButton");
@@ -2486,8 +2665,8 @@
     const dayCellRect = dayCell.getBoundingClientRect();
     const dayCellStyle = getComputedStyle(dayCell);
     const buttonStageScale = $("#stage").getBoundingClientRect().width / Config.stage.currentWidth;
-    result.matchingHudButtons = startButtonStyle.backgroundImage.includes("start-button-v1.png")
-      && pauseButtonStyle.backgroundImage.includes("pause-button-v2.png")
+    result.matchingHudButtons = startButtonStyle.backgroundImage.includes("start-button-v1.webp")
+      && pauseButtonStyle.backgroundImage.includes("pause-button-v2.webp")
       && $("#pauseButton").textContent.trim() === "Ⅱ";
     result.compactPausePlacement = pauseButtonRect.width < startButtonRect.width * .55
       && Math.abs(pauseButtonRect.height - startButtonRect.height) <= 1
@@ -2517,7 +2696,7 @@
       && dayCellRect.right <= startButtonRect.left;
     result.idlePotsContainWater = $$(".sprite-pot").length === 3
       && getComputedStyle($(".sprite-pot"), "::before").backgroundImage.includes("radial-gradient")
-      && getComputedStyle($(".sprite-pot"), "::after").backgroundImage.includes("water-surface-v1.png");
+      && getComputedStyle($(".sprite-pot"), "::after").backgroundImage.includes("water-surface-v1.webp");
     const idlePotStyle = getComputedStyle($(".sprite-pot"));
     const idleWaterStyle = getComputedStyle($(".sprite-pot"), "::before");
     const idleWaterReflectionStyle = getComputedStyle($(".sprite-pot"), "::after");
@@ -2528,7 +2707,7 @@
     result.cookingStationsSpaced = stationRects.every((rect, index) => !index || rect.left - stationRects[index - 1].right >= 2 * buttonStageScale);
     const serviceTableTexture = getComputedStyle($(".service-table"), "::before").backgroundImage;
     result.lineFreeTables = !serviceTableTexture.includes("repeating-linear-gradient")
-      && $$(".inventory-rack").every(rack => getComputedStyle(rack).borderImageSource.includes("dock-rack-frame-v1.png"))
+      && $$(".inventory-rack").every(rack => getComputedStyle(rack).borderImageSource.includes("dock-rack-frame-v1.webp"))
       && getComputedStyle($(".dock"), "::before").display === "none"
       && getComputedStyle($(".counter")).display === "none";
     result.applianceArtworkUnobstructed = getComputedStyle($(".counter")).display === "none"
@@ -2540,7 +2719,7 @@
       && ppomiRect.right <= guestTableRect.right + 2
       && Math.abs(ppomiRect.bottom - guestTableRect.top) <= 4;
     const guestApronStyle = getComputedStyle($(".service-table"), "::after");
-    result.guestLowerBodiesScreened = guestApronStyle.backgroundImage.includes("guest-center-wood-panel-v2.png")
+    result.guestLowerBodiesScreened = guestApronStyle.backgroundImage.includes("guest-center-wood-panel-v2.webp")
       && parseFloat(guestApronStyle.height) >= 130
       && parseFloat(guestApronStyle.height) <= 145
       && parseFloat(guestApronStyle.width) >= 680
@@ -2549,7 +2728,7 @@
       && parseInt(getComputedStyle($(".characters")).zIndex, 10) > parseInt(getComputedStyle($(".service-table")).zIndex, 10);
     result.guestSidePropsPreserved = parseFloat(guestApronStyle.width) <= 720
       && parseFloat(getComputedStyle($(".service-table")).width) >= 1800;
-    result.integratedWoodApronArt = guestApronStyle.backgroundImage.includes("guest-center-wood-panel-v2.png")
+    result.integratedWoodApronArt = guestApronStyle.backgroundImage.includes("guest-center-wood-panel-v2.webp")
       && guestApronStyle.backgroundSize.includes("cover")
       && parseFloat(guestApronStyle.borderBottomWidth) === 0
       && (guestApronStyle.webkitMaskImage || guestApronStyle.maskImage).includes("linear-gradient")
@@ -2558,7 +2737,7 @@
     result.naturalWoodApronEnds = guestApronMask.includes("4%")
       && guestApronMask.includes("96%")
       && guestApronStyle.filter.includes("brightness(1.16)");
-    result.pochaHudArt = getComputedStyle($(".hud")).backgroundImage.includes("hud-panel-v1.png")
+    result.pochaHudArt = getComputedStyle($(".hud")).backgroundImage.includes("hud-panel-v1.webp")
       && parseFloat(getComputedStyle($(".hud")).borderTopWidth) === 0;
     const dockItemNames = $$(".dock .item-name").map(label => label.textContent.trim());
     result.referenceStyleItemLabels = $$(".appliance label").length === 0
@@ -2572,11 +2751,11 @@
     result.referenceStyleItemCards = $$(".ingredient,.drink-item").every(item => {
       const style = getComputedStyle(item);
       return parseFloat(style.borderTopWidth) === 0
-        && style.backgroundImage.includes("dock-slot-v1.png")
+        && style.backgroundImage.includes("dock-slot-v1.webp")
         && parseFloat(style.borderRadius) >= 10 * buttonStageScale;
     });
     result.referenceStyleDock = $$(".rack-title").map(title => title.textContent.trim()).join("|") === "라면 재료|주류|안주"
-      && $$(".inventory-rack").every(rack => getComputedStyle(rack).borderImageSource.includes("dock-rack-frame-v1.png"));
+      && $$(".inventory-rack").every(rack => getComputedStyle(rack).borderImageSource.includes("dock-rack-frame-v1.webp"));
     result.handPaintedDockArt = dockFrameImage.complete
       && dockFrameImage.naturalWidth === 949
       && dockFrameImage.naturalHeight === 154
@@ -2613,10 +2792,10 @@
       && $(".ingredient-rack .rack-next").hidden
       && $$(".ingredient-rack .catalog-item").length === 2;
     const drinkArt = {
-      soju: "drink-soju-v1.png",
-      beer: "drink-beer-v1.png",
-      somaek: "drink-somaek-v1.png",
-      makgeolli: "drink-makgeolli-v1.png"
+      soju: "drink-soju-v1.webp",
+      beer: "drink-beer-v1.webp",
+      somaek: "drink-somaek-v1.webp",
+      makgeolli: "drink-makgeolli-v1.webp"
     };
     result.drinkArtV1 = Object.entries(drinkArt).every(([drink, file]) => {
       const image = $(`.drink-item[aria-label="${drink === "soju" ? "소주" : drink === "beer" ? "맥주" : drink === "somaek" ? "소맥" : "막걸리"}"] img`);
@@ -2654,7 +2833,7 @@
       && $$(".guest-slot:not([hidden]):not(.active)").length === guestCapacityForLevel() - 1;
     result.randomCustomerPool = CustomerCatalog.length === 18
       && unlockedCustomers().length === 3
-      && CustomerCatalog.every(customer => customer.id && customer.name && customer.art.endsWith(".png"))
+      && CustomerCatalog.every(customer => customer.id && customer.name && customer.art.endsWith(".webp"))
       && CustomerById[qaFirstCustomerId]?.name === $(`[data-guest="0"] .guest-art`).getAttribute("aria-label");
     result.combinationOrderAssigned = Guests[0].order?.items.length === 2
       && MenuCatalog[Guests[0].order.items[0].id].kind === "food"
@@ -2692,10 +2871,10 @@
     showGhost(toppingPayload);
     result.ingredientDragArt = !!payload($("[data-item='noodle']")).image && !!toppingPayload.image;
     const ingredientArtV4 = {
-      noodle: "ingredient-noodle-v4.png",
-      egg: "ingredient-egg-v4.png",
-      dumpling: "ingredient-dumpling-v4.png",
-      oden: "ingredient-oden-v4.png"
+      noodle: "ingredient-noodle-v4.webp",
+      egg: "ingredient-egg-v4.webp",
+      dumpling: "ingredient-dumpling-v4.webp",
+      oden: "ingredient-oden-v4.webp"
     };
     await Promise.all(Object.keys(ingredientArtV4).map(item => {
       const image = $(`[data-item="${item}"] img`);
@@ -2713,7 +2892,7 @@
     const odenSprite = $(".sprite-oden").getBoundingClientRect();
     const odenArt = $(`[data-id="${Appliances[5].id}"] .art`).getBoundingClientRect();
     result.odenEmptyPadding = odenSprite.left > odenArt.left + 5 * buttonStageScale && odenSprite.right < odenArt.right - 5 * buttonStageScale;
-    result.odenIdleArtV3 = getComputedStyle($(".sprite-oden")).backgroundImage.includes("kitchen-oden-v3.png");
+    result.odenIdleArtV3 = getComputedStyle($(".sprite-oden")).backgroundImage.includes("kitchen-oden-v3.webp");
     const emptyApplianceArt = $(`[data-id="${Appliances[0].id}"] .art`);
     const emptyApplianceStyle = getComputedStyle(emptyApplianceArt);
     result.appliancePanelsRemoved = emptyApplianceStyle.borderTopWidth === "0px"
@@ -2721,7 +2900,7 @@
       && emptyApplianceStyle.backgroundColor === "rgba(0, 0, 0, 0)"
       && emptyApplianceStyle.boxShadow === "none";
     const signStyle = getComputedStyle($(".sign"));
-    result.fullMoonSign = signStyle.backgroundImage.includes("sign-full-moon-v1.png")
+    result.fullMoonSign = signStyle.backgroundImage.includes("sign-full-moon-v1.webp")
       && parseFloat(signStyle.borderTopWidth) === 0;
 
     result.recipeCatalog = Object.keys(RecipeCatalog).join("|") === "ramen_plain|ramen_egg|grilled_dumpling|warm_oden"
@@ -2780,10 +2959,10 @@
     result.eggRamenVariant = !!$(".sprite-ramen-egg") && getComputedStyle($(".sprite-ramen-egg")).backgroundImage.includes("food-ramen-v2");
     result.completeFoodArt = !!$(".sprite-dumpling") && getComputedStyle($(".sprite-dumpling")).backgroundImage.includes("food-dumpling-v2");
     result.odenStaysInBar = !!$(".sprite-oden-warm")
-      && getComputedStyle($(".sprite-oden-warm")).backgroundImage.includes("cooking-oden-v2.png")
+      && getComputedStyle($(".sprite-oden-warm")).backgroundImage.includes("cooking-oden-v2.webp")
       && !$(".sprite-oden-food");
     const readyPayload = payload($(`[data-id="${Appliances[0].id}"]`));
-    result.sameReadyDragArt = readyPayload?.image.includes("food-ramen-no-egg-v3.png");
+    result.sameReadyDragArt = readyPayload?.image.includes("food-ramen-no-egg-v3.webp");
     showGhost(readyPayload);
     result.readyGhostSameIllustration = $("#dragGhost").classList.contains("food-drag")
       && $("#dragGhost img").src === readyPayload.image
@@ -3004,7 +3183,7 @@
       && savedProgress?.stationLevels?.grill === 2
       && savedProgress?.stationLevels?.oden === 2
       && savedProgress?.stallLevel === 2
-      && savedProgress?.version === 6
+      && savedProgress?.version === 7
       && savedProgress?.stats?.completedDays === 1
       && savedProgress?.regulars?.[qaFirstCustomerId]?.served === 1
       && savedProgress?.storyLog?.length >= 1;
@@ -3106,15 +3285,15 @@
     clearGuestTimers();
     resetGuests();
 
-    const facilityArtLoaded = await Promise.all(["assets/art-v012/takeout-package-v1.png", "assets/art-v012/completion-pass-vertical-v1.png"].map(source => new Promise(resolve => {
+    const facilityArtLoaded = await Promise.all(["assets/art-v012/takeout-package-v1.webp", "assets/art-v012/completion-pass-vertical-v1.webp"].map(source => new Promise(resolve => {
       const image = new Image();
       image.onload = () => resolve(image.naturalWidth >= 900 && image.naturalHeight >= 600);
       image.onerror = () => resolve(false);
       image.src = source;
     })));
     result.takeoutFacilityArtLoaded = facilityArtLoaded.every(Boolean)
-      && getComputedStyle($(".takeout-order .package-preview")).backgroundImage.includes("takeout-package-v1.png")
-      && getComputedStyle($("#completionPass")).backgroundImage.includes("completion-pass-vertical-v1.png");
+      && getComputedStyle($(".takeout-order .package-preview")).backgroundImage.includes("takeout-package-v1.webp")
+      && getComputedStyle($("#completionPass")).backgroundImage.includes("completion-pass-vertical-v1.webp");
 
     const boardRect = $("#takeoutBoard").getBoundingClientRect();
     const maxGuestRowRect = $("#guestRow").getBoundingClientRect();
@@ -3162,7 +3341,7 @@
     storeFoodInPass(Appliances[3], 0);
     result.completionPassStoresFood = Appliances[3].state === "empty"
       && CompletionPassSlots[0].recipeId === "grilled_dumpling"
-      && $(`[data-pass-slot="0"] img`)?.src.includes("food-dumpling-v2.png");
+      && $(`[data-pass-slot="0"] img`)?.src.includes("food-dumpling-v2.webp");
     Guests[0].active = true;
     Guests[0].serving = false;
     Guests[0].customerId = "office";
@@ -3247,6 +3426,19 @@
   $("#soundButton").addEventListener("click", () => Sound.setEnabled(!Sound.enabled));
   $("#helpButton").addEventListener("click", openHelp);
   $("#closeHelpButton").addEventListener("click", () => closeHelp(true));
+  $("#checkUpdateButton").addEventListener("click", async () => {
+    const button = $("#checkUpdateButton");
+    button.disabled = true;
+    button.textContent = "확인 중...";
+    const available = await window.BoreumiPWA?.checkForUpdate?.();
+    if (!available) toast("현재 최신 버전을 사용하고 있어요.");
+    button.disabled = false;
+    button.textContent = "업데이트 확인";
+    updateMobileCare();
+  });
+  $("#exportSaveButton").addEventListener("click", exportProgressFile);
+  $("#importSaveButton").addEventListener("click", () => $("#importSaveInput").click());
+  $("#importSaveInput").addEventListener("change", event => importProgressFile(event.target.files?.[0]));
   $("#restartTutorialButton").addEventListener("click", () => {
     if (State.running && !State.tutorialMode) {
       closeHelp(true);
@@ -3265,10 +3457,14 @@
     if (event.key === "Escape" && !$("#helpOverlay").classList.contains("hidden")) closeHelp(true);
   });
   document.addEventListener("dragstart", event => event.preventDefault());
+  window.addEventListener("boreumi:cache-progress", updateMobileCare);
+  window.addEventListener("boreumi:storage", updateMobileCare);
+  window.addEventListener("boreumi:update-ready", () => toast("새 버전이 준비됐어요. 위쪽 알림에서 적용할 수 있어요."));
   window.addEventListener("resize", resize, { passive: true });
   window.visualViewport?.addEventListener("resize", resize, { passive: true });
   window.addEventListener("boreumi:viewport", resize, { passive: true });
   resize();
+  updateMobileCare();
   startPpomiPoses();
   window.BoreumiBoot?.markGameReady();
   Tutorial.scheduleFirstRun();

@@ -52,7 +52,7 @@
 #stage .takeout-order .takeout-item img{width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 2px 2px #5a1f1738)}
 #stage .takeout-order .takeout-item.fulfilled{opacity:.34;filter:grayscale(.3)}
 #stage .takeout-order .takeout-plus{font-size:15px;font-weight:950;color:#9a4b28}
-#stage .takeout-order .package-preview{width:42px;height:44px;background:url("assets/art-v012/takeout-package-v1.png") center/contain no-repeat;opacity:.35;filter:drop-shadow(0 3px 3px #4b1f1766)}
+#stage .takeout-order .package-preview{width:42px;height:44px;background:url("assets/art-v012/takeout-package-v1.webp") center/contain no-repeat;opacity:.35;filter:drop-shadow(0 3px 3px #4b1f1766)}
 #stage .takeout-order.partly-packed .package-preview{opacity:.68}
 #stage .takeout-order.packed .package-preview{opacity:1;animation:takeoutPacked .48s ease both}
 #stage .takeout-order.missed{filter:saturate(.35) brightness(.75)}
@@ -70,7 +70,7 @@
   width:232px;
   height:292px;
   padding:0;
-  background:url("assets/art-v012/completion-pass-vertical-v1.png") center 7px/193px 290px no-repeat;
+  background:url("assets/art-v012/completion-pass-vertical-v1.webp") center 7px/193px 290px no-repeat;
   filter:drop-shadow(0 10px 10px #080302b8);
 }
 #stage .completion-pass h3{

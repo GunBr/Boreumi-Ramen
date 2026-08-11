@@ -18,7 +18,7 @@
 
 .tutorial-coach{position:absolute;z-index:260;left:50%;bottom:164px;transform:translateX(-50%);width:690px;min-height:150px;padding:20px 22px 18px 138px;border:5px solid #6b321e;border-radius:27px;background:linear-gradient(180deg,#fff0c9,#e9bd7a 76%,#ca8547);box-shadow:inset 0 0 0 3px #fff8dcaa,inset 0 -12px 18px #8c431b30,0 15px 30px #180705b8;color:#5d2819;text-shadow:0 1px #fff4cf}
 .tutorial-coach.hidden{display:none}
-.tutorial-portrait{position:absolute;left:14px;bottom:0;width:116px;height:139px;background:url("assets/art-v012/boreumi-idle-v3.png") center top/182px auto no-repeat;filter:drop-shadow(0 8px 7px #3d120b55)}
+.tutorial-portrait{position:absolute;left:14px;bottom:0;width:116px;height:139px;background:url("assets/art-v012/boreumi-idle-v3.webp") center top/182px auto no-repeat;filter:drop-shadow(0 8px 7px #3d120b55)}
 .tutorial-copy small{display:block;color:#a14b26;font-size:16px;font-weight:950}.tutorial-copy h2{margin:2px 0 5px;font-size:27px;line-height:1.1;color:#69291b}.tutorial-copy p{margin:0 0 11px;font-size:18px;line-height:1.38;font-weight:800}
 .tutorial-actions{display:flex;justify-content:flex-end;gap:9px}.tutorial-actions button,.help-panel footer button{min-width:112px;padding:9px 17px;border:3px solid #71321f;border-radius:13px;background:linear-gradient(#fff2ca,#e5b36f);color:#612719;font-size:16px;font-weight:950;box-shadow:0 4px 7px #4c190c3d}.tutorial-actions button:last-child,.help-panel footer button:last-child{background:linear-gradient(#e85d3e,#a72d25);color:#fff2d1;text-shadow:0 2px #681b18}.tutorial-actions .hidden{display:none}
 

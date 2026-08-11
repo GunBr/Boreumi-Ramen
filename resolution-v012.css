@@ -28,7 +28,7 @@
 #stage[data-viewport="expanded"]::before,#stage[data-viewport="expanded"]::after{opacity:.72}
 
 .night{
-  background-image:url("assets/art-v012/environment-river-moon-v5.png");
+  background-image:url("assets/art-v012/environment-river-moon-v5.webp");
   background-size:cover;
   background-position:center top;
 }

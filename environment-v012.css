@@ -1,7 +1,7 @@
 /* V0.12 riverside pocha environment: background, depth, lighting and props. */
 .night{
   background-color:#061225;
-  background-image:url("assets/art-v012/environment-river-moon-v5.png");
+  background-image:url("assets/art-v012/environment-river-moon-v5.webp");
   background-repeat:no-repeat;
   background-size:1600px auto;
   background-position:center -210px;
