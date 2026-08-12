@@ -1,12 +1,14 @@
-<!doctype html><html lang="ko" data-boot="loading"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#180c09"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="보름이의 라면포차"><meta name="format-detection" content="telephone=no"><title>보름이의 라면포차 V0.23</title><link rel="manifest" href="app.webmanifest"><link rel="apple-touch-icon" sizes="180x180" href="assets/pwa/icon-180.png"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="character-layout.css"><link rel="stylesheet" href="pwa-v023.css?v=0823b"><link rel="stylesheet" href="experience-v023.css?v=0823b"><link rel="stylesheet" href="mobile-v023.css?v=0823b"></head>
+<!doctype html><html lang="ko" data-boot="loading"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#180c09"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="보름이의 라면포차"><meta name="format-detection" content="telephone=no"><title>보름이의 라면포차 V0.25</title><link rel="manifest" href="app.webmanifest"><link rel="apple-touch-icon" sizes="180x180" href="assets/pwa/icon-180.png"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="character-layout.css"><link rel="stylesheet" href="pwa-v024.css?v=0825a"><link rel="stylesheet" href="experience-v024.css?v=0825a"><link rel="stylesheet" href="mobile-v024.css?v=0825a"><link rel="stylesheet" href="story-v024.css?v=0825a"></head>
 <body><div id="bootLoading" class="boot-loading" role="status" aria-live="polite" aria-label="게임 데이터 불러오는 중"><div class="boot-card"><i class="boot-sign" aria-hidden="true"></i><small>보름이의 라면포차</small><h1>따뜻한 포차를 준비하고 있어요</h1><p id="bootMessage">게임 데이터와 저장 기록을 확인하는 중...</p><div class="boot-progress" aria-hidden="true"><i id="bootProgress"></i></div><b id="bootPercent">0%</b></div></div><aside id="updateBanner" class="update-banner" role="status" aria-live="polite" hidden><span><small>새 포차 소식</small><strong>새 버전 준비가 끝났어요</strong></span><button id="applyUpdateButton" type="button">지금 적용</button><button id="dismissUpdateButton" class="update-later" type="button" aria-label="나중에 적용">×</button></aside><style>.guest-slot>img{width:76px;height:185px;max-width:none;object-fit:cover;object-position:left center}</style><link rel="stylesheet" href="art-v012.css?v=0818a"><link rel="stylesheet" href="environment-v012.css"><link rel="stylesheet" href="resolution-v012.css?v=0805m"><link rel="stylesheet" href="cozy-level1.css?v=0817a"><link rel="stylesheet" href="effects-v016.css?v=0817a"><link rel="stylesheet" href="tutorial-v017.css?v=0817a"><link rel="stylesheet" href="expansion-v018.css?v=0818a"><link rel="stylesheet" href="endless-v0181.css?v=0818b"><link rel="stylesheet" href="progression-v019.css?v=0819b"><link rel="stylesheet" href="takeout-v020.css?v=0820a"><div id="viewport"><main id="stage" data-stall-level="1" data-growth-level="1" data-day-digits="1" data-audio="on" data-tutorial="false">
   <div class="night"><i class="moon"></i><i class="stars"></i><i class="city"></i></div><div class="stall"><i class="roof"></i><i class="lamps"></i><i class="backwall"></i><i class="service-floor"></i><i class="service-table"></i><i class="table-decor decor-left"></i><i class="table-decor decor-right"></i><i class="counter"></i></div>
   <header class="hud"><div><small>DAY</small><b id="dayNumber">1</b></div><div><small>목표 금액</small><b id="goalAmount">10,000원</b></div><div class="clock"><small>남은 시간</small><b id="time">01:30</b><i><span id="timeFill"></span></i></div><div><small>현재 매출</small><b id="sales">0원</b></div><div><small>오늘 손님</small><b id="guestCount">0명</b></div><button id="startButton" class="start" aria-label="영업 시작"><strong>영업 시작</strong></button><button id="pauseButton" aria-label="일시정지">Ⅱ</button></header>
   <aside id="walletBadge" class="wallet-badge" aria-label="포장마차 성장 정보"><span>포차 LV.<b id="stallLevel">1</b></span><span>보유 <b id="walletGold">0원</b></span></aside>
   <button id="soundButton" class="sound-button" type="button" aria-label="소리 끄기" aria-pressed="true"><span aria-hidden="true">♪</span></button>
   <button id="helpButton" class="help-button" type="button" aria-label="게임 도움말">?</button>
+  <button id="journalButton" class="journal-button" type="button" aria-label="포차 일지 열기"><span>일지</span><b id="journalBadge" hidden>0</b></button>
   <aside class="sign"><small>보름이의</small><strong>라면<br>포차</strong></aside>
   <section id="guestRow" class="guest-row"></section>
+  <aside id="storyWhisper" class="story-whisper" aria-live="polite" aria-atomic="true" hidden><span id="storyWhisperPortrait" class="story-whisper-portrait" aria-hidden="true"></span><span class="story-whisper-copy"><small id="storyWhisperMeta">첫 인사</small><strong id="storyWhisperName">손님</strong><p id="storyWhisperText"></p></span></aside>
   <section class="characters"><div id="boreumi" class="boreumi-sprite" data-mode="idle" data-pose="idle" role="img" aria-label="라면포차 주인 보름이"></div><div id="boreumiText"></div></section>
   <div id="ppomiPerch" class="ppomi-perch pose-sleep" aria-label="손님 테이블 위의 뽀미"><span class="ppomi-sprite" role="img" aria-label="뽀미"></span><i aria-hidden="true">Zzz</i></div>
   <aside id="takeoutBoard" class="takeout-board" aria-label="포장 주문판" hidden><header><strong>포장 주문</strong><span id="takeoutQueue">0/0</span></header><div id="takeoutOrders" class="takeout-orders"></div></aside>
@@ -25,11 +27,20 @@
   <div id="helpOverlay" class="help-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
     <section class="help-panel"><header><small>보름이의 조리 수첩</small><h2 id="helpTitle">게임 방법</h2></header><div class="help-grid">
       <article><b>1</b><strong>주문 확인</strong><p>손님 말풍선에서 음식과 주류를 확인해요.</p></article>
-      <article><b>2</b><strong>재료 드래그</strong><p>면·계란·안주를 알맞은 조리기구에 놓아요.</p></article>
+      <article><b>2</b><strong>재료·토핑</strong><p>면을 먼저 넣고 계란·대파·김치·치즈를 조리 중 냄비에 넣어요.</p></article>
       <article><b>3</b><strong>서빙</strong><p>완성 음식과 주류를 손님 또는 말풍선에 놓아요.</p></article>
       <article><b>4</b><strong>즉시 폐기</strong><p>완성 음식이나 탄 음식은 짧게 눌러 바로 치워요.</p></article>
       <article class="takeout-help"><b>5</b><strong>포장·완성대</strong><p>LV.2부터 포장 주문, LV.3부터 완성 음식 보관대를 사용할 수 있어요.</p></article>
     </div><section class="mobile-care" aria-label="모바일 데이터 관리"><div class="mobile-care-status"><p>오프라인 저장 <span id="offlineCacheStatus">확인 중</span></p><p>저장 기록 <span id="saveRecoveryStatus">정상</span></p></div><div class="mobile-care-actions"><button id="checkUpdateButton" type="button">업데이트 확인</button><button id="exportSaveButton" type="button">저장 백업</button><button id="importSaveButton" type="button">백업 불러오기</button><input id="importSaveInput" type="file" accept="application/json,.json" hidden></div></section><footer><button id="restartTutorialButton" type="button">단계별 안내 다시 보기</button><button id="closeHelpButton" type="button">닫기</button></footer></section>
+  </div>
+  <div id="journalOverlay" class="journal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="journalTitle">
+    <section class="journal-panel">
+      <header class="journal-heading"><div><small>하루하루 쌓이는 손님 이야기</small><h2 id="journalTitle">보름이의 포차 일지</h2></div><div class="journal-summary"><span>만난 손님 <b id="journalKnownCount">0/3</b></span><span>단골 <b id="journalRegularCount">0명</b></span><span>이야기 <b id="journalStoryCount">0개</b></span></div><button id="closeJournalButton" type="button" aria-label="포차 일지 닫기">×</button></header>
+      <div class="journal-body">
+        <section class="regular-book" aria-label="손님 단골 기록"><header><h3>손님 수첩</h3><p>방문과 식사가 쌓이면 새로운 이야기가 열려요.</p></header><div id="regularGrid" class="regular-grid"></div></section>
+        <section class="story-book" aria-label="해금된 손님 이야기"><header><div><small>지난 이야기</small><h3 id="journalStoryTitle">모든 손님의 이야기</h3></div><button id="journalAllButton" type="button">전체 보기</button></header><div id="storyEntries" class="story-entries"></div></section>
+      </div>
+    </section>
   </div>
   <div id="settlementOverlay" class="management-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settlementTitle">
     <section class="management-panel">
@@ -53,14 +64,16 @@
             <strong><span>총 획득 골드</span><b id="rewardTotal">+0원</b></strong>
           </div>
           <div class="growth-board"><span>포차 LV.<b id="summaryStallLevel">1</b></span><i><em id="growthFill"></em></i><small id="growthText">다음 확장 준비 중</small></div>
+          <div id="storyRecap" class="story-recap" hidden><span>오늘 새로 기록된 이야기</span><strong id="storyRecapText"></strong></div>
         </section>
-        <section class="upgrade-column" aria-label="업그레이드 상점">
-          <div class="shop-heading"><div><small>다음 영업 준비</small><h3>조리도구·포차 성장</h3></div><p>보유 골드 <b id="shopGold">0원</b></p></div>
+        <section class="upgrade-column" aria-label="영업 준비 상점">
+          <div class="shop-heading"><div><small>다음 영업 준비</small><h3>재료·조리도구·포차 성장</h3></div><p>보유 골드 <b id="shopGold">0원</b></p></div>
+          <section class="supply-shop" aria-label="재료 보충 상점"><div><small>재료 상점</small><strong id="supplySummary">재고를 확인하고 있어요</strong></div><button id="restockButton" type="button">재료 가득 보충</button></section>
           <div id="upgradeList" class="upgrade-list"></div>
         </section>
       </div>
-      <footer class="management-actions"><button id="resetProgressButton" type="button">진행 초기화</button><button id="nextDayButton" type="button">다음 날 영업 시작</button></footer>
+      <footer class="management-actions"><button id="resetProgressButton" type="button">진행 초기화</button><button id="settlementJournalButton" type="button">포차 일지</button><button id="nextDayButton" type="button">다음 날 영업 시작</button></footer>
     </section>
   </div>
-  <div id="pauseOverlay" class="overlay hidden"><div><h2>일시정지</h2><button id="resumeButton">계속하기</button></div></div>
-</main></div><div id="dragGhost" aria-hidden="true"><img alt="드래그 중인 재료"><span></span></div><script src="boot-v023.js?v=0823b"></script><script src="pwa-v023.js?v=0823b"></script><script src="script.js?v=0823b"></script></body></html>
+  <div id="pauseOverlay" class="overlay hidden"><div><h2>일시정지</h2><button id="resumeButton">계속하기</button></div></div><link rel="stylesheet" href="readability-v025.css?v=0825f">
+</main></div><div id="dragGhost" aria-hidden="true"><img alt="드래그 중인 재료"><span></span></div><script src="boot-v024.js?v=0825f"></script><script src="pwa-v024.js?v=0825f"></script><script src="script.js?v=0825f"></script></body></html>

@@ -1,0 +1,41 @@
+/* V0.25 · 실제 휴대폰에서도 멀리서 읽히는 큰 글자와 한 줄 수치. */
+#stage{font-weight:700}
+#stage .hud>div{min-width:0}
+#stage .hud{width:1700px!important;grid-template-columns:142px 246px minmax(265px,1fr) 250px 214px 184px 24px 78px 34px!important}
+#stage .hud.running{grid-template-columns:142px 246px minmax(265px,1fr) 250px 214px 184px 24px 78px 34px!important}
+#stage #startButton{transform:translateX(0)!important}
+#stage #pauseButton{transform:translateX(0)!important}
+#stage #startButton:active:not(:disabled),#stage #pauseButton:active{transform:translateY(2px)!important}
+#stage .hud small{font-size:19px!important;line-height:1!important;white-space:nowrap}
+#stage .hud b{font-size:31px!important;line-height:1.05!important;white-space:nowrap;overflow:visible}
+#stage[data-day-digits="4"] .hud>div:first-child b{font-size:28px!important}
+#stage[data-day-digits="5"] .hud>div:first-child b{font-size:24px!important}
+#stage[data-day-digits="6"] .hud>div:first-child b{font-size:21px!important}
+#stage[data-day-digits="7"] .hud>div:first-child b,#stage[data-day-digits="8"] .hud>div:first-child b,#stage[data-day-digits="9"] .hud>div:first-child b{font-size:18px!important}
+#stage .item-name{font-size:18px!important;line-height:20px!important;min-height:20px!important;white-space:nowrap}
+#stage .rack-title{font-size:17px!important;white-space:nowrap}
+#stage .stock-count{min-width:36px!important;height:30px!important;font-size:17px!important;white-space:nowrap}
+#stage #toast{font-size:22px;white-space:nowrap}
+#stage #boreumiText{font-size:22px;white-space:nowrap}
+#stage .takeout-board header strong,#stage .completion-pass h3{font-size:20px}
+#stage .help-grid strong{font-size:22px}
+#stage .help-grid p{font-size:18px;line-height:1.35}
+#stage .management-heading small,#stage .shop-heading small{font-size:19px!important;white-space:nowrap}
+#stage .management-heading h2{font-size:44px!important;white-space:nowrap}
+#stage .management-actions button{font-size:20px!important;white-space:nowrap}
+#stage .upgrade-card h4{white-space:nowrap}
+#stage .upgrade-level{font-size:15px!important;white-space:nowrap}
+#stage .upgrade-card>small{font-size:17px!important;white-space:nowrap}
+#stage .upgrade-card p{font-size:16px!important;line-height:1.25!important}
+#stage .upgrade-card button{font-size:17px!important;white-space:nowrap}
+#stage .shop-heading h3,#stage .shop-heading p,#stage .shop-heading p b{white-space:nowrap}
+#stage .growth-board span,#stage .growth-board small{white-space:nowrap}
+#stage .story-recap span{font-size:15px}
+#stage .story-recap strong{font-size:18px}
+
+@media(max-height:500px) and (orientation:landscape){
+  .boot-card small{font-size:17px}
+  .boot-card p{font-size:17px}
+  .update-banner small{font-size:15px}
+  .update-banner strong{font-size:18px}
+}

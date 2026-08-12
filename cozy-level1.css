@@ -115,7 +115,7 @@
   box-shadow:68px 0 0 #754224,68px 0 0 1px #3f2116;
 }
 #stage[data-stall-level="1"] .hud>div:first-child::after{display:none}
-#stage[data-stall-level="1"] .hud>div:first-child small{font-size:16px;line-height:1;color:#754025;text-shadow:0 1px #fff9e7}
+#stage[data-stall-level="1"] .hud>div:first-child small{font-size:18px;line-height:1;color:#754025;text-shadow:0 1px #fff9e7}
 #stage[data-stall-level="1"] .hud>div:first-child b{min-height:34px;font-size:32px;line-height:1.02;color:#4f2116;text-shadow:0 2px #fff1c5}
 #stage[data-stall-level="1"] .hud>div:not(:nth-of-type(5))::after{
   content:"";
@@ -127,8 +127,8 @@
   background:linear-gradient(180deg,transparent,#8b4d27 25% 75%,transparent);
   box-shadow:1px 0 #ffd58488;
 }
-#stage[data-stall-level="1"] .hud small{display:block;margin:0;color:#7b4025;text-shadow:0 1px #ffe8b3;font-weight:900;white-space:nowrap}
-#stage[data-stall-level="1"] .hud b{display:block;min-height:31px;margin:0;color:#5d1f16;text-shadow:0 2px #ffe2a1aa;white-space:nowrap;font-variant-numeric:tabular-nums}
+#stage[data-stall-level="1"] .hud small{display:block;margin:0;color:#7b4025;text-shadow:0 1px #ffe8b3;font-size:19px;font-weight:900;white-space:nowrap}
+#stage[data-stall-level="1"] .hud b{display:block;min-height:31px;margin:0;color:#5d1f16;text-shadow:0 2px #ffe2a1aa;font-size:31px;white-space:nowrap;font-variant-numeric:tabular-nums}
 #stage[data-stall-level="1"] .clock i{flex:none;margin-top:0;height:9px;border:2px solid #8b4b27;background:#6b321f66;box-shadow:inset 0 2px 3px #3c160d66}
 #stage[data-stall-level="1"] .clock span{background:linear-gradient(90deg,#d94839,#f0a348 70%,#ffe18a)}
 #stage[data-stall-level="1"] #pauseButton{
@@ -323,6 +323,13 @@
   background:#32170f;
   isolation:isolate;
 }
+#stage .catalog-item:disabled{cursor:default}
+#stage .catalog-item.locked img{filter:grayscale(1) brightness(.42);opacity:.58}
+#stage .catalog-item.sold-out img{filter:grayscale(.72) brightness(.62);opacity:.62}
+#stage .catalog-item.locked .item-name,#stage .catalog-item.sold-out .item-name{color:#7a5d49}
+#stage .stock-count{position:absolute;z-index:6;right:8px;top:5px;min-width:31px;height:27px;padding:0 7px;display:grid;place-items:center;border:2px solid #f2c77c;border-radius:99px;background:#542619;color:#fff0c4;font-size:15px;line-height:1;font-weight:950;box-shadow:0 3px 6px #18070488;text-shadow:0 1px #2e1009}
+#stage .catalog-item.sold-out .stock-count{background:#775d4d;color:#f4e6d6}
+#stage .catalog-item.locked .stock-count{background:#3c3029;color:#f1dcc7}
 #stage[data-stall-level="1"] .rack-title{
   position:absolute;
   z-index:5;
@@ -495,7 +502,7 @@
   z-index:72;
   top:127px;
   right:max(24px,calc((100% - 1920px)/2 + 24px));
-  width:250px;
+  width:340px;
   height:54px;
   padding:7px 18px;
   display:flex;
@@ -507,12 +514,13 @@
   background:linear-gradient(180deg,#f6d99d,#dba85f 72%,#b87538);
   box-shadow:inset 0 0 0 2px #fff0c58f,0 7px 12px #1809068f;
   color:#5b2819;
-  font-size:17px;
+  font-size:20px;
   font-weight:900;
   text-shadow:0 1px #fff0c5;
 }
+#stage[data-stall-level="1"] .wallet-badge span{white-space:nowrap}
 #stage[data-stall-level="1"] .wallet-badge span+span{padding-left:14px;border-left:2px solid #8a4a2866}
-#stage[data-stall-level="1"] .wallet-badge b{color:#7f251c;font-size:19px;font-variant-numeric:tabular-nums}
+#stage[data-stall-level="1"] .wallet-badge b{color:#7f251c;font-size:22px;font-variant-numeric:tabular-nums;white-space:nowrap}
 
 /* V0.15: 영업 정산과 업그레이드 상점. */
 #stage[data-stall-level="1"] .management-overlay{
@@ -561,8 +569,8 @@
   font-weight:1000;
 }
 #stage[data-stall-level="1"] #settlementResult.failed{background:linear-gradient(#efe0c7,#cda87b);color:#7e4932}
-#stage[data-stall-level="1"] .management-body{min-height:0;display:grid;grid-template-columns:540px 1fr;gap:34px;padding:24px 10px}
-#stage[data-stall-level="1"] .settlement-column{display:grid;grid-template-rows:auto auto 62px;gap:18px}
+#stage[data-stall-level="1"] .management-body{min-height:0;display:grid;grid-template-columns:540px 1fr;gap:34px;padding:18px 10px}
+#stage[data-stall-level="1"] .settlement-column{display:grid;grid-template-rows:auto auto 62px auto;gap:12px}
 #stage[data-stall-level="1"] .summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 #stage[data-stall-level="1"] .summary-grid article{
   min-height:74px;
@@ -576,8 +584,8 @@
   background:#fff4d7b8;
   box-shadow:inset 0 -5px 9px #a8612720;
 }
-#stage[data-stall-level="1"] .summary-grid small{color:#8d5938;font-size:15px;font-weight:900}
-#stage[data-stall-level="1"] .summary-grid b{color:#64281b;font-size:24px;font-variant-numeric:tabular-nums}
+#stage[data-stall-level="1"] .summary-grid small{color:#8d5938;font-size:18px;font-weight:900;white-space:nowrap}
+#stage[data-stall-level="1"] .summary-grid b{color:#64281b;font-size:25px;font-variant-numeric:tabular-nums;white-space:nowrap}
 #stage[data-stall-level="1"] .reward-board{
   padding:15px 22px 13px;
   border:3px solid #8e4a2c;
@@ -594,17 +602,23 @@
 #stage[data-stall-level="1"] .growth-board{display:grid;grid-template-columns:112px 1fr 150px;align-items:center;gap:12px;padding:8px 14px;border-radius:14px;background:#ad6d3b35;font-weight:900}
 #stage[data-stall-level="1"] .growth-board i{height:13px;border:2px solid #70402a;border-radius:10px;background:#6c351d55;overflow:hidden}
 #stage[data-stall-level="1"] .growth-board em{display:block;width:0;height:100%;background:linear-gradient(90deg,#e4903f,#ffd570)}
-#stage[data-stall-level="1"] .growth-board small{text-align:right;color:#865033;font-weight:900}
+#stage[data-stall-level="1"] .growth-board small{text-align:right;color:#865033;font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #stage[data-stall-level="1"] .upgrade-column{min-width:0;padding-left:32px;border-left:3px solid #99502b4a}
-#stage[data-stall-level="1"] .shop-heading{height:66px;display:flex;align-items:flex-start;justify-content:space-between}
+#stage[data-stall-level="1"] .shop-heading{height:62px;display:flex;align-items:flex-start;justify-content:space-between}
 #stage[data-stall-level="1"] .shop-heading h3{margin:2px 0 0;color:#5c261a;font-size:30px}
-#stage[data-stall-level="1"] .shop-heading p{margin:5px 0 0;padding:8px 15px;border-radius:999px;background:#6b321f;color:#ffe4a7;font-size:18px;font-weight:900}
+#stage[data-stall-level="1"] .shop-heading p{margin:5px 0 0;padding:8px 15px;border-radius:999px;background:#6b321f;color:#ffe4a7;font-size:20px;font-weight:900;white-space:nowrap}
 #stage[data-stall-level="1"] .shop-heading p b{color:#ffdb6e;font-variant-numeric:tabular-nums}
-#stage[data-stall-level="1"] .upgrade-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+#stage[data-stall-level="1"] .upgrade-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+#stage .supply-shop{height:76px;margin:0 0 10px;padding:9px 12px 9px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;border:3px solid #98502e;border-radius:17px;background:linear-gradient(105deg,#fff1c7,#e6b56f);box-shadow:inset 0 0 0 2px #fff8dd,0 5px 9px #6a2d1d3d}
+#stage .supply-shop>div{min-width:0;display:flex;align-items:baseline;gap:12px}
+#stage .supply-shop small{color:#9a4b2d;font-size:17px;font-weight:950;white-space:nowrap}
+#stage .supply-shop strong{color:#632719;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stage #restockButton{min-width:230px;height:50px;padding:0 16px;border:3px solid #6d301e;border-radius:13px;background:linear-gradient(#ffd36f,#df853b);color:#5a2117;font-size:18px;font-weight:1000;white-space:nowrap;box-shadow:inset 0 2px #ffe6a9,0 4px 7px #4d1b124d}
+#stage #restockButton:disabled{filter:grayscale(.55);opacity:.62}
 #stage[data-stall-level="1"] .upgrade-card{
   min-width:0;
-  min-height:218px;
-  padding:17px 18px 15px;
+  min-height:182px;
+  padding:13px 16px 12px;
   display:grid;
   grid-template-rows:auto auto 1fr auto;
   border:3px solid #a15e3688;
@@ -615,8 +629,8 @@
 #stage[data-stall-level="1"] .upgrade-card header{display:flex;align-items:center;justify-content:space-between;gap:10px}
 #stage[data-stall-level="1"] .upgrade-card h4{margin:0;color:#622719;font-size:23px}
 #stage[data-stall-level="1"] .upgrade-level{padding:4px 9px;border-radius:999px;background:#8a4a2b;color:#ffe9bb;font-size:14px;font-weight:900;white-space:nowrap}
-#stage[data-stall-level="1"] .upgrade-card>small{margin-top:5px;color:#9a5c3a;font-weight:900}
-#stage[data-stall-level="1"] .upgrade-card p{margin:11px 0 8px;color:#6e402b;font-size:16px;line-height:1.35;font-weight:750}
+#stage[data-stall-level="1"] .upgrade-card>small{margin-top:4px;color:#9a5c3a;font-size:15px;font-weight:900;white-space:nowrap}
+#stage[data-stall-level="1"] .upgrade-card p{margin:7px 0 6px;color:#6e402b;font-size:15px;line-height:1.28;font-weight:750}
 #stage[data-stall-level="1"] .upgrade-card button,
 #stage[data-stall-level="1"] .management-actions button{
   border:3px solid #6d301e;

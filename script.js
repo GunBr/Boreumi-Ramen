@@ -1,19 +1,21 @@
 (() => {
   "use strict";
 
+  document.title = "보름이의 라면포차 V0.25";
+
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
   const UrlParams = new URLSearchParams(location.search);
   const IsQA = UrlParams.has("qa");
   const PreviewLevel = Math.max(0, Math.min(5, Math.floor(Number(UrlParams.get("level")) || 0)));
   const PreviewDay = Math.max(0, Math.floor(Number(UrlParams.get("day")) || 0));
-  const SaveKey = IsQA ? "boreumi-ramen-v023-qa" : "boreumi-ramen-v023";
-  const BackupKey = IsQA ? "boreumi-ramen-v023-backup-qa" : "boreumi-ramen-v023-backup";
-  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v023-audio-qa" : "boreumi-ramen-v023-audio";
-  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v023-tutorial-qa" : "boreumi-ramen-v023-tutorial";
-  const LegacySaveKeys = ["boreumi-ramen-v022", "boreumi-ramen-v021", "boreumi-ramen-v020", "boreumi-ramen-v019", "boreumi-ramen-v0181", "boreumi-ramen-v018", "boreumi-ramen-v017", "boreumi-ramen-v016", "boreumi-ramen-v015"];
-  const LegacyAudioPreferenceKeys = ["boreumi-ramen-v022-audio", "boreumi-ramen-v021-audio", "boreumi-ramen-v020-audio", "boreumi-ramen-v019-audio", "boreumi-ramen-v0181-audio", "boreumi-ramen-v018-audio", "boreumi-ramen-v017-audio", "boreumi-ramen-v016-audio"];
-  const LegacyTutorialPreferenceKeys = ["boreumi-ramen-v022-tutorial", "boreumi-ramen-v021-tutorial", "boreumi-ramen-v020-tutorial", "boreumi-ramen-v019-tutorial", "boreumi-ramen-v0181-tutorial", "boreumi-ramen-v018-tutorial", "boreumi-ramen-v017-tutorial"];
+  const SaveKey = IsQA ? "boreumi-ramen-v025-qa" : "boreumi-ramen-v025";
+  const BackupKey = IsQA ? "boreumi-ramen-v025-backup-qa" : "boreumi-ramen-v025-backup";
+  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v025-audio-qa" : "boreumi-ramen-v025-audio";
+  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v025-tutorial-qa" : "boreumi-ramen-v025-tutorial";
+  const LegacySaveKeys = ["boreumi-ramen-v024", "boreumi-ramen-v023", "boreumi-ramen-v022", "boreumi-ramen-v021", "boreumi-ramen-v020", "boreumi-ramen-v019", "boreumi-ramen-v0181", "boreumi-ramen-v018", "boreumi-ramen-v017", "boreumi-ramen-v016", "boreumi-ramen-v015"];
+  const LegacyAudioPreferenceKeys = ["boreumi-ramen-v024-audio", "boreumi-ramen-v023-audio", "boreumi-ramen-v022-audio", "boreumi-ramen-v021-audio", "boreumi-ramen-v020-audio", "boreumi-ramen-v019-audio", "boreumi-ramen-v0181-audio", "boreumi-ramen-v018-audio", "boreumi-ramen-v017-audio", "boreumi-ramen-v016-audio"];
+  const LegacyTutorialPreferenceKeys = ["boreumi-ramen-v024-tutorial", "boreumi-ramen-v023-tutorial", "boreumi-ramen-v022-tutorial", "boreumi-ramen-v021-tutorial", "boreumi-ramen-v020-tutorial", "boreumi-ramen-v019-tutorial", "boreumi-ramen-v0181-tutorial", "boreumi-ramen-v018-tutorial", "boreumi-ramen-v017-tutorial"];
   const StorageStatus = {
     loadedFrom: "fresh",
     recovered: false,
@@ -54,6 +56,9 @@
   const FoodArt = {
     pot: "assets/art-v012/food-ramen-no-egg-v3.webp",
     potEgg: "assets/art-v012/food-ramen-v2.webp",
+    potScallion: "assets/art-v025/food-ramen-scallion-v1.webp",
+    potKimchi: "assets/art-v025/food-ramen-kimchi-v1.webp",
+    potCheese: "assets/art-v025/food-ramen-cheese-v1.webp",
     grill: "assets/art-v012/food-dumpling-v2.webp",
     oden: "assets/art-v012/food-oden.webp"
   };
@@ -80,6 +85,42 @@
       burnMs: Config.cooking.defaultBurnMs,
       sprite: "ramen-egg",
       art: FoodArt.potEgg
+    }),
+    ramen_scallion: Object.freeze({
+      id: "ramen_scallion",
+      label: "대파 라면",
+      appliance: "pot",
+      ingredients: Object.freeze(["noodle", "scallion"]),
+      cookMs: 4200,
+      burns: true,
+      burnMs: Config.cooking.defaultBurnMs,
+      sprite: "ramen-scallion",
+      cookingSprite: "cooking-ramen-scallion",
+      art: FoodArt.potScallion
+    }),
+    ramen_kimchi: Object.freeze({
+      id: "ramen_kimchi",
+      label: "김치 라면",
+      appliance: "pot",
+      ingredients: Object.freeze(["noodle", "kimchi"]),
+      cookMs: 4400,
+      burns: true,
+      burnMs: Config.cooking.defaultBurnMs,
+      sprite: "ramen-kimchi",
+      cookingSprite: "cooking-ramen-kimchi",
+      art: FoodArt.potKimchi
+    }),
+    ramen_cheese: Object.freeze({
+      id: "ramen_cheese",
+      label: "치즈 라면",
+      appliance: "pot",
+      ingredients: Object.freeze(["noodle", "cheese"]),
+      cookMs: 4400,
+      burns: true,
+      burnMs: Config.cooking.defaultBurnMs,
+      sprite: "ramen-cheese",
+      cookingSprite: "cooking-ramen-cheese",
+      art: FoodArt.potCheese
     }),
     grilled_dumpling: Object.freeze({
       id: "grilled_dumpling",
@@ -108,6 +149,9 @@
   const MenuCatalog = Object.freeze({
     ramen_plain: Object.freeze({ id: "ramen_plain", kind: "food", label: "기본 라면", art: FoodArt.pot, price: 3500 }),
     ramen_egg: Object.freeze({ id: "ramen_egg", kind: "food", label: "계란 라면", art: FoodArt.potEgg, price: 4000 }),
+    ramen_scallion: Object.freeze({ id: "ramen_scallion", kind: "food", label: "대파 라면", art: FoodArt.potScallion, price: 4300 }),
+    ramen_kimchi: Object.freeze({ id: "ramen_kimchi", kind: "food", label: "김치 라면", art: FoodArt.potKimchi, price: 4700 }),
+    ramen_cheese: Object.freeze({ id: "ramen_cheese", kind: "food", label: "치즈 라면", art: FoodArt.potCheese, price: 5000 }),
     grilled_dumpling: Object.freeze({ id: "grilled_dumpling", kind: "food", label: "군만두", art: FoodArt.grill, price: 2200 }),
     warm_oden: Object.freeze({ id: "warm_oden", kind: "food", label: "오뎅", art: FoodArt.oden, price: 1800 }),
     soju: Object.freeze({ id: "soju", kind: "drink", label: "소주", art: "assets/art-v012/drink-soju-v1.webp", price: 1500 }),
@@ -137,8 +181,188 @@
     Object.freeze({ id: "traveler", name: "여행객", art: "assets/art-v012/customer-traveler-v1.webp" })
   ]);
   const CustomerById = Object.freeze(Object.fromEntries(CustomerCatalog.map(customer => [customer.id, customer])));
-  const FoodOrderPool = Object.freeze(Object.values(MenuCatalog).filter(item => item.kind === "food").map(item => item.id));
-  const DrinkOrderPool = Object.freeze(Object.values(MenuCatalog).filter(item => item.kind === "drink").map(item => item.id));
+  function makeCustomerStory({ tagline, favoriteFood, favoriteDrink, first, arrivals, reactions, missed, chapters }) {
+    return Object.freeze({
+      tagline,
+      favoriteFood,
+      favoriteDrink,
+      first,
+      arrivals: Object.freeze(arrivals),
+      reactions: Object.freeze(reactions),
+      missed,
+      chapters: Object.freeze(chapters.map(([required, title, text]) => Object.freeze({ required, title, text })))
+    });
+  }
+
+  const CustomerStoryCatalog = Object.freeze({
+    office: makeCustomerStory({
+      tagline: "퇴근길 끝의 따뜻한 자리", favoriteFood: "ramen_plain", favoriteDrink: "soju",
+      first: "야근하고 나오니 여기 불빛이 제일 먼저 보였어요.",
+      arrivals: ["오늘도 이 자리에서 하루를 내려놓고 갈게요.", "문을 여셨군요. 이제야 퇴근한 기분이에요."],
+      reactions: ["따뜻한 국물이 오늘 하루를 정리해 주네요.", "천천히 먹으니 마음까지 풀리는 것 같아요."],
+      missed: "오늘은 시간이 엇갈렸네요. 다음 퇴근길에 올게요.",
+      chapters: [[1,"늦은 퇴근길","이름도 모른 채 건넨 첫 그릇이 긴 하루의 마침표가 되었다."],[3,"익숙한 창가","회사원은 어느새 빈자리를 먼저 살피고 앉는 손님이 되었다."],[7,"작은 축하","오래 준비한 일이 잘 풀렸다며 조용히 잔을 들었다."],[15,"퇴근 후의 약속","힘든 날에도 이 불빛이 기다린다는 사실이 든든하다고 말했다."]]
+    }),
+    rider: makeCustomerStory({
+      tagline: "도시를 달리고 쉬어 가는 사람", favoriteFood: "grilled_dumpling", favoriteDrink: "beer",
+      first: "마지막 배달을 마치고 냄새에 이끌려 들어왔어요.",
+      arrivals: ["오늘 길은 복잡했지만 여기까지 무사히 왔어요.", "헬멧을 벗으니 라면 냄새가 더 좋네요."],
+      reactions: ["바삭한 만두 한입이면 피로가 싹 가셔요.", "따뜻하게 먹고 다시 힘내볼게요."],
+      missed: "다음 배달은 잠깐 미루고 더 일찍 올게요.",
+      chapters: [[1,"마지막 배달","비어 있던 의자 하나가 늦은 밤 라이더의 휴게소가 되었다."],[3,"비 오는 골목","젖은 장갑을 말리며 오늘 만난 친절한 손님 이야기를 들려주었다."],[7,"안전 운전 부적","보름이가 건넨 작은 매듭을 헬멧에 달고 다니기 시작했다."],[15,"도시의 지름길","수많은 골목 중 가장 따뜻한 목적지는 이 포차라고 웃었다."]]
+    }),
+    student: makeCustomerStory({
+      tagline: "꿈을 준비하는 늦은 밤", favoriteFood: "ramen_egg", favoriteDrink: "somaek",
+      first: "도서관에서 나오니 배가 너무 고팠어요.",
+      arrivals: ["오늘 공부한 만큼 든든하게 먹고 갈래요.", "시험보다 메뉴 고르는 게 더 행복해요."],
+      reactions: ["계란까지 먹으니 머리가 다시 돌아가는 것 같아요.", "오늘도 잘 버틴 제게 주는 야식이에요."],
+      missed: "공부 끝나는 시간을 잘 맞춰서 다시 올게요.",
+      chapters: [[1,"도서관 불빛","시험 노트를 품에 안은 학생의 첫 야식이 준비되었다."],[3,"틀린 문제","실수한 문제보다 다시 풀 용기가 중요하다는 이야기를 나눴다."],[7,"합격 문자","떨리는 손으로 합격 화면을 보여주며 가장 먼저 이곳에 달려왔다."],[15,"새로운 교재","이제는 후배를 가르친다며 조금 어른스러운 표정으로 앉았다."]]
+    }),
+    baker: makeCustomerStory({
+      tagline: "새벽 빵 냄새를 품은 손님", favoriteFood: "warm_oden", favoriteDrink: "makgeolli",
+      first: "반죽을 재워두고 잠깐 숨 돌리러 왔어요.",
+      arrivals: ["오늘 빵도 잘 부풀었어요. 이제 제 마음도 데울 차례네요.", "새벽 준비 전에 따뜻한 국물부터 생각났어요."],
+      reactions: ["오뎅 국물이 반죽 기다리는 시간처럼 편안해요.", "속이 따뜻해지니 좋은 빵이 나올 것 같아요."],
+      missed: "오븐 시간이 급했어요. 다음엔 여유 있게 올게요.",
+      chapters: [[1,"잠든 반죽","빵집 직원은 발효를 기다리는 동안 첫 국물을 마셨다."],[3,"남은 빵 봉투","마감 뒤 남은 빵을 보름이와 나누며 서로의 하루를 응원했다."],[7,"나만의 레시피","오랫동안 고친 빵을 가져와 포차의 첫 시식회를 열었다."],[15,"작은 간판","언젠가 자기 이름의 빵집을 열겠다는 꿈을 조심스럽게 꺼냈다."]]
+    }),
+    grandma: makeCustomerStory({
+      tagline: "시장 골목의 넉넉한 마음", favoriteFood: "warm_oden", favoriteDrink: "makgeolli",
+      first: "가게 문 닫고 보니 저녁을 또 깜빡했구먼.",
+      arrivals: ["오늘 반찬이 잘 팔려서 마음이 가볍네.", "보름이 얼굴도 보고 뜨끈한 것도 먹으러 왔지."],
+      reactions: ["국물이 참 정직하고 따뜻해. 마음이 들어갔어.", "잘 먹었네. 내일 장사도 든든하겠어."],
+      missed: "시장 일이 길어졌네. 내일은 꼭 들르지.",
+      chapters: [[1,"시장 마감","반찬가게 할머니는 빈 그릇을 보며 보름이 손맛을 칭찬했다."],[3,"김치 한 통","국물에 잘 어울린다며 직접 담근 김치를 살며시 놓고 갔다."],[7,"손녀 이야기","멀리 사는 손녀가 보름이와 닮았다며 오래된 사진을 보여주었다."],[15,"골목의 어른","힘든 일이 생기면 언제든 시장으로 오라며 든든한 편이 되어주었다."]]
+    }),
+    driver: makeCustomerStory({
+      tagline: "밤길의 사연을 싣고 오는 사람", favoriteFood: "ramen_plain", favoriteDrink: "somaek",
+      first: "손님 내려드리고 돌아가는 길에 불빛이 보여서요.",
+      arrivals: ["오늘도 도시 한 바퀴 돌고 제자리로 왔네요.", "밤길 끝에는 역시 뜨거운 라면이죠."],
+      reactions: ["국물 한 숟갈에 도로 소음이 멀어지는 것 같아요.", "이제 안전하게 집까지 갈 힘이 생겼어요."],
+      missed: "장거리 손님이 있었어요. 다음 운행 끝엔 꼭 들를게요.",
+      chapters: [[1,"첫 막차 뒤","택시기사는 조용해진 도로에서 발견한 포차를 기억해 두었다."],[3,"잊힌 우산","차에 남은 우산의 주인을 찾아준 이야기에 모두가 미소 지었다."],[7,"새벽의 승객","힘들어하던 승객을 무사히 가족에게 데려다준 밤을 들려주었다."],[15,"돌아오는 길","어디까지 달려도 마지막에는 이 포차 방향으로 핸들을 돌린다고 했다."]]
+    }),
+    nurse: makeCustomerStory({
+      tagline: "누군가의 밤을 지키는 손님", favoriteFood: "ramen_egg", favoriteDrink: "beer",
+      first: "야간 근무가 끝났는데 바로 잠들기는 아쉬워서요.",
+      arrivals: ["오늘 병동도 무사했어요. 이제 제 끼니를 챙기려고요.", "따뜻한 한 그릇 생각으로 마지막 순회를 버텼어요."],
+      reactions: ["누가 차려준 음식을 먹으니 저도 돌봄 받는 기분이에요.", "이 온기까지 잘 챙겨서 돌아갈게요."],
+      missed: "급한 일이 생겼어요. 다음 쉬는 날엔 천천히 먹고 갈게요.",
+      chapters: [[1,"근무가 끝난 뒤","야간 간호사는 처음으로 자기 자신을 위한 식사를 천천히 했다."],[3,"회복 소식","오랫동안 돌보던 환자가 건강히 퇴원했다는 기쁜 소식을 전했다."],[7,"조용한 응원","힘든 근무 날마다 포차의 불빛을 떠올린다는 이야기를 남겼다."],[15,"서로의 안부","이제는 주문보다 먼저 보름이와 뽀미의 건강부터 묻는 단골이 되었다."]]
+    }),
+    florist: makeCustomerStory({
+      tagline: "꽃이 진 뒤에도 향기를 남기는 사람", favoriteFood: "grilled_dumpling", favoriteDrink: "makgeolli",
+      first: "가게 정리하고 남은 꽃향기까지 데려왔네요.",
+      arrivals: ["오늘은 따뜻한 색 꽃이 많이 나갔어요.", "포차 불빛을 보면 주황빛 꽃다발이 떠올라요."],
+      reactions: ["바삭한 소리까지 작은 축제 같아요.", "오늘 남은 향기와 온기가 잘 어울리네요."],
+      missed: "늦은 꽃 배달이 있었어요. 다음엔 작은 꽃도 가져올게요.",
+      chapters: [[1,"남은 꽃 한 송이","꽃집 사장은 팔리지 않은 꽃 한 송이를 포차 창가에 꽂아두었다."],[3,"계절의 색","계절마다 포차에 어울리는 꽃을 골라 작은 장식을 만들었다."],[7,"첫 고백의 꽃다발","손님의 고백이 성공했다는 소식에 자기 일처럼 기뻐했다."],[15,"시들지 않는 자리","꽃은 지지만 함께 먹은 밤의 기억은 오래 남는다고 말했다."]]
+    }),
+    firefighter: makeCustomerStory({
+      tagline: "뜨거운 현장 뒤의 조용한 휴식", favoriteFood: "grilled_dumpling", favoriteDrink: "beer",
+      first: "훈련 끝나고 동료가 여기 국물이 좋다고 해서 왔어요.",
+      arrivals: ["오늘도 모두 무사히 돌아왔습니다.", "장비를 내려놓으니 이제야 배고픈 줄 알겠네요."],
+      reactions: ["잘 먹었습니다. 든든해야 더 잘 지킬 수 있죠.", "뜨거운 음식인데 마음은 편안해지네요."],
+      missed: "출동이 있었어요. 무사히 끝났으니 다음에 웃으며 올게요.",
+      chapters: [[1,"무사 귀환","소방관은 동료들과 나눌 만두 한 접시를 더 기억해 두었다."],[3,"검댕 묻은 소매","긴 출동 뒤에도 아무도 다치지 않았다며 안도했다."],[7,"아이의 편지","구조했던 아이가 보낸 삐뚤빼뚤한 감사 편지를 보여주었다."],[15,"마음을 지키는 곳","사람을 지키는 자신도 이곳에서는 잠시 보호받는 기분이라고 말했다."]]
+    }),
+    musician: makeCustomerStory({
+      tagline: "골목의 밤을 노래하는 사람", favoriteFood: "warm_oden", favoriteDrink: "beer",
+      first: "연주 끝나고 박수보다 라면 냄새가 더 오래 남았어요.",
+      arrivals: ["오늘은 새 노래를 한 소절 완성했어요.", "포차의 소리를 들으면 멜로디가 떠올라요."],
+      reactions: ["이 맛은 후렴처럼 자꾸 생각날 것 같아요.", "배가 차니 막혔던 가사도 풀리네요."],
+      missed: "공연이 길어졌어요. 다음엔 새 노래를 들려드릴게요.",
+      chapters: [[1,"첫 번째 후렴","버스커는 냄비 끓는 소리를 박자로 삼아 짧은 멜로디를 만들었다."],[3,"포차의 노래","보름이와 뽀미가 들어간 따뜻한 노래 한 곡을 완성했다."],[7,"작은 관객들","골목 사람들이 연주를 들으러 모여 포차 앞이 잠시 무대가 되었다."],[15,"돌아오는 노래","멀리 공연을 다녀와도 가장 먼저 들려주고 싶은 관객은 여기 있다고 했다."]]
+    }),
+    teacher: makeCustomerStory({
+      tagline: "아이들의 하루를 품고 오는 선생님", favoriteFood: "ramen_egg", favoriteDrink: "makgeolli",
+      first: "학부모 상담까지 마치니 목소리도 배도 텅 비었네요.",
+      arrivals: ["오늘 아이들이 정말 많이 웃었어요.", "교실 이야기를 잠시 내려놓고 쉬다 갈게요."],
+      reactions: ["한 그릇 다 먹으니 내일 칭찬할 힘이 생겼어요.", "보름이처럼 따뜻하게 아이들을 대하고 싶네요."],
+      missed: "학교 일이 늦어졌어요. 다음엔 숙제 검사도 일찍 끝낼게요.",
+      chapters: [[1,"빨간 펜을 내려놓고","초등 교사는 채점 가방을 옆에 두고 오랜만에 천천히 식사했다."],[3,"삐뚤한 편지","아이들이 써준 감사 편지를 읽다가 살짝 눈시울을 붉혔다."],[7,"졸업식 전날","첫 제자들의 졸업을 앞두고 기쁘고 아쉬운 마음을 털어놓았다."],[15,"다시 만난 제자","훌쩍 큰 제자가 찾아왔다며 선생님이 된 보람을 환하게 이야기했다."]]
+    }),
+    fisher: makeCustomerStory({
+      tagline: "새벽 바다를 먼저 만나는 사람", favoriteFood: "warm_oden", favoriteDrink: "soju",
+      first: "배 나가기 전엔 따뜻한 걸 먹어둬야 바람을 견디죠.",
+      arrivals: ["오늘 바다는 얌전했어요. 마음도 그렇고요.", "물때 보기 전에 포차 불빛부터 확인했네요."],
+      reactions: ["이 국물이 새벽 바닷바람보다 먼저 몸을 깨워주네요.", "든든히 먹었으니 오늘도 무사히 다녀오겠습니다."],
+      missed: "파도가 높아 시간이 바뀌었어요. 잔잔한 날 다시 올게요.",
+      chapters: [[1,"출항 전 한 그릇","새벽 어부는 김이 오르는 국물로 바다에 나갈 준비를 마쳤다."],[3,"빈 그물의 날","잡은 것이 없어도 무사히 돌아온 날이 좋은 날이라며 웃었다."],[7,"큰 은빛 물고기","오랜만의 큰 수확보다 함께 기뻐해 줄 사람이 있어 좋다고 했다."],[15,"등대 같은 불빛","멀리서 돌아올 때 포차의 달 간판이 작은 등대처럼 보인다고 말했다."]]
+    }),
+    merchant: makeCustomerStory({
+      tagline: "시장 하루를 누구보다 먼저 여는 사람", favoriteFood: "grilled_dumpling", favoriteDrink: "soju",
+      first: "새벽 경매 가기 전에 배부터 든든히 채우러 왔소.",
+      arrivals: ["오늘 시장 인심도 물건도 넉넉했어요.", "장부 덮고 나니 이 집 생각이 딱 나더라고."],
+      reactions: ["이 정도 정성이면 시장에서도 소문나겠어.", "든든히 먹었으니 내일 흥정도 문제없지."],
+      missed: "물건 들어오는 시간이 꼬였네. 다음 장날엔 꼭 오지.",
+      chapters: [[1,"첫 장날","시장 상인은 맛을 본 뒤 단골들에게 포차 이야기를 슬쩍 퍼뜨렸다."],[3,"덤 한 봉지","좋은 재료를 골랐다며 장바구니에 덤을 한가득 담아왔다."],[7,"골목 잔치","시장 사람들과 작은 잔치를 열자고 먼저 소매를 걷어붙였다."],[15,"오래된 장부","단골 이름 사이에 보름이의 포차를 크게 적으며 오래 함께하자고 했다."]]
+    }),
+    police: makeCustomerStory({
+      tagline: "동네의 밤을 천천히 살피는 사람", favoriteFood: "ramen_plain", favoriteDrink: "somaek",
+      first: "순찰 돌다가 따뜻한 냄새가 나서 잠깐 들렀습니다.",
+      arrivals: ["오늘 골목은 평화롭습니다. 뽀미도 잘 있네요.", "이곳 불빛이 켜져 있으면 순찰길도 마음이 놓여요."],
+      reactions: ["든든하게 먹었으니 한 바퀴 더 살펴볼게요.", "따뜻한 가게가 있는 골목은 오래 지키고 싶어져요."],
+      missed: "도움을 요청한 이웃이 있었어요. 다음 순찰 때 들르겠습니다.",
+      chapters: [[1,"평화로운 순찰","동네 순경은 포차를 야간 순찰의 안심 지점으로 기억했다."],[3,"길 잃은 아이","울던 아이를 가족에게 데려다준 뒤 늦은 저녁을 먹었다."],[7,"뽀미의 친구","순찰할 때마다 뽀미에게 먼저 인사하는 특별한 친구가 되었다."],[15,"안심 골목","서로 안부를 묻는 가게들이 많아질수록 동네가 안전해진다고 말했다."]]
+    }),
+    cleaner: makeCustomerStory({
+      tagline: "잠든 도시를 깨끗이 여는 사람", favoriteFood: "warm_oden", favoriteDrink: "makgeolli",
+      first: "거리가 조용해질 때가 우리에겐 일 시작할 시간이죠.",
+      arrivals: ["오늘 골목도 말끔해졌어요. 이제 저도 쉬어야죠.", "계절이 바뀌면 거리의 냄새부터 달라져요."],
+      reactions: ["따뜻한 국물이 새벽 찬 공기를 밀어내네요.", "잘 먹고 나니 도시가 조금 더 환해 보입니다."],
+      missed: "낙엽이 많아 일이 길어졌어요. 내일은 꼭 쉬어갈게요.",
+      chapters: [[1,"도시의 새벽","환경미화원은 아무도 모르는 새벽 풍경을 보름이에게 들려주었다."],[3,"첫눈 내린 거리","눈을 치운 뒤 가장 먼저 남은 발자국이 포차로 향했다."],[7,"고마운 쪽지","골목 아이가 붙여둔 감사 쪽지를 주머니에서 소중히 꺼냈다."],[15,"깨끗한 아침","사람들이 기분 좋게 하루를 시작하는 것이 자신의 보람이라고 말했다."]]
+    }),
+    artist: makeCustomerStory({
+      tagline: "마감과 상상 사이에 사는 사람", favoriteFood: "ramen_egg", favoriteDrink: "beer",
+      first: "마감하다 보니 오늘 첫 끼가 지금이네요.",
+      arrivals: ["오늘은 선이 마음대로 잘 그려졌어요.", "막힌 장면을 두고 왔더니 여기서 답이 보일 것 같아요."],
+      reactions: ["맛있는 장면은 설명보다 표정으로 그려야겠어요.", "배가 부르니 다음 화 마지막 칸이 떠올랐어요."],
+      missed: "마감 직전이라 못 나왔어요. 원고 넘기고 달려올게요.",
+      chapters: [[1,"빈 말풍선","웹툰 작가는 포차에서 들은 말 한마디로 비어 있던 장면을 채웠다."],[3,"첫 연재일","오래 준비한 작품의 첫 화가 공개된 밤을 함께 축하했다."],[7,"독자의 편지","이야기 덕분에 위로받았다는 독자 편지를 읽으며 조용히 웃었다."],[15,"포차의 한 컷","작품 배경 한쪽에 달 간판과 뽀미를 몰래 그려 넣었다고 고백했다."]]
+    }),
+    guard: makeCustomerStory({
+      tagline: "고요한 건물을 지키는 밤의 손님", favoriteFood: "grilled_dumpling", favoriteDrink: "soju",
+      first: "교대 전에 사람 목소리 좀 듣고 싶어서 왔습니다.",
+      arrivals: ["오늘 건물은 조용했습니다. 조용한 게 제일 좋은 밤이죠.", "여기 오면 혼자 근무한 밤도 덜 외롭게 느껴져요."],
+      reactions: ["바삭한 소리를 들으니 정신이 또렷해지네요.", "따뜻하게 먹고 새벽까지 잘 지켜보겠습니다."],
+      missed: "점검할 곳이 많았습니다. 다음 교대 전에는 꼭 들르죠.",
+      chapters: [[1,"교대 전의 불빛","야간 경비원은 말없이 먹는 시간도 함께라서 편안하다고 했다."],[3,"옥상의 별","아무도 없는 건물 옥상에서 본 별자리를 천천히 설명해 주었다."],[7,"길고양이 순찰대","건물 주변 고양이들에게 이름을 붙이고 밥을 챙긴다는 비밀을 털어놓았다."],[15,"조용한 인사","말수가 적어도 매일 같은 시간 건네는 인사가 큰 힘이 된다고 말했다."]]
+    }),
+    traveler: makeCustomerStory({
+      tagline: "낯선 길에서 따뜻한 자리를 찾은 사람", favoriteFood: "ramen_plain", favoriteDrink: "makgeolli",
+      first: "지도에는 없었는데 가장 좋은 곳을 발견한 것 같아요.",
+      arrivals: ["다른 도시를 돌고도 이 골목이 생각나 다시 왔어요.", "이번 여행의 시작도 끝도 여기서 하고 싶었어요."],
+      reactions: ["낯선 곳에서 먹는 익숙한 맛이 제일 오래 기억돼요.", "이 한 그릇도 여행 일기에 꼭 적어둘게요."],
+      missed: "기차 시간이 바뀌었어요. 다시 이 도시에 오면 꼭 찾을게요.",
+      chapters: [[1,"지도 밖의 포차","여행객은 우연히 만난 달 간판을 여행 수첩 첫 장에 그렸다."],[3,"돌아온 엽서","다른 도시에서 보낸 엽서가 포차 선반 한쪽에 도착했다."],[7,"두 번째 여행","볼거리가 아니라 보고 싶은 사람들이 있어 다시 왔다고 말했다."],[15,"머물고 싶은 도시","언젠가 이 골목 가까이에 오래 살아보고 싶다는 계획을 꺼냈다."]]
+    })
+  });
+  const IngredientCatalog = Object.freeze({
+    noodle: Object.freeze({ id: "noodle", label: "면", category: "ramen", art: "assets/art-v012/ingredient-noodle-v4.webp", unitCost: 260, targetStock: 18, unlockLevel: 1 }),
+    egg: Object.freeze({ id: "egg", label: "계란", category: "ramen", art: "assets/art-v012/ingredient-egg-v4.webp", unitCost: 140, targetStock: 10, unlockLevel: 1 }),
+    scallion: Object.freeze({ id: "scallion", label: "대파", category: "ramen", art: "assets/art-v025/ingredient-scallion-v1.webp", unitCost: 170, targetStock: 10, unlockLevel: 2 }),
+    kimchi: Object.freeze({ id: "kimchi", label: "김치", category: "ramen", art: "assets/art-v025/ingredient-kimchi-v1.webp", unitCost: 230, targetStock: 10, unlockLevel: 3 }),
+    cheese: Object.freeze({ id: "cheese", label: "치즈", category: "ramen", art: "assets/art-v025/ingredient-cheese-v1.webp", unitCost: 320, targetStock: 8, unlockLevel: 4 }),
+    dumpling: Object.freeze({ id: "dumpling", label: "군만두", category: "anju", art: "assets/art-v012/ingredient-dumpling-v4.webp", unitCost: 420, targetStock: 12, unlockLevel: 1 }),
+    oden: Object.freeze({ id: "oden", label: "오뎅", category: "anju", art: "assets/art-v012/ingredient-oden-v4.webp", unitCost: 300, targetStock: 12, unlockLevel: 1 }),
+    soju: Object.freeze({ id: "soju", label: "소주", category: "drinks", art: "assets/art-v012/drink-soju-v1.webp", unitCost: 480, targetStock: 12, unlockLevel: 1, kind: "drink" }),
+    beer: Object.freeze({ id: "beer", label: "맥주", category: "drinks", art: "assets/art-v012/drink-beer-v1.webp", unitCost: 650, targetStock: 12, unlockLevel: 1, kind: "drink" }),
+    somaek: Object.freeze({ id: "somaek", label: "소맥", category: "drinks", art: "assets/art-v012/drink-somaek-v1.webp", unitCost: 760, targetStock: 10, unlockLevel: 1, kind: "drink" }),
+    makgeolli: Object.freeze({ id: "makgeolli", label: "막걸리", category: "drinks", art: "assets/art-v012/drink-makgeolli-v1.webp", unitCost: 590, targetStock: 10, unlockLevel: 1, kind: "drink" })
+  });
+
+  const MenuUnlockLevel = Object.freeze({ ramen_plain: 1, ramen_egg: 1, grilled_dumpling: 1, warm_oden: 1, ramen_scallion: 2, ramen_kimchi: 3, ramen_cheese: 4 });
+
+  function unlockedFoodOrderPool(level = effectiveStallLevel()) {
+    return Object.values(MenuCatalog).filter(item => item.kind === "food" && (MenuUnlockLevel[item.id] || 1) <= level).map(item => item.id);
+  }
+
+  function drinkOrderPool() {
+    return Object.values(MenuCatalog).filter(item => item.kind === "drink").map(item => item.id);
+  }
 
   const ProgressionMilestones = Object.freeze([
     Object.freeze({ day: 1, stall: 1, seats: 3, customers: 3, label: "첫 포차" }),
@@ -193,14 +417,16 @@
 
   function freshProgress() {
     return {
-      version: 7,
+      version: 9,
       day: 1,
       gold: 0,
       stallLevel: 1,
       stationLevels: { pot: 1, grill: 1, oden: 1 },
-      stats: { completedDays: 0, successfulDays: 0, totalSales: 0, totalServed: 0, totalMissed: 0, totalWaste: 0, totalTakeoutServed: 0, totalTakeoutMissed: 0 },
-      regulars: Object.fromEntries(CustomerCatalog.map(customer => [customer.id, { visits: 0, served: 0, missed: 0, chapters: 0, lastDay: 0 }])),
-      storyLog: []
+      inventory: Object.fromEntries(Object.values(IngredientCatalog).map(item => [item.id, item.targetStock])),
+      stats: { completedDays: 0, successfulDays: 0, totalSales: 0, totalServed: 0, totalMissed: 0, totalWaste: 0, totalTakeoutServed: 0, totalTakeoutMissed: 0, totalSupplyCost: 0 },
+      regulars: Object.fromEntries(CustomerCatalog.map(customer => [customer.id, { visits: 0, served: 0, missed: 0, chapters: 0, lastDay: 0, affection: 0, lastFood: "", lastDrink: "" }])),
+      storyLog: [],
+      journalSeen: 0
     };
   }
 
@@ -219,18 +445,28 @@
     Object.keys(clean.stats).forEach(key => {
       clean.stats[key] = Math.max(0, Math.floor(Number(raw.stats?.[key]) || 0));
     });
+    Object.values(IngredientCatalog).forEach(item => {
+      const value = raw.inventory?.[item.id];
+      clean.inventory[item.id] = value == null ? item.targetStock : Math.max(0, Math.floor(Number(value) || 0));
+    });
     Object.keys(clean.regulars).forEach(customerId => {
       const source = raw.regulars?.[customerId];
-      Object.keys(clean.regulars[customerId]).forEach(key => {
+      ["visits", "served", "missed", "chapters", "lastDay", "affection"].forEach(key => {
         clean.regulars[customerId][key] = Math.max(0, Math.floor(Number(source?.[key]) || 0));
       });
+      clean.regulars[customerId].lastFood = MenuCatalog[source?.lastFood]?.kind === "food" ? source.lastFood : "";
+      clean.regulars[customerId].lastDrink = MenuCatalog[source?.lastDrink]?.kind === "drink" ? source.lastDrink : "";
     });
     clean.storyLog = Array.isArray(raw.storyLog) ? raw.storyLog.slice(-200).map(entry => ({
       day: Math.max(1, Math.floor(Number(entry?.day) || 1)),
       customerId: CustomerById[entry?.customerId] ? entry.customerId : "office",
       chapter: Math.max(1, Math.floor(Number(entry?.chapter) || 1)),
-      text: String(entry?.text || "포차의 이야기가 이어졌어요.").slice(0, 100)
+      title: String(entry?.title || `${CustomerById[entry?.customerId]?.name || "손님"}의 이야기`).slice(0, 60),
+      text: String(entry?.text || "포차의 이야기가 이어졌어요.").slice(0, 180),
+      relationship: String(entry?.relationship || "손님").slice(0, 30),
+      servedAt: Math.max(1, Math.floor(Number(entry?.servedAt) || Number(entry?.chapter) || 1))
     })) : [];
+    clean.journalSeen = Math.max(0, Math.min(clean.storyLog.length, Math.floor(Number(raw.journalSeen) || 0)));
     return clean;
   }
 
@@ -329,6 +565,32 @@
     return PreviewDay || Progress.day;
   }
 
+  function isIngredientUnlocked(id, level = effectiveStallLevel()) {
+    return Boolean(IngredientCatalog[id]) && IngredientCatalog[id].unlockLevel <= level;
+  }
+
+  function ingredientStock(id) {
+    return Math.max(0, Math.floor(Number(Progress.inventory?.[id]) || 0));
+  }
+
+  function consumeIngredient(id) {
+    if (State.tutorialMode) return true;
+    if (!isIngredientUnlocked(id)) return false;
+    if (ingredientStock(id) <= 0) return false;
+    Progress.inventory[id] -= 1;
+    saveProgress();
+    renderDockCategory(IngredientCatalog[id].category);
+    return true;
+  }
+
+  function supplyPlan() {
+    const items = Object.values(IngredientCatalog).filter(item => isIngredientUnlocked(item.id)).map(item => {
+      const quantity = Math.max(0, item.targetStock - ingredientStock(item.id));
+      return { ...item, quantity, cost: quantity * item.unitCost };
+    });
+    return { items, total: items.reduce((sum, item) => sum + item.cost, 0), quantity: items.reduce((sum, item) => sum + item.quantity, 0) };
+  }
+
   function progressionMilestone(day = effectiveDay(), stallLevel = effectiveStallLevel()) {
     return ProgressionMilestones.reduce((current, milestone) => (
       day >= milestone.day && stallLevel >= milestone.stall ? milestone : current
@@ -391,6 +653,10 @@
     const stationCounts = stationCountsForLevel(level);
     const takeoutCapacity = takeoutCapacityForLevel(level);
     const passCapacity = completionPassCapacityForLevel(level);
+    Progress.inventory ||= {};
+    Object.values(IngredientCatalog).forEach(item => {
+      if (item.unlockLevel <= level && Progress.inventory[item.id] == null) Progress.inventory[item.id] = item.targetStock;
+    });
     Config.layout.level = level;
     const stage = $("#stage");
     if (stage) {
@@ -452,6 +718,7 @@
         if (locked) clearPassSlot(slot.index, false);
       });
     }
+    InventoryCategories?.forEach(category => renderDockCategory(category.id));
     resize();
     if ($("#boreumi")?.dataset.mode === "idle") setBoreumiIdlePosition();
   }
@@ -495,6 +762,9 @@
   const IngredientRules = Object.freeze({
     noodle: Object.freeze({ appliance: "pot", mode: "base" }),
     egg: Object.freeze({ appliance: "pot", mode: "addon", requires: "noodle" }),
+    scallion: Object.freeze({ appliance: "pot", mode: "addon", requires: "noodle" }),
+    kimchi: Object.freeze({ appliance: "pot", mode: "addon", requires: "noodle" }),
+    cheese: Object.freeze({ appliance: "pot", mode: "addon", requires: "noodle" }),
     dumpling: Object.freeze({ appliance: "grill", mode: "base" }),
     oden: Object.freeze({ appliance: "oden", mode: "base" })
   });
@@ -504,30 +774,19 @@
       id: "ramen",
       label: "라면 재료",
       className: "ingredient-rack",
-      items: [
-        { id: "noodle", label: "면", art: "assets/art-v012/ingredient-noodle-v4.webp", draggable: true },
-        { id: "egg", label: "계란", art: "assets/art-v012/ingredient-egg-v4.webp", draggable: true }
-      ]
+      items: ["noodle", "egg", "scallion", "kimchi", "cheese"].map(id => ({ ...IngredientCatalog[id], draggable: true }))
     },
     {
       id: "drinks",
       label: "주류",
       className: "drink-rack",
-      items: [
-        { id: "soju", label: "소주", art: "assets/art-v012/drink-soju-v1.webp", draggable: true, kind: "drink" },
-        { id: "beer", label: "맥주", art: "assets/art-v012/drink-beer-v1.webp", draggable: true, kind: "drink" },
-        { id: "somaek", label: "소맥", art: "assets/art-v012/drink-somaek-v1.webp", draggable: true, kind: "drink" },
-        { id: "makgeolli", label: "막걸리", art: "assets/art-v012/drink-makgeolli-v1.webp", draggable: true, kind: "drink" }
-      ]
+      items: ["soju", "beer", "somaek", "makgeolli"].map(id => ({ ...IngredientCatalog[id], draggable: true }))
     },
     {
       id: "anju",
       label: "안주",
       className: "snack-rack",
-      items: [
-        { id: "dumpling", label: "군만두", art: "assets/art-v012/ingredient-dumpling-v4.webp", draggable: true },
-        { id: "oden", label: "오뎅", art: "assets/art-v012/ingredient-oden-v4.webp", draggable: true }
-      ]
+      items: ["dumpling", "oden"].map(id => ({ ...IngredientCatalog[id], draggable: true }))
     }
   ];
 
@@ -538,6 +797,10 @@
     paused: false,
     tutorialMode: false,
     helpPausedGame: false,
+    journalPausedGame: false,
+    journalCustomerId: null,
+    storyDialogueQueue: [],
+    storyDialogueTimer: null,
     time: Config.daySeconds,
     sales: 0,
     guests: 0,
@@ -847,6 +1110,7 @@
       $("#startButton").disabled = true;
       $("#startButton").setAttribute("aria-label", "연습중");
       $("#startButton strong").textContent = "연습중";
+      InventoryCategories.forEach(category => renderDockCategory(category.id));
       renderHud();
       setBoreumiIdle();
     },
@@ -879,6 +1143,7 @@
       $("#startButton").disabled = false;
       $("#startButton").setAttribute("aria-label", "영업 시작");
       $("#startButton strong").textContent = "영업 시작";
+      InventoryCategories.forEach(category => renderDockCategory(category.id));
       renderHud();
       setBoreumiIdle();
       if (this.completed) announceFirstDayReady();
@@ -945,7 +1210,13 @@
   }
 
   function resolveRecipeId(appliance) {
-    if (appliance.type === "pot") return appliance.ingredients.includes("egg") ? "ramen_egg" : "ramen_plain";
+    if (appliance.type === "pot") {
+      if (appliance.ingredients.includes("cheese")) return "ramen_cheese";
+      if (appliance.ingredients.includes("kimchi")) return "ramen_kimchi";
+      if (appliance.ingredients.includes("scallion")) return "ramen_scallion";
+      if (appliance.ingredients.includes("egg")) return "ramen_egg";
+      return "ramen_plain";
+    }
     if (appliance.type === "grill") return "grilled_dumpling";
     return "warm_oden";
   }
@@ -965,9 +1236,13 @@
     const visibleItems = category.items.slice(page * pageSize, (page + 1) * pageSize);
     const items = rack.querySelector(".rack-items");
     items.style.setProperty("--page-columns", Math.max(2, visibleItems.length));
-    items.innerHTML = visibleItems.map(item => item.draggable
-      ? `<button class="ingredient catalog-item${item.kind === "drink" ? " drink-item" : ""}" data-item="${item.id}" data-kind="${item.kind || "ingredient"}" aria-label="${item.label}"><img src="${item.art}" alt=""><span class="item-name">${item.label}</span></button>`
-      : `<div class="drink-item catalog-item" role="img" aria-label="${item.label}"><img src="${item.art}" alt=""><span class="item-name">${item.label}</span></div>`).join("");
+    items.innerHTML = visibleItems.map(item => {
+      const unlocked = isIngredientUnlocked(item.id);
+      const stock = ingredientStock(item.id);
+      const disabled = !unlocked || (!State.tutorialMode && stock <= 0);
+      const status = unlocked ? `재고 ${stock}개` : `포차 LV.${item.unlockLevel} 해금`;
+      return `<button class="ingredient catalog-item${item.kind === "drink" ? " drink-item" : ""}${unlocked ? "" : " locked"}${stock <= 0 ? " sold-out" : ""}" data-item="${item.id}" data-kind="${item.kind || "ingredient"}" aria-label="${item.label} · ${status}" ${disabled ? "disabled" : ""}><img src="${item.art}" alt=""><span class="item-name">${item.label}</span><b class="stock-count">${unlocked ? stock : `LV.${item.unlockLevel}`}</b></button>`;
+    }).join("");
     const prev = rack.querySelector(".rack-prev");
     const next = rack.querySelector(".rack-next");
     const index = rack.querySelector(".rack-page-index");
@@ -1083,6 +1358,7 @@
     $("#guestCount").textContent = State.tutorialMode ? "연습 1명" : State.guests + "명";
     $("#stallLevel").textContent = String(effectiveStallLevel());
     $("#walletGold").textContent = money(Progress.gold);
+    renderJournalBadge();
   }
 
   function toast(text) {
@@ -1144,7 +1420,10 @@
 
   function spriteFor(appliance) {
     if (appliance.state === "empty") return appliance.type;
-    if (appliance.state === "cooking") return `cooking-${appliance.type === "pot" ? "ramen" : appliance.type === "grill" ? "dumpling" : "oden"}`;
+    if (appliance.state === "cooking") {
+      if (appliance.type === "pot") return recipeFor(appliance)?.cookingSprite || (appliance.ingredients.includes("egg") ? "cooking-ramen-egg" : "cooking-ramen");
+      return `cooking-${appliance.type === "grill" ? "dumpling" : "oden"}`;
+    }
     return recipeFor(appliance)?.sprite || appliance.type;
   }
 
@@ -1195,7 +1474,7 @@
   }
 
   function assignOrder(guest) {
-    guest.order = createOrder(randomChoice(FoodOrderPool), randomChoice(DrinkOrderPool));
+    guest.order = createOrder(randomChoice(unlockedFoodOrderPool()), randomChoice(drinkOrderPool()));
   }
 
   function chooseCustomer() {
@@ -1209,6 +1488,22 @@
     return Progress.regulars[customerId];
   }
 
+  function relationshipInfo(record) {
+    if (!record || record.visits <= 0) return { id: "unmet", label: "아직 만나지 못함", next: 1 };
+    if (record.served >= 25 || record.affection >= 75) return { id: "family", label: "가족 같은 단골", next: Infinity };
+    if (record.served >= 15 || record.affection >= 45) return { id: "old-regular", label: "오래된 단골", next: 25 };
+    if (record.served >= 7 || record.affection >= 22) return { id: "regular", label: "단골", next: 15 };
+    if (record.served >= 3 || record.affection >= 9) return { id: "familiar", label: "익숙한 손님", next: 7 };
+    if (record.served >= 1) return { id: "returning", label: "다시 만난 손님", next: 3 };
+    return { id: "hello", label: "첫 인사", next: 1 };
+  }
+
+  function favoriteLabel(customerId) {
+    const story = CustomerStoryCatalog[customerId];
+    if (!story) return "따뜻한 한 끼";
+    return MenuCatalog[story.favoriteFood].label + " · " + MenuCatalog[story.favoriteDrink].label;
+  }
+
   function recordCustomerVisit(customerId) {
     const record = regularRecord(customerId);
     record.visits += 1;
@@ -1218,29 +1513,105 @@
   function recordCustomerMissed(customerId) {
     const record = regularRecord(customerId);
     record.missed += 1;
+    record.affection = Math.max(0, record.affection - 2);
     record.lastDay = Progress.day;
   }
 
-  function recordCustomerStory(customerId) {
+  function recordCustomerStory(customerId, guest) {
     const customer = CustomerById[customerId];
+    const profile = CustomerStoryCatalog[customerId];
     const record = regularRecord(customerId);
     record.served += 1;
+    record.affection += guest?.satisfaction === "happy" ? 4 : guest?.satisfaction === "okay" ? 3 : 2;
     record.lastDay = Progress.day;
+    const servedFood = guest?.order?.items.find(item => MenuCatalog[item.id]?.kind === "food")?.id;
+    const servedDrink = guest?.order?.items.find(item => MenuCatalog[item.id]?.kind === "drink")?.id;
+    if (servedFood) record.lastFood = servedFood;
+    if (servedDrink) record.lastDrink = servedDrink;
     const served = record.served;
-    const milestone = served === 1 || served === 5 || served === 10 || served % 25 === 0;
-    if (!milestone) return null;
+    const uniqueChapter = profile?.chapters[record.chapters];
+    const recurringChapter = !uniqueChapter && served >= 25 && served % 25 === 0;
+    if ((!uniqueChapter || served < uniqueChapter.required) && !recurringChapter) return null;
     record.chapters += 1;
-    const text = served === 1
-      ? `${customer.name}님과 첫 이야기가 시작됐어요.`
-      : served === 5
-        ? `${customer.name}님이 익숙한 단골이 되었어요.`
-        : `${customer.name}님과 ${served}번째 식사를 함께했어요.`;
-    const entry = { day: Progress.day, customerId, chapter: record.chapters, text };
+    const relation = relationshipInfo(record);
+    const entry = recurringChapter
+      ? {
+          day: Progress.day,
+          customerId,
+          chapter: record.chapters,
+          title: served + "번째 따뜻한 밤",
+          text: customer.name + "님과 " + served + "번째 식사를 함께했다. 끝이 없는 포차의 시간 속에서 익숙한 안부가 또 하나의 추억이 되었다.",
+          relationship: relation.label,
+          servedAt: served
+        }
+      : {
+          day: Progress.day,
+          customerId,
+          chapter: record.chapters,
+          title: uniqueChapter.title,
+          text: uniqueChapter.text,
+          relationship: relation.label,
+          servedAt: served
+        };
     Progress.storyLog.push(entry);
     Progress.storyLog = Progress.storyLog.slice(-200);
     State.dayStories.push(entry);
     saveProgress();
+    renderJournalBadge();
     return entry;
+  }
+
+  function queueGuestDialogue(customerId, text, { kind = "arrival", meta = "", title = "" } = {}) {
+    if (State.tutorialMode || !CustomerById[customerId] || !text) return;
+    State.storyDialogueQueue.push({ customerId, text, kind, meta, title });
+    if (!State.storyDialogueTimer && $("#storyWhisper").hidden) showNextGuestDialogue();
+  }
+
+  function showNextGuestDialogue() {
+    const dialogue = State.storyDialogueQueue.shift();
+    const element = $("#storyWhisper");
+    if (!dialogue || !element) {
+      State.storyDialogueTimer = null;
+      return;
+    }
+    const customer = CustomerById[dialogue.customerId];
+    const record = regularRecord(dialogue.customerId);
+    const relationship = relationshipInfo(record);
+    const activeGuest = Guests.find(guest => guest.active && guest.customerId === dialogue.customerId);
+    if (activeGuest) {
+      const slot = document.querySelector('[data-guest="' + activeGuest.index + '"]');
+      const point = stagePointFor(slot);
+      const left = Math.max(330, Math.min(Config.stage.currentWidth - 330, point.x));
+      element.style.setProperty("--whisper-x", left + "px");
+    } else {
+      element.style.setProperty("--whisper-x", "50%");
+    }
+    element.classList.toggle("episode", dialogue.kind === "episode");
+    $("#storyWhisperPortrait").style.backgroundImage = 'url("' + customer.art + '")';
+    $("#storyWhisperMeta").textContent = dialogue.meta || relationship.label;
+    $("#storyWhisperName").textContent = dialogue.title || customer.name;
+    $("#storyWhisperText").textContent = dialogue.text;
+    element.hidden = false;
+    requestAnimationFrame(() => element.classList.add("show"));
+    State.storyDialogueTimer = setTimeout(() => {
+      element.classList.remove("show");
+      State.storyDialogueTimer = setTimeout(() => {
+        element.hidden = true;
+        State.storyDialogueTimer = null;
+        showNextGuestDialogue();
+      }, 230);
+    }, dialogue.kind === "episode" ? 3300 : 2550);
+  }
+
+  function clearGuestDialogues() {
+    clearTimeout(State.storyDialogueTimer);
+    State.storyDialogueTimer = null;
+    State.storyDialogueQueue = [];
+    const element = $("#storyWhisper");
+    if (element) {
+      element.classList.remove("show", "episode");
+      element.hidden = true;
+    }
   }
 
   function pendingItems(guest) {
@@ -1291,8 +1662,8 @@
 
   function createTakeoutItems() {
     const level = effectiveStallLevel();
-    const ids = [randomChoice(FoodOrderPool)];
-    if (level >= 4 || (level >= 3 && randomUnit() < .5)) ids.push(randomChoice(DrinkOrderPool));
+    const ids = [randomChoice(unlockedFoodOrderPool(level))];
+    if (level >= 4 || (level >= 3 && randomUnit() < .5)) ids.push(randomChoice(drinkOrderPool()));
     return ids.map(id => ({ id, fulfilled: false }));
   }
 
@@ -1470,6 +1841,9 @@
       rejectTakeoutItem(order);
       return false;
     }
+    if (!appliance && passIndex == null && MenuCatalog[itemId]?.kind === "drink" && !consumeIngredient(itemId)) {
+      return toast(`${MenuCatalog[itemId].label} 재고가 없어요.`);
+    }
     orderItem.fulfilled = true;
     if (appliance) resetAppliance(appliance);
     if (passIndex != null) clearPassSlot(passIndex, false);
@@ -1509,6 +1883,10 @@
     Sound.sfx("guest");
     burstAt(slot, "drop", 6);
     toast(`${index + 1}번 자리에 ${customer.name}님이 왔어요!`);
+    const profile = CustomerStoryCatalog[guest.customerId];
+    const visitRecord = regularRecord(guest.customerId);
+    const arrivalLine = visitRecord.visits === 1 ? profile.first : randomChoice(profile.arrivals);
+    queueGuestDialogue(guest.customerId, arrivalLine, { meta: relationshipInfo(visitRecord).label });
     Tutorial.handle("guest", { guest });
   }
 
@@ -1531,6 +1909,7 @@
     guest.satisfaction = "angry";
     State.missed += 1;
     recordCustomerMissed(guest.customerId);
+    queueGuestDialogue(guest.customerId, CustomerStoryCatalog[guest.customerId].missed, { kind: "missed", meta: "다음에 다시 만나요" });
     renderGuest(guest);
     Sound.sfx("wrong");
     Sound.haptic([20, 25, 35]);
@@ -1617,7 +1996,7 @@
 
   function teleport(appliance, text) {
     const target = $(`[data-id="${appliance.id}"]`).getBoundingClientRect();
-    const pose = appliance.type === "pot" ? (appliance.item === "egg" ? "egg" : "noodle") : appliance.type;
+    const pose = appliance.type === "pot" ? (IngredientRules[appliance.item]?.mode === "addon" ? "egg" : "noodle") : appliance.type;
     animateBoreumi("cooking", pose, laneLeftFor(target, Config.boreumi.cookingWidth));
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 920);
     burstAt($(`[data-id="${appliance.id}"]`), "drop", 5);
@@ -1710,24 +2089,28 @@
     if (!State.running) return toast("먼저 영업을 시작해 주세요.");
     const rule = IngredientRules[item];
     if (!rule || !accepts(appliance, item)) return toast("이 재료는 다른 조리기구에 넣어주세요.");
+    if (!isIngredientUnlocked(item)) return toast(`${IngredientCatalog[item].label}은(는) 포차 LV.${IngredientCatalog[item].unlockLevel}에서 열려요.`);
+    if (!State.tutorialMode && ingredientStock(item) <= 0) return toast(`${IngredientCatalog[item].label} 재고가 없어요. 영업 후 재료 상점에서 보충해 주세요.`);
     if (appliance.state === "ready") return toast("완성된 음식을 먼저 서빙하거나 버려주세요.");
     if (appliance.state === "burnt") return toast("탄 음식을 먼저 버려주세요.");
 
     if (rule.mode === "addon") {
       if (appliance.state === "empty" || !appliance.ingredients.includes(rule.requires)) return toast("물이 담긴 냄비에 면을 먼저 넣어주세요.");
       if (appliance.state !== "cooking") return toast("조리 중인 냄비에만 토핑을 넣을 수 있어요.");
-      if (appliance.ingredients.includes(item)) return toast("이미 계란을 넣었어요.");
+      if (appliance.ingredients.some(ingredient => IngredientRules[ingredient]?.mode === "addon")) return toast("라면 토핑은 한 종류만 넣을 수 있어요.");
+      if (!consumeIngredient(item)) return toast(`${IngredientCatalog[item].label} 재고가 부족해요.`);
       appliance.ingredients.push(item);
       appliance.item = item;
       appliance.recipeId = resolveRecipeId(appliance);
       renderAppliance(appliance);
       Sound.sfx("drop");
       Sound.haptic(8);
-      teleport(appliance, "계란 톡!");
+      teleport(appliance, `${IngredientCatalog[item].label} 추가!`);
       return;
     }
 
     if (appliance.state !== "empty") return toast("다른 빈 조리기구를 사용해 주세요.");
+    if (!consumeIngredient(item)) return toast(`${IngredientCatalog[item].label} 재고가 부족해요.`);
     startCooking(appliance, item);
   }
 
@@ -1819,7 +2202,7 @@
     State.sales += price;
     State.served += 1;
     State.ratings[guest.satisfaction] += 1;
-    const storyMoment = recordCustomerStory(guest.customerId);
+    const storyMoment = recordCustomerStory(guest.customerId, guest);
     renderGuest(guest);
     renderHud();
     say("맛있게 드세요!");
@@ -1828,7 +2211,12 @@
     floatFeedback(slot, `+${money(price)}`, "sale");
     const leaveTimer = setTimeout(() => dismissGuest(guest.index), 720);
     State.guestTimers.push(leaveTimer);
-    toast(storyMoment?.text || `주문 완료 +${money(price)}`);
+    const customer = CustomerById[guest.customerId];
+    const profile = CustomerStoryCatalog[guest.customerId];
+    queueGuestDialogue(guest.customerId, randomChoice(profile.reactions), storyMoment
+      ? { kind: "episode", meta: `새 이야기 · ${relationshipInfo(regularRecord(guest.customerId)).label}`, title: `${customer.name} · ${storyMoment.title}` }
+      : { kind: "served", meta: relationshipInfo(regularRecord(guest.customerId)).label });
+    toast(storyMoment ? `새 이야기: ${storyMoment.title}` : `주문 완료 +${money(price)}`);
   }
 
   function deliverOrderItem(guestIndex, itemId, appliance = null) {
@@ -1847,6 +2235,9 @@
       return false;
     }
 
+    if (!appliance && MenuCatalog[itemId]?.kind === "drink" && !consumeIngredient(itemId)) {
+      return toast(`${MenuCatalog[itemId].label} 재고가 없어요.`);
+    }
     orderItem.fulfilled = true;
     if (appliance) resetAppliance(appliance);
     teleportToGuest(guestIndex);
@@ -1918,6 +2309,13 @@
 
   function renderUpgradeShop() {
     $("#shopGold").textContent = money(Progress.gold);
+    const supplies = supplyPlan();
+    $("#supplySummary").textContent = supplies.quantity
+      ? `${supplies.quantity}개 부족 · ${money(supplies.total)}`
+      : "모든 재료가 가득해요";
+    const restockButton = $("#restockButton");
+    restockButton.disabled = supplies.quantity === 0 || Progress.gold < supplies.total;
+    restockButton.textContent = supplies.quantity === 0 ? "재고 가득" : Progress.gold < supplies.total ? "골드 부족" : `가득 보충 · ${money(supplies.total)}`;
     const list = $("#upgradeList");
     const stationCards = Object.values(StationUpgradeCatalog).map(upgrade => {
       const level = stationLevel(upgrade.id);
@@ -1942,6 +2340,25 @@
     list.innerHTML = stationCards + stallCard;
     list.querySelectorAll("[data-station-upgrade]").forEach(button => button.addEventListener("click", () => buyStationUpgrade(button.dataset.stationUpgrade)));
     list.querySelector("[data-stall-upgrade]")?.addEventListener("click", buyStallUpgrade);
+  }
+
+  function restockIngredients() {
+    if (State.running) return;
+    const supplies = supplyPlan();
+    if (!supplies.quantity) return toast("모든 재료가 가득해요.");
+    if (Progress.gold < supplies.total) return toast(`재료 보충에 ${money(supplies.total)}이 필요해요.`);
+    Progress.gold -= supplies.total;
+    supplies.items.forEach(item => {
+      if (item.quantity) Progress.inventory[item.id] = item.targetStock;
+    });
+    Progress.stats.totalSupplyCost += supplies.total;
+    saveProgress();
+    InventoryCategories.forEach(category => renderDockCategory(category.id));
+    renderHud();
+    renderUpgradeShop();
+    Sound.sfx("upgrade");
+    Sound.haptic([10, 18, 10]);
+    toast(`${supplies.quantity}개 재료를 ${money(supplies.total)}에 보충했어요.`);
   }
 
   function renderSettlement(settlement = State.lastSettlement) {
@@ -1974,6 +2391,11 @@
           ? "최대 포차 확장 완료 · DAY는 계속 이어져요"
           : `다음 포차 LV.${targetLevel}: 조리도구 모두 LV.${targetLevel} + ${money(StallUpgradeCatalog.costs[Progress.stallLevel - 1])}`;
     $("#nextDayButton").textContent = settlement.levelUp ? "확장된 포차에서 영업 시작" : "다음 날 영업 시작";
+    const storyRecap = $("#storyRecap");
+    storyRecap.hidden = settlement.storyMoments <= 0;
+    $("#storyRecapText").textContent = settlement.storyMoments
+      ? State.dayStories.map(entry => CustomerById[entry.customerId].name + " · " + entry.title).join(" / ")
+      : "";
     renderUpgradeShop();
     $("#settlementOverlay").classList.remove("hidden");
     if (settlement.levelUp) {
@@ -2069,6 +2491,7 @@
     State.guests = 0;
     State.time = Config.daySeconds;
     State.dayStories = [];
+    clearGuestDialogues();
     State.takeoutServed = 0;
     State.takeoutMissed = 0;
     State.takeoutPenalty = 0;
@@ -2083,6 +2506,7 @@
     Appliances.forEach(resetAppliance);
     applyStallLevel();
     renderHud();
+    renderJournal();
     toast("진행 상황을 처음부터 시작해요.");
     setTimeout(() => Tutorial.start(false), 420);
   }
@@ -2148,6 +2572,7 @@
     $("#startButton").setAttribute("aria-label", "영업 정산");
     $("#startButton strong").textContent = "정산중";
     State.lastSettlement = settleDay();
+    clearGuestDialogues();
     renderHud();
     renderSettlement();
     toast(`영업 종료 · ${money(State.lastSettlement.totalReward)} 획득`);
@@ -2177,6 +2602,7 @@
     State.takeoutSerial = 0;
     State.ratings = { happy: 0, okay: 0, tired: 0 };
     State.dayStories = [];
+    clearGuestDialogues();
     State.cookingClock = performance.now();
     State.guestClock = performance.now();
     Sound.ensure();
@@ -2409,7 +2835,7 @@
     return JSON.stringify({
       format: "boreumi-ramen-save",
       exportVersion: 1,
-      gameVersion: "0.23",
+      gameVersion: "0.25",
       exportedAt: new Date().toISOString(),
       progress: Progress
     }, null, 2);
@@ -2439,6 +2865,8 @@
     State.goal = goalForDay();
     applyStallLevel();
     renderHud();
+    renderJournal();
+    renderJournalBadge();
     updateMobileCare();
     return Progress;
   }
@@ -2462,7 +2890,112 @@
     importText: importProgressText
   });
 
+  function escapeJournalText(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[character]);
+  }
+
+  function renderJournalBadge() {
+    const badge = $("#journalBadge");
+    const button = $("#journalButton");
+    if (!badge || !button) return;
+    const unread = Math.max(0, Progress.storyLog.length - Progress.journalSeen);
+    badge.textContent = unread > 99 ? "99+" : String(unread);
+    badge.hidden = unread === 0;
+    button.setAttribute("aria-label", unread ? "포차 일지 열기 · 새 이야기 " + unread + "개" : "포차 일지 열기");
+  }
+
+  function renderJournal() {
+    const pool = unlockedCustomers();
+    if (State.journalCustomerId && !pool.some(customer => customer.id === State.journalCustomerId)) State.journalCustomerId = null;
+    const known = pool.filter(customer => regularRecord(customer.id).visits > 0);
+    const regulars = pool.filter(customer => ["regular", "old-regular", "family"].includes(relationshipInfo(regularRecord(customer.id)).id));
+    $("#journalKnownCount").textContent = known.length + "/" + pool.length;
+    $("#journalRegularCount").textContent = regulars.length + "명";
+    $("#journalStoryCount").textContent = Progress.storyLog.length + "개";
+    const regularGrid = $("#regularGrid");
+    regularGrid.innerHTML = pool.map(customer => {
+      const record = regularRecord(customer.id);
+      const relation = relationshipInfo(record);
+      const met = record.visits > 0;
+      const selected = State.journalCustomerId === customer.id;
+      const nextText = Number.isFinite(relation.next)
+        ? "다음 관계까지 " + Math.max(0, relation.next - record.served) + "번"
+        : "오래 함께한 사이";
+      const portraitStyle = met ? ' style="background-image:url(&quot;' + customer.art + '&quot;)"' : "";
+      return '<button type="button" class="regular-card ' + relation.id + (met ? "" : " unmet") + '" data-journal-customer="' + customer.id + '" aria-pressed="' + selected + '">'
+        + '<span class="regular-portrait"' + portraitStyle + '></span>'
+        + '<small>' + escapeJournalText(relation.label) + '</small>'
+        + '<strong>' + escapeJournalText(met ? customer.name : "아직 만나지 못한 손님") + '</strong>'
+        + '<p>' + (met ? "방문 " + record.visits + "회 · 함께한 식사 " + record.served + "회" : "영업을 이어가면 만날 수 있어요.") + '</p>'
+        + '<p>' + (met ? "좋아하는 조합 " + escapeJournalText(favoriteLabel(customer.id)) : "새로운 인연을 기다리는 중") + '</p>'
+        + '<em>' + (met ? nextText + " · 이야기 " + record.chapters + "장" : CustomerStoryCatalog[customer.id].tagline) + '</em>'
+        + '</button>';
+    }).join("");
+    regularGrid.querySelectorAll("[data-journal-customer]").forEach(button => button.addEventListener("click", () => {
+      State.journalCustomerId = button.dataset.journalCustomer;
+      renderJournal();
+      Sound.sfx("drop");
+    }));
+
+    const selectedCustomer = CustomerById[State.journalCustomerId];
+    $("#journalStoryTitle").textContent = selectedCustomer ? selectedCustomer.name + "님의 이야기" : "모든 손님의 이야기";
+    $("#journalAllButton").disabled = !selectedCustomer;
+    const entries = Progress.storyLog
+      .filter(entry => !State.journalCustomerId || entry.customerId === State.journalCustomerId)
+      .slice()
+      .reverse();
+    $("#storyEntries").innerHTML = entries.length ? entries.map(entry => {
+      const customer = CustomerById[entry.customerId] || CustomerCatalog[0];
+      return '<article class="story-entry">'
+        + '<span class="entry-portrait" style="background-image:url(&quot;' + customer.art + '&quot;)"></span>'
+        + '<small><span>DAY ' + entry.day + ' · ' + escapeJournalText(customer.name) + '</span><span>' + escapeJournalText(entry.relationship) + '</span></small>'
+        + '<strong>제' + entry.chapter + '장 · ' + escapeJournalText(entry.title) + '</strong>'
+        + '<p>' + escapeJournalText(entry.text) + '</p>'
+        + '</article>';
+    }).join("") : '<div class="story-empty">아직 기록된 이야기가 없어요.<br>손님에게 따뜻한 한 끼를 대접하면 첫 장이 열려요.</div>';
+  }
+
+  function openJournal() {
+    if (State.tutorialMode) return toast("연습 포차를 마친 뒤 손님 일지를 볼 수 있어요.");
+    if (!$("#helpOverlay").classList.contains("hidden")) {
+      closeHelp(false);
+      State.helpPausedGame = false;
+    }
+    State.journalPausedGame = State.running && !State.paused;
+    if (State.journalPausedGame) {
+      State.paused = true;
+      Sound.stopBgm();
+      $("#stage").classList.add("paused-fx");
+    }
+    Progress.journalSeen = Progress.storyLog.length;
+    saveProgress();
+    renderJournal();
+    renderJournalBadge();
+    $("#journalOverlay").classList.remove("hidden");
+    Sound.sfx("drop");
+  }
+
+  function closeJournal(resumeGame = true) {
+    $("#journalOverlay").classList.add("hidden");
+    if (resumeGame && State.journalPausedGame) {
+      State.paused = false;
+      State.journalPausedGame = false;
+      $("#stage").classList.remove("paused-fx");
+      Sound.startBgm();
+    }
+  }
+
   function openHelp() {
+    if (!$("#journalOverlay").classList.contains("hidden")) {
+      closeJournal(false);
+      State.journalPausedGame = false;
+    }
     Tutorial.close(false);
     State.helpPausedGame = State.running && !State.paused;
     if (State.helpPausedGame) {
@@ -2489,7 +3022,9 @@
   async function browserQA() {
     const qaParams = new URLSearchParams(location.search);
     if (!qaParams.has("qa")) return;
+    window.BoreumiQAStep = "awaiting-boot";
     if (window.BoreumiBoot?.readyPromise) await window.BoreumiBoot.readyPromise;
+    window.BoreumiQAStep = "running";
     await Promise.all($$(".dock img").map(image => image.complete
       ? Promise.resolve()
       : image.decode().catch(() => undefined)));
@@ -2503,21 +3038,24 @@
     let pwaCssSource = "";
     let experienceCssSource = "";
     let mobileCssSource = "";
+    let storyCssSource = "";
     let bootSource = "";
     let serviceWorkerSource = "";
     try {
-      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, bootResponse, workerResponse] = await Promise.all([
+      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse] = await Promise.all([
         fetch("app.webmanifest", { cache: "no-store" }),
-        fetch("pwa-v023.css", { cache: "no-store" }),
-        fetch("experience-v023.css", { cache: "no-store" }),
-        fetch("mobile-v023.css", { cache: "no-store" }),
-        fetch("boot-v023.js", { cache: "no-store" }),
+        fetch("pwa-v024.css", { cache: "no-store" }),
+        fetch("experience-v024.css", { cache: "no-store" }),
+        fetch("mobile-v024.css", { cache: "no-store" }),
+        fetch("story-v024.css", { cache: "no-store" }),
+        fetch("boot-v024.js", { cache: "no-store" }),
         fetch("service-worker.js", { cache: "no-store" })
       ]);
       pwaManifest = await manifestResponse.json();
       pwaCssSource = await cssResponse.text();
       experienceCssSource = await experienceResponse.text();
       mobileCssSource = await mobileResponse.text();
+      storyCssSource = await storyResponse.text();
       bootSource = await bootResponse.text();
       serviceWorkerSource = await workerResponse.text();
     } catch {
@@ -2551,7 +3089,7 @@
       && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
     result.parallelCriticalLoading = bootSource.includes("preloadCriticalAssets")
       && bootSource.includes("Promise.all")
-      && window.BoreumiBoot?.state.version === "0.23";
+      && window.BoreumiBoot?.state.version === "0.25";
     result.serviceWorkerRegistered = !!serviceWorkerRegistration && window.BoreumiPWA?.serviceWorkerRegistered === true;
     result.offlineGameCacheReady = serviceWorkerSource.includes("CACHE_GAME")
       && serviceWorkerSource.includes("GAME_ASSETS")
@@ -2578,7 +3116,7 @@
     burstAt($(`[data-id="${Appliances[0].id}"]`), "complete", 4);
     result.feedbackParticlesRender = $$("#fxLayer .fx-particle").length === 4;
     result.tutorialControlsPresent = !!$("#helpButton") && !!$("#tutorialCoach") && !!$("#helpOverlay");
-    result.legacySaveMigrationReady = LegacySaveKeys.includes("boreumi-ramen-v022") && SaveKey.includes("v023");
+    result.legacySaveMigrationReady = LegacySaveKeys.includes("boreumi-ramen-v024") && SaveKey.includes("v025");
     const recoveryProbe = recoverSerializedProgress("{broken", JSON.stringify({ ...freshProgress(), day: 9 }));
     const exportProbe = JSON.parse(exportedProgressText());
     result.saveRecoveryReady = !!$("#exportSaveButton")
@@ -2587,7 +3125,46 @@
       && recoveryProbe.recovered
       && recoveryProbe.progress.day === 9
       && exportProbe.format === "boreumi-ramen-save"
-      && exportProbe.gameVersion === "0.23";
+      && exportProbe.gameVersion === "0.25";
+    result.customerStoryCatalogComplete = CustomerCatalog.every(customer => {
+      const profile = CustomerStoryCatalog[customer.id];
+      return profile?.chapters?.length === 4
+        && profile.arrivals.length >= 2
+        && profile.reactions.length >= 2
+        && MenuCatalog[profile.favoriteFood]?.kind === "food"
+        && MenuCatalog[profile.favoriteDrink]?.kind === "drink";
+    });
+    result.relationshipStagesReady = relationshipInfo({ visits: 0, served: 0, affection: 0 }).id === "unmet"
+      && relationshipInfo({ visits: 2, served: 3, affection: 9 }).id === "familiar"
+      && relationshipInfo({ visits: 9, served: 7, affection: 22 }).id === "regular"
+      && relationshipInfo({ visits: 30, served: 25, affection: 75 }).id === "family";
+    const storyProgressBeforeQA = JSON.stringify(Progress);
+    const storyDayLogBeforeQA = State.dayStories.slice();
+    const officeRecordQA = regularRecord("office");
+    officeRecordQA.visits = 1;
+    const storyMomentQA = recordCustomerStory("office", {
+      satisfaction: "happy",
+      order: createOrder("ramen_plain", "soju")
+    });
+    result.storyMilestonePersists = storyMomentQA?.chapter === 1
+      && storyMomentQA?.title === CustomerStoryCatalog.office.chapters[0].title
+      && regularRecord("office").affection === 4
+      && Progress.storyLog.at(-1)?.servedAt === 1;
+    Progress = decodeProgress(storyProgressBeforeQA);
+    State.dayStories = storyDayLogBeforeQA;
+    saveProgress();
+    openJournal();
+    result.journalOverlayReady = !$("#journalOverlay").classList.contains("hidden")
+      && $$("#regularGrid .regular-card").length === unlockedCustomers().length
+      && !!$("#storyEntries")
+      && $("#journalKnownCount").textContent.includes("/");
+    result.nonBlockingGuestDialogue = !!$("#storyWhisper")
+      && storyCssSource.includes("pointer-events:none")
+      && getComputedStyle($("#storyWhisper")).pointerEvents === "none";
+    result.journalTouchLayoutReady = storyCssSource.includes("touch-action:pan-y")
+      && storyCssSource.includes(".journal-button")
+      && serviceWorkerSource.includes("story-v024.css");
+    closeJournal(true);
     Tutorial.start();
     result.tutorialWelcomeVisible = !$("#tutorialCoach").classList.contains("hidden")
       && $("#tutorialTitle").textContent.includes("어서 오세요");
@@ -2846,9 +3423,11 @@
       assignOrder(sampleGuest);
       sampledRandomOrders.add(sampleGuest.order.id);
     }
-    result.unweightedRandomOrders = FoodOrderPool.length === 4
-      && DrinkOrderPool.length === 4
-      && sampledRandomOrders.size === FoodOrderPool.length * DrinkOrderPool.length;
+    const qaFoodPool = unlockedFoodOrderPool();
+    const qaDrinkPool = drinkOrderPool();
+    result.unweightedRandomOrders = qaFoodPool.length >= 4
+      && qaDrinkPool.length === 4
+      && sampledRandomOrders.size >= Math.min(qaFoodPool.length * qaDrinkPool.length, 12);
     Guests[0].order = createOrder("ramen_plain", "soju");
     renderGuest(Guests[0]);
     result.menuCatalogIncludesDrinks = ["soju", "beer", "somaek", "makgeolli"].every(id => MenuCatalog[id]?.kind === "drink" && MenuCatalog[id].price > 0);
@@ -2903,11 +3482,29 @@
     result.fullMoonSign = signStyle.backgroundImage.includes("sign-full-moon-v1.webp")
       && parseFloat(signStyle.borderTopWidth) === 0;
 
-    result.recipeCatalog = Object.keys(RecipeCatalog).join("|") === "ramen_plain|ramen_egg|grilled_dumpling|warm_oden"
+    result.recipeCatalog = Object.keys(RecipeCatalog).join("|") === "ramen_plain|ramen_egg|ramen_scallion|ramen_kimchi|ramen_cheese|grilled_dumpling|warm_oden"
       && [RecipeCatalog.ramen_plain, RecipeCatalog.ramen_egg, RecipeCatalog.grilled_dumpling].every(recipe => recipe.cookMs > 0 && recipe.burns && recipe.burnMs === Config.cooking.defaultBurnMs)
+      && [RecipeCatalog.ramen_scallion, RecipeCatalog.ramen_kimchi, RecipeCatalog.ramen_cheese].every(recipe => recipe.cookMs > 0 && recipe.burns && recipe.cookingSprite?.startsWith("cooking-ramen-"))
       && RecipeCatalog.warm_oden.cookMs > 0 && !RecipeCatalog.warm_oden.burns && RecipeCatalog.warm_oden.burnMs === 0
       && RecipeCatalog.ramen_plain.ingredients.join("|") === "noodle"
       && RecipeCatalog.ramen_egg.ingredients.join("|") === "noodle|egg";
+    result.v025IngredientMenuSystem = Object.keys(IngredientCatalog).length === 11
+      && ["scallion", "kimchi", "cheese"].every(id => IngredientCatalog[id].unitCost > 0 && IngredientCatalog[id].targetStock > 0)
+      && unlockedFoodOrderPool(1).length === 4
+      && unlockedFoodOrderPool(2).includes("ramen_scallion")
+      && unlockedFoodOrderPool(3).includes("ramen_kimchi")
+      && unlockedFoodOrderPool(4).includes("ramen_cheese");
+    const toppingSpriteProbe = document.createElement("i");
+    toppingSpriteProbe.className = "kitchen-sprite sprite-cooking-ramen-kimchi";
+    document.body.append(toppingSpriteProbe);
+    result.v025CookingToppingVisible = getComputedStyle(toppingSpriteProbe, "::after").backgroundImage.includes("ingredient-kimchi-v1.webp");
+    toppingSpriteProbe.remove();
+    const supplyStockBeforeQA = Progress.inventory.noodle;
+    Progress.inventory.noodle = 0;
+    const supplyProbe = supplyPlan();
+    result.v025SupplyPlanning = supplyProbe.quantity >= IngredientCatalog.noodle.targetStock
+      && supplyProbe.total >= IngredientCatalog.noodle.targetStock * IngredientCatalog.noodle.unitCost;
+    Progress.inventory.noodle = supplyStockBeforeQA;
     dropItem(Appliances[2], "dumpling");
     result.invalidApplianceRejected = Appliances[2].state === "empty" && Appliances[2].ingredients.length === 0;
     dropItem(Appliances[2], "egg");
@@ -3183,7 +3780,7 @@
       && savedProgress?.stationLevels?.grill === 2
       && savedProgress?.stationLevels?.oden === 2
       && savedProgress?.stallLevel === 2
-      && savedProgress?.version === 7
+      && savedProgress?.version === 8
       && savedProgress?.stats?.completedDays === 1
       && savedProgress?.regulars?.[qaFirstCustomerId]?.served === 1
       && savedProgress?.storyLog?.length >= 1;
@@ -3394,6 +3991,8 @@
     output.textContent = JSON.stringify(result, null, 2);
     output.style.cssText = "position:absolute;z-index:99999;left:0;top:0;width:360px;margin:0;padding:8px;background:white;color:black;font-size:11px;line-height:1.25;white-space:pre-wrap";
     if (!qaParams.has("silent")) $("#stage").append(output);
+    window.BoreumiQAStep = "complete";
+    window.BoreumiQAResults = result;
     document.documentElement.dataset.qa = Object.values(result).every(Boolean) ? "pass" : "fail";
   }
 
@@ -3407,6 +4006,7 @@
   document.addEventListener("pointercancel", endDrag, { passive: false });
   $("#startButton").addEventListener("click", start);
   $("#nextDayButton").addEventListener("click", nextDay);
+  $("#restockButton").addEventListener("click", restockIngredients);
   $("#resetProgressButton").addEventListener("click", resetProgress);
   $("#pauseButton").addEventListener("click", () => {
     if (!State.running) return toast("영업 중에 사용할 수 있어요.");
@@ -3425,6 +4025,14 @@
   });
   $("#soundButton").addEventListener("click", () => Sound.setEnabled(!Sound.enabled));
   $("#helpButton").addEventListener("click", openHelp);
+  $("#journalButton").addEventListener("click", openJournal);
+  $("#settlementJournalButton").addEventListener("click", openJournal);
+  $("#closeJournalButton").addEventListener("click", () => closeJournal(true));
+  $("#journalAllButton").addEventListener("click", () => {
+    State.journalCustomerId = null;
+    renderJournal();
+    Sound.sfx("drop");
+  });
   $("#closeHelpButton").addEventListener("click", () => closeHelp(true));
   $("#checkUpdateButton").addEventListener("click", async () => {
     const button = $("#checkUpdateButton");
@@ -3454,7 +4062,9 @@
   });
   $("#tutorialActionButton").addEventListener("click", () => Tutorial.advance());
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && !$("#helpOverlay").classList.contains("hidden")) closeHelp(true);
+    if (event.key !== "Escape") return;
+    if (!$("#journalOverlay").classList.contains("hidden")) closeJournal(true);
+    else if (!$("#helpOverlay").classList.contains("hidden")) closeHelp(true);
   });
   document.addEventListener("dragstart", event => event.preventDefault());
   window.addEventListener("boreumi:cache-progress", updateMobileCare);
@@ -3468,5 +4078,9 @@
   startPpomiPoses();
   window.BoreumiBoot?.markGameReady();
   Tutorial.scheduleFirstRun();
-  browserQA();
+  browserQA().catch(error => {
+    console.error("Boreumi QA failed", error);
+    document.documentElement.dataset.qa = "error";
+    window.BoreumiQAError = String(error?.stack || error);
+  });
 })();

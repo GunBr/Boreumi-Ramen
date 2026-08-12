@@ -1,0 +1,90 @@
+@import url("readability-v025.css?v=0825b");
+/* V0.24: 손님과의 관계가 쌓이는 비차단 대화와 포차 일지. */
+#stage .journal-button{
+  position:absolute;z-index:74;top:127px;
+  right:max(412px,calc((100% - 1920px)/2 + 412px));
+  width:92px;height:54px;padding:0 12px;border:4px solid #69371f;border-radius:14px;
+  background:linear-gradient(180deg,#f6d99d,#dba85f 72%,#b87538);color:#6c281b;
+  box-shadow:inset 0 0 0 2px #fff0c58f,0 7px 12px #1809068f;
+  display:grid;place-items:center;font-size:19px;font-weight:950;text-shadow:0 1px #fff0c5;
+}
+#stage .journal-button:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px #fff0c58f,0 4px 7px #1809068f}
+#stage .journal-button b{position:absolute;right:-9px;top:-10px;min-width:29px;height:29px;padding:0 6px;display:grid;place-items:center;border:3px solid #fff0c5;border-radius:99px;background:#d94936;color:#fff;font-size:14px;text-shadow:none;box-shadow:0 4px 8px #250b0788}
+#stage .journal-button b[hidden]{display:none}
+
+#stage[data-growth-level="2"] .journal-button,
+#stage[data-growth-level="3"] .journal-button{
+  top:185px;right:max(210px,calc((100% - 1920px)/2 + 210px));
+}
+
+#stage .story-whisper{
+  position:absolute;z-index:118;left:var(--whisper-x,50%);top:430px;transform:translate(-50%,10px);
+  width:590px;min-height:112px;padding:13px 22px 13px 118px;
+  border:5px solid #6a351f;border-radius:28px;
+  background:linear-gradient(180deg,#fff1ca 0,#edc180 72%,#cf874a 100%);
+  box-shadow:inset 0 0 0 3px #fff9dfaa,0 15px 27px #1807059e;
+  color:#542619;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;
+}
+#stage .story-whisper[hidden]{display:block;visibility:hidden}
+#stage .story-whisper.show{opacity:1;visibility:visible;transform:translate(-50%,0)}
+#stage .story-whisper::before{content:"";position:absolute;left:64px;top:-17px;width:28px;height:28px;border-left:5px solid #6a351f;border-top:5px solid #6a351f;background:#fff1ca;transform:rotate(45deg)}
+#stage .story-whisper.episode{border-color:#a44d2f;background:linear-gradient(180deg,#fff5cf,#efb866 72%,#d36b3c);box-shadow:inset 0 0 0 3px #fff9dfcc,0 0 25px #ffd15c8c,0 15px 27px #1807059e}
+#stage .story-whisper-portrait{position:absolute;left:19px;bottom:9px;width:88px;height:105px;background-position:center top;background-size:contain;background-repeat:no-repeat;filter:drop-shadow(0 6px 6px #3a140d6b)}
+#stage .story-whisper-copy{display:block}
+#stage .story-whisper-copy small{display:block;color:#9b4a29;font-size:15px;font-weight:950}
+#stage .story-whisper-copy strong{display:block;margin:1px 0 2px;font-size:22px;line-height:1.1}
+#stage .story-whisper-copy p{margin:0;font-size:18px;line-height:1.35;font-weight:760}
+
+#stage .journal-overlay{
+  position:absolute;z-index:370;inset:0;display:grid;place-items:center;padding:55px 80px;
+  background:radial-gradient(circle at 50% 42%,#56301fc7,#100706f2 74%);backdrop-filter:blur(6px);
+}
+#stage .journal-overlay.hidden{display:none}
+#stage .journal-panel{
+  width:min(1660px,calc(100% - 80px));height:930px;padding:28px 32px 32px;
+  border:8px solid #582718;border-radius:36px;
+  background:linear-gradient(90deg,#d79551 0 49.65%,#9a512f 49.8% 50.2%,#e0aa66 50.35% 100%);
+  box-shadow:inset 0 0 0 4px #ffe8b18c,inset 0 -25px 40px #6b2c1d4a,0 28px 62px #090302df;color:#562719;
+}
+#stage .journal-heading{height:105px;display:flex;align-items:center;gap:30px;padding:0 14px 19px;border-bottom:4px solid #7d3d2680}
+#stage .journal-heading>div:first-child{min-width:390px}
+#stage .journal-heading small{font-size:17px;font-weight:900;color:#8a3e25}
+#stage .journal-heading h2{margin:2px 0 0;font-size:39px;line-height:1}
+#stage .journal-summary{display:flex;align-items:center;justify-content:center;gap:16px;flex:1}
+#stage .journal-summary span{min-width:160px;padding:12px 15px;border:3px solid #8a4a2c;border-radius:16px;background:#f9deb0d4;text-align:center;font-size:16px;font-weight:850;box-shadow:inset 0 0 0 2px #fff7d7}
+#stage .journal-summary b{display:block;margin-top:2px;color:#8b2d20;font-size:23px}
+#stage #closeJournalButton{width:74px;height:64px;border:4px solid #74331f;border-radius:17px;background:linear-gradient(#ef744e,#b83b2f);color:#fff2d3;font-size:39px;line-height:1;font-weight:950;box-shadow:inset 0 0 0 2px #ffd8a066,0 7px 10px #45160e55}
+#stage .journal-body{height:calc(100% - 105px);display:grid;grid-template-columns:1fr 1fr;gap:34px;padding-top:24px}
+#stage .regular-book,#stage .story-book{min-width:0;min-height:0;padding:18px 20px;border:4px solid #81472b;border-radius:25px;background:#f8dfb7e8;box-shadow:inset 0 0 0 3px #fff7dc,inset 0 -15px 23px #9b542535}
+#stage .regular-book>header,#stage .story-book>header{height:67px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 5px 13px;border-bottom:3px dashed #a5653d8c}
+#stage .regular-book h3,#stage .story-book h3{margin:0;font-size:28px}
+#stage .regular-book p{margin:4px 0 0;font-size:18px;font-weight:750;color:#825038}
+#stage .regular-grid{height:calc(100% - 67px);padding:15px 5px 5px;display:grid;grid-template-columns:1fr;grid-auto-rows:160px;gap:12px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;scrollbar-color:#a35d38 #edd0a1}
+#stage .regular-card{position:relative;min-width:0;padding:14px 16px 14px 126px;border:3px solid #9c5c39;border-radius:18px;background:linear-gradient(145deg,#fff2d2,#eac38b);color:#5c2b1c;text-align:left;box-shadow:inset 0 0 0 2px #fffaf0,0 5px 8px #66311b35}
+#stage .regular-card[aria-pressed="true"]{border-color:#bd4b34;background:linear-gradient(145deg,#fff2c2,#eba35f);box-shadow:inset 0 0 0 3px #fff4c6,0 0 0 4px #b44a3266,0 7px 10px #66311b45}
+#stage .regular-card.unmet{filter:saturate(.55);color:#766154}
+#stage .regular-card .regular-portrait{position:absolute;left:12px;bottom:6px;width:105px;height:145px;display:grid;place-items:center;background-position:center top;background-size:contain;background-repeat:no-repeat;filter:drop-shadow(0 5px 5px #4a20156e)}
+#stage .regular-card.unmet .regular-portrait{filter:grayscale(1) brightness(.35);opacity:.52}
+#stage .regular-card.unmet .regular-portrait::after{content:"?";width:70px;height:70px;display:grid;place-items:center;border:5px solid #7d604e;border-radius:50%;background:#d7c4a8;color:#624b3c;font-size:43px;font-weight:950}
+#stage .regular-card small{display:block;color:#9d4a2c;font-size:16px;font-weight:950}
+#stage .regular-card strong{display:block;margin:1px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:24px}
+#stage .regular-card p{margin:0;font-size:17px;line-height:1.32;font-weight:750}
+#stage .regular-card em{display:block;margin-top:5px;color:#a03b2c;font-size:16px;font-style:normal;font-weight:900}
+#stage .story-book>header small{display:block;color:#995137;font-size:14px;font-weight:900}
+#stage #journalAllButton{min-width:116px;height:52px;border:3px solid #794027;border-radius:14px;background:linear-gradient(#fff1c7,#dfa961);color:#602a1c;font-size:16px;font-weight:950}
+#stage .story-entries{height:calc(100% - 67px);padding:15px 5px 5px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;scrollbar-color:#a35d38 #edd0a1}
+#stage .story-entry{position:relative;margin-bottom:13px;padding:18px 20px 17px 104px;border:3px solid #a0613c;border-radius:19px;background:linear-gradient(145deg,#fff1cd,#eac088);box-shadow:inset 0 0 0 2px #fff9e7,0 5px 8px #66311b2f}
+#stage .story-entry .entry-portrait{position:absolute;left:12px;bottom:9px;width:82px;height:108px;background-position:center top;background-size:contain;background-repeat:no-repeat;filter:drop-shadow(0 4px 4px #4a20154d)}
+#stage .story-entry small{display:flex;justify-content:space-between;gap:12px;color:#9a4d2f;font-size:16px;font-weight:900}
+#stage .story-entry strong{display:block;margin:3px 0 4px;font-size:24px}
+#stage .story-entry p{margin:0;font-size:18px;line-height:1.42;font-weight:740}
+#stage .story-empty{height:100%;display:grid;place-items:center;text-align:center;color:#89583e;font-size:23px;font-weight:850;line-height:1.55}
+
+#stage .story-recap{margin-top:12px;padding:11px 15px;border:3px solid #9f5934;border-radius:15px;background:linear-gradient(90deg,#fff1be,#eeb668);color:#6b2f20;box-shadow:inset 0 0 0 2px #fff7d4}
+#stage .story-recap span{display:block;font-size:13px;font-weight:900;color:#a3482d}
+#stage .story-recap strong{display:block;margin-top:2px;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stage .management-actions #settlementJournalButton{background:linear-gradient(#f4d28e,#d39149);color:#642b1d}
+
+@media(max-height:500px) and (orientation:landscape){
+  #stage .story-whisper-copy p{font-size:17px}
+}

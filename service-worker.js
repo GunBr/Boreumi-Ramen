@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_VERSION = "boreumi-ramen-v023-0823b";
+const CACHE_VERSION = "boreumi-ramen-v025-0825e";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -17,11 +17,13 @@ const CORE_ASSETS = [
   "./endless-v0181.css",
   "./progression-v019.css",
   "./takeout-v020.css",
-  "./pwa-v023.css",
-  "./experience-v023.css",
-  "./mobile-v023.css",
-  "./boot-v023.js",
-  "./pwa-v023.js",
+  "./pwa-v024.css",
+  "./experience-v024.css",
+  "./mobile-v024.css",
+  "./story-v024.css",
+  "./readability-v025.css",
+  "./boot-v024.js",
+  "./pwa-v024.js",
   "./script.js",
   "./assets/pwa/icon-180.png",
   "./assets/pwa/icon-192.png",
@@ -42,7 +44,13 @@ const CORE_ASSETS = [
   "./assets/art-v012/ingredient-noodle-v4.webp",
   "./assets/art-v012/ingredient-egg-v4.webp",
   "./assets/art-v012/ingredient-dumpling-v4.webp",
-  "./assets/art-v012/ingredient-oden-v4.webp"
+  "./assets/art-v012/ingredient-oden-v4.webp",
+  "./assets/art-v025/ingredient-scallion-v1.webp",
+  "./assets/art-v025/ingredient-kimchi-v1.webp",
+  "./assets/art-v025/ingredient-cheese-v1.webp"
+  ,"./assets/art-v025/food-ramen-scallion-v1.webp"
+  ,"./assets/art-v025/food-ramen-kimchi-v1.webp"
+  ,"./assets/art-v025/food-ramen-cheese-v1.webp"
 ];
 
 const GAME_ASSETS = [
@@ -86,6 +94,9 @@ const GAME_ASSETS = [
   "./assets/art-v012/food-oden.webp",
   "./assets/art-v012/food-ramen-no-egg-v3.webp",
   "./assets/art-v012/food-ramen-v2.webp",
+  "./assets/art-v025/food-ramen-scallion-v1.webp",
+  "./assets/art-v025/food-ramen-kimchi-v1.webp",
+  "./assets/art-v025/food-ramen-cheese-v1.webp",
   "./assets/art-v012/guest-center-wood-panel-v2.webp",
   "./assets/art-v012/pause-button-v2.webp",
   "./assets/art-v012/ppomi-groom.webp",
