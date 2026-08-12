@@ -35,12 +35,16 @@
     "assets/art-v025/food-ramen-scallion-v1.webp",
     "assets/art-v025/food-ramen-kimchi-v1.webp",
     "assets/art-v025/food-ramen-cheese-v1.webp",
+    "assets/art-v026/food-ramen-egg-scallion-v1.webp",
+    "assets/art-v026/food-ramen-kimchi-egg-v1.webp",
+    "assets/art-v026/food-ramen-cheese-egg-v1.webp",
+    "assets/art-v026/food-ramen-kimchi-cheese-v1.webp",
     "assets/art-v012/drink-soju-v1.webp",
     "assets/art-v012/food-ramen-no-egg-v3.webp"
   ];
 
   const state = {
-    version: "0.25.1",
+    version: "0.26",
     dataReady: false,
     gameReady: false,
     resourcesLoaded: 0,

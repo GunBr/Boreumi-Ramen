@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_VERSION = "boreumi-ramen-v0251-0825a";
+const CACHE_VERSION = "boreumi-ramen-v026-0826c";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -23,6 +23,7 @@ const CORE_ASSETS = [
   "./story-v024.css",
   "./readability-v025.css",
   "./dev-tools-v0251.css",
+  "./menu-v026.css",
   "./boot-v024.js",
   "./pwa-v024.js",
   "./script.js",
@@ -52,6 +53,10 @@ const CORE_ASSETS = [
   ,"./assets/art-v025/food-ramen-scallion-v1.webp"
   ,"./assets/art-v025/food-ramen-kimchi-v1.webp"
   ,"./assets/art-v025/food-ramen-cheese-v1.webp"
+  ,"./assets/art-v026/food-ramen-egg-scallion-v1.webp"
+  ,"./assets/art-v026/food-ramen-kimchi-egg-v1.webp"
+  ,"./assets/art-v026/food-ramen-cheese-egg-v1.webp"
+  ,"./assets/art-v026/food-ramen-kimchi-cheese-v1.webp"
 ];
 
 const GAME_ASSETS = [
@@ -98,6 +103,10 @@ const GAME_ASSETS = [
   "./assets/art-v025/food-ramen-scallion-v1.webp",
   "./assets/art-v025/food-ramen-kimchi-v1.webp",
   "./assets/art-v025/food-ramen-cheese-v1.webp",
+  "./assets/art-v026/food-ramen-egg-scallion-v1.webp",
+  "./assets/art-v026/food-ramen-kimchi-egg-v1.webp",
+  "./assets/art-v026/food-ramen-cheese-egg-v1.webp",
+  "./assets/art-v026/food-ramen-kimchi-cheese-v1.webp",
   "./assets/art-v012/guest-center-wood-panel-v2.webp",
   "./assets/art-v012/pause-button-v2.webp",
   "./assets/art-v012/ppomi-groom.webp",

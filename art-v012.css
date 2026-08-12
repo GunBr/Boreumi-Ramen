@@ -37,3 +37,10 @@
 #dragGhost span{display:none}
 #dragGhost.food-drag{width:116px;height:96px;background:#fff8e9ee}
 .ingredient img{max-width:86px;max-height:68px}
+.sprite-cooking-ramen-egg-scallion,.sprite-cooking-ramen-kimchi-egg,.sprite-cooking-ramen-cheese-egg,.sprite-cooking-ramen-kimchi-cheese{position:relative;background-image:url("assets/art-v012/cooking-ramen.webp")}
+.sprite-cooking-ramen-egg-scallion::before,.sprite-cooking-ramen-egg-scallion::after,.sprite-cooking-ramen-kimchi-egg::before,.sprite-cooking-ramen-kimchi-egg::after,.sprite-cooking-ramen-cheese-egg::before,.sprite-cooking-ramen-cheese-egg::after,.sprite-cooking-ramen-kimchi-cheese::before,.sprite-cooking-ramen-kimchi-cheese::after{content:"";position:absolute;z-index:3;top:12%;height:43%;background-position:center;background-size:contain;background-repeat:no-repeat;filter:drop-shadow(0 4px 5px #561d1188);pointer-events:none}
+.sprite-cooking-ramen-egg-scallion::before,.sprite-cooking-ramen-kimchi-egg::after,.sprite-cooking-ramen-cheese-egg::after{left:47%;width:31%;background-image:url("assets/art-v012/ingredient-egg-v4.webp")}
+.sprite-cooking-ramen-egg-scallion::after{left:20%;width:37%;background-image:url("assets/art-v025/ingredient-scallion-v1.webp")}
+.sprite-cooking-ramen-kimchi-egg::before,.sprite-cooking-ramen-kimchi-cheese::before{left:19%;width:40%;background-image:url("assets/art-v025/ingredient-kimchi-v1.webp")}
+.sprite-cooking-ramen-cheese-egg::before,.sprite-cooking-ramen-kimchi-cheese::after{left:45%;width:35%;background-image:url("assets/art-v025/ingredient-cheese-v1.webp")}
+.sprite-ramen-egg-scallion{background-image:url("assets/art-v026/food-ramen-egg-scallion-v1.webp")}.sprite-ramen-kimchi-egg{background-image:url("assets/art-v026/food-ramen-kimchi-egg-v1.webp")}.sprite-ramen-cheese-egg{background-image:url("assets/art-v026/food-ramen-cheese-egg-v1.webp")}.sprite-ramen-kimchi-cheese{background-image:url("assets/art-v026/food-ramen-kimchi-cheese-v1.webp")}

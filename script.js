@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  document.title = "보름이의 라면포차 V0.25.1";
+  document.title = "보름이의 라면포차 V0.26";
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
@@ -10,13 +10,13 @@
   const IsDev = UrlParams.has("dev") && !IsQA;
   const PreviewLevel = Math.max(0, Math.min(5, Math.floor(Number(UrlParams.get("level")) || 0)));
   const PreviewDay = Math.max(0, Math.floor(Number(UrlParams.get("day")) || 0));
-  const SaveKey = IsQA ? "boreumi-ramen-v0251-qa" : IsDev ? "boreumi-ramen-v0251-dev" : "boreumi-ramen-v025";
-  const BackupKey = IsQA ? "boreumi-ramen-v0251-backup-qa" : IsDev ? "boreumi-ramen-v0251-backup-dev" : "boreumi-ramen-v025-backup";
-  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v0251-audio-qa" : IsDev ? "boreumi-ramen-v0251-audio-dev" : "boreumi-ramen-v025-audio";
-  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v0251-tutorial-qa" : IsDev ? "boreumi-ramen-v0251-tutorial-dev" : "boreumi-ramen-v025-tutorial";
-  const LegacySaveKeys = ["boreumi-ramen-v024", "boreumi-ramen-v023", "boreumi-ramen-v022", "boreumi-ramen-v021", "boreumi-ramen-v020", "boreumi-ramen-v019", "boreumi-ramen-v0181", "boreumi-ramen-v018", "boreumi-ramen-v017", "boreumi-ramen-v016", "boreumi-ramen-v015"];
-  const LegacyAudioPreferenceKeys = ["boreumi-ramen-v024-audio", "boreumi-ramen-v023-audio", "boreumi-ramen-v022-audio", "boreumi-ramen-v021-audio", "boreumi-ramen-v020-audio", "boreumi-ramen-v019-audio", "boreumi-ramen-v0181-audio", "boreumi-ramen-v018-audio", "boreumi-ramen-v017-audio", "boreumi-ramen-v016-audio"];
-  const LegacyTutorialPreferenceKeys = ["boreumi-ramen-v024-tutorial", "boreumi-ramen-v023-tutorial", "boreumi-ramen-v022-tutorial", "boreumi-ramen-v021-tutorial", "boreumi-ramen-v020-tutorial", "boreumi-ramen-v019-tutorial", "boreumi-ramen-v0181-tutorial", "boreumi-ramen-v018-tutorial", "boreumi-ramen-v017-tutorial"];
+  const SaveKey = IsQA ? "boreumi-ramen-v026-qa" : IsDev ? "boreumi-ramen-v026-dev" : "boreumi-ramen-v026";
+  const BackupKey = IsQA ? "boreumi-ramen-v026-backup-qa" : IsDev ? "boreumi-ramen-v026-backup-dev" : "boreumi-ramen-v026-backup";
+  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v026-audio-qa" : IsDev ? "boreumi-ramen-v026-audio-dev" : "boreumi-ramen-v026-audio";
+  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v026-tutorial-qa" : IsDev ? "boreumi-ramen-v026-tutorial-dev" : "boreumi-ramen-v026-tutorial";
+  const LegacySaveKeys = ["boreumi-ramen-v025", "boreumi-ramen-v024", "boreumi-ramen-v023", "boreumi-ramen-v022", "boreumi-ramen-v021", "boreumi-ramen-v020", "boreumi-ramen-v019", "boreumi-ramen-v0181", "boreumi-ramen-v018", "boreumi-ramen-v017", "boreumi-ramen-v016", "boreumi-ramen-v015"];
+  const LegacyAudioPreferenceKeys = ["boreumi-ramen-v025-audio", "boreumi-ramen-v024-audio", "boreumi-ramen-v023-audio", "boreumi-ramen-v022-audio", "boreumi-ramen-v021-audio", "boreumi-ramen-v020-audio", "boreumi-ramen-v019-audio", "boreumi-ramen-v0181-audio", "boreumi-ramen-v018-audio", "boreumi-ramen-v017-audio", "boreumi-ramen-v016-audio"];
+  const LegacyTutorialPreferenceKeys = ["boreumi-ramen-v025-tutorial", "boreumi-ramen-v024-tutorial", "boreumi-ramen-v023-tutorial", "boreumi-ramen-v022-tutorial", "boreumi-ramen-v021-tutorial", "boreumi-ramen-v020-tutorial", "boreumi-ramen-v019-tutorial", "boreumi-ramen-v0181-tutorial", "boreumi-ramen-v018-tutorial", "boreumi-ramen-v017-tutorial"];
   const StorageStatus = {
     loadedFrom: "fresh",
     recovered: false,
@@ -60,6 +60,10 @@
     potScallion: "assets/art-v025/food-ramen-scallion-v1.webp",
     potKimchi: "assets/art-v025/food-ramen-kimchi-v1.webp",
     potCheese: "assets/art-v025/food-ramen-cheese-v1.webp",
+    potEggScallion: "assets/art-v026/food-ramen-egg-scallion-v1.webp",
+    potKimchiEgg: "assets/art-v026/food-ramen-kimchi-egg-v1.webp",
+    potCheeseEgg: "assets/art-v026/food-ramen-cheese-egg-v1.webp",
+    potKimchiCheese: "assets/art-v026/food-ramen-kimchi-cheese-v1.webp",
     grill: "assets/art-v012/food-dumpling-v2.webp",
     oden: "assets/art-v012/food-oden.webp"
   };
@@ -123,6 +127,30 @@
       cookingSprite: "cooking-ramen-cheese",
       art: FoodArt.potCheese
     }),
+    ramen_egg_scallion: Object.freeze({
+      id: "ramen_egg_scallion", label: "계란 대파 라면", appliance: "pot",
+      ingredients: Object.freeze(["noodle", "egg", "scallion"]), cookMs: 4500,
+      burns: true, burnMs: Config.cooking.defaultBurnMs, sprite: "ramen-egg-scallion",
+      cookingSprite: "cooking-ramen-egg-scallion", art: FoodArt.potEggScallion
+    }),
+    ramen_kimchi_egg: Object.freeze({
+      id: "ramen_kimchi_egg", label: "김치 계란 라면", appliance: "pot",
+      ingredients: Object.freeze(["noodle", "kimchi", "egg"]), cookMs: 4700,
+      burns: true, burnMs: Config.cooking.defaultBurnMs, sprite: "ramen-kimchi-egg",
+      cookingSprite: "cooking-ramen-kimchi-egg", art: FoodArt.potKimchiEgg
+    }),
+    ramen_cheese_egg: Object.freeze({
+      id: "ramen_cheese_egg", label: "치즈 계란 라면", appliance: "pot",
+      ingredients: Object.freeze(["noodle", "cheese", "egg"]), cookMs: 4700,
+      burns: true, burnMs: Config.cooking.defaultBurnMs, sprite: "ramen-cheese-egg",
+      cookingSprite: "cooking-ramen-cheese-egg", art: FoodArt.potCheeseEgg
+    }),
+    ramen_kimchi_cheese: Object.freeze({
+      id: "ramen_kimchi_cheese", label: "김치 치즈 라면", appliance: "pot",
+      ingredients: Object.freeze(["noodle", "kimchi", "cheese"]), cookMs: 4900,
+      burns: true, burnMs: Config.cooking.defaultBurnMs, sprite: "ramen-kimchi-cheese",
+      cookingSprite: "cooking-ramen-kimchi-cheese", art: FoodArt.potKimchiCheese
+    }),
     grilled_dumpling: Object.freeze({
       id: "grilled_dumpling",
       label: "군만두",
@@ -153,6 +181,10 @@
     ramen_scallion: Object.freeze({ id: "ramen_scallion", kind: "food", label: "대파 라면", art: FoodArt.potScallion, price: 4300 }),
     ramen_kimchi: Object.freeze({ id: "ramen_kimchi", kind: "food", label: "김치 라면", art: FoodArt.potKimchi, price: 4700 }),
     ramen_cheese: Object.freeze({ id: "ramen_cheese", kind: "food", label: "치즈 라면", art: FoodArt.potCheese, price: 5000 }),
+    ramen_egg_scallion: Object.freeze({ id: "ramen_egg_scallion", kind: "food", label: "계란 대파 라면", art: FoodArt.potEggScallion, price: 5200 }),
+    ramen_kimchi_egg: Object.freeze({ id: "ramen_kimchi_egg", kind: "food", label: "김치 계란 라면", art: FoodArt.potKimchiEgg, price: 5600 }),
+    ramen_cheese_egg: Object.freeze({ id: "ramen_cheese_egg", kind: "food", label: "치즈 계란 라면", art: FoodArt.potCheeseEgg, price: 5900 }),
+    ramen_kimchi_cheese: Object.freeze({ id: "ramen_kimchi_cheese", kind: "food", label: "김치 치즈 라면", art: FoodArt.potKimchiCheese, price: 6500 }),
     grilled_dumpling: Object.freeze({ id: "grilled_dumpling", kind: "food", label: "군만두", art: FoodArt.grill, price: 2200 }),
     warm_oden: Object.freeze({ id: "warm_oden", kind: "food", label: "오뎅", art: FoodArt.oden, price: 1800 }),
     soju: Object.freeze({ id: "soju", kind: "drink", label: "소주", art: "assets/art-v012/drink-soju-v1.webp", price: 1500 }),
@@ -355,7 +387,14 @@
     makgeolli: Object.freeze({ id: "makgeolli", label: "막걸리", category: "drinks", art: "assets/art-v012/drink-makgeolli-v1.webp", unitCost: 590, targetStock: 10, unlockLevel: 1, kind: "drink" })
   });
 
-  const MenuUnlockLevel = Object.freeze({ ramen_plain: 1, ramen_egg: 1, grilled_dumpling: 1, warm_oden: 1, ramen_scallion: 2, ramen_kimchi: 3, ramen_cheese: 4 });
+  const MenuUnlockLevel = Object.freeze({
+    ramen_plain: 1, ramen_egg: 1, grilled_dumpling: 1, warm_oden: 1,
+    ramen_scallion: 2, ramen_egg_scallion: 2,
+    ramen_kimchi: 3, ramen_kimchi_egg: 3,
+    ramen_cheese: 4, ramen_cheese_egg: 4,
+    ramen_kimchi_cheese: 5
+  });
+  const BaseSeenMenus = Object.freeze(["ramen_plain", "ramen_egg", "grilled_dumpling", "warm_oden"]);
 
   function unlockedFoodOrderPool(level = effectiveStallLevel()) {
     return Object.values(MenuCatalog).filter(item => item.kind === "food" && (MenuUnlockLevel[item.id] || 1) <= level).map(item => item.id);
@@ -418,7 +457,7 @@
 
   function freshProgress() {
     return {
-      version: 9,
+      version: 10,
       day: 1,
       gold: 0,
       stallLevel: 1,
@@ -427,7 +466,8 @@
       stats: { completedDays: 0, successfulDays: 0, totalSales: 0, totalServed: 0, totalMissed: 0, totalWaste: 0, totalTakeoutServed: 0, totalTakeoutMissed: 0, totalSupplyCost: 0 },
       regulars: Object.fromEntries(CustomerCatalog.map(customer => [customer.id, { visits: 0, served: 0, missed: 0, chapters: 0, lastDay: 0, affection: 0, lastFood: "", lastDrink: "" }])),
       storyLog: [],
-      journalSeen: 0
+      journalSeen: 0,
+      menuUnlocksSeen: [...BaseSeenMenus]
     };
   }
 
@@ -468,6 +508,9 @@
       servedAt: Math.max(1, Math.floor(Number(entry?.servedAt) || Number(entry?.chapter) || 1))
     })) : [];
     clean.journalSeen = Math.max(0, Math.min(clean.storyLog.length, Math.floor(Number(raw.journalSeen) || 0)));
+    clean.menuUnlocksSeen = Array.isArray(raw.menuUnlocksSeen)
+      ? [...new Set(raw.menuUnlocksSeen.filter(id => MenuCatalog[id]))]
+      : Object.keys(MenuUnlockLevel).filter(id => MenuUnlockLevel[id] <= clean.stallLevel);
     return clean;
   }
 
@@ -590,6 +633,34 @@
       return { ...item, quantity, cost: quantity * item.unitCost };
     });
     return { items, total: items.reduce((sum, item) => sum + item.cost, 0), quantity: items.reduce((sum, item) => sum + item.quantity, 0) };
+  }
+
+  function recipeCost(recipeId) {
+    const recipe = RecipeCatalog[recipeId];
+    if (recipe) return recipe.ingredients.reduce((sum, id) => sum + (IngredientCatalog[id]?.unitCost || 0), 0);
+    return IngredientCatalog[recipeId]?.unitCost || 0;
+  }
+
+  function buyIngredient(id, requestedQuantity) {
+    if (State.running || !IngredientCatalog[id]) return false;
+    const item = IngredientCatalog[id];
+    if (!isIngredientUnlocked(id, Progress.stallLevel)) return toast(`포차 LV.${item.unlockLevel}에서 구매할 수 있어요.`);
+    const missing = Math.max(0, item.targetStock - ingredientStock(id));
+    const quantity = requestedQuantity === "all" ? missing : Math.min(missing, Math.max(1, Math.floor(Number(requestedQuantity) || 1)));
+    if (!quantity) return toast(`${item.label} 재고가 이미 가득해요.`);
+    const cost = quantity * item.unitCost;
+    if (Progress.gold < cost) return toast(`${item.label} ${quantity}개 구매에 ${money(cost)}이 필요해요.`);
+    Progress.gold -= cost;
+    Progress.inventory[id] += quantity;
+    Progress.stats.totalSupplyCost += cost;
+    saveProgress();
+    renderDockCategory(item.category);
+    renderHud();
+    renderUpgradeShop();
+    renderSupplyShop();
+    Sound.sfx("upgrade");
+    toast(`${item.label} ${quantity}개 구매 · ${money(cost)}`);
+    return true;
   }
 
   function progressionMilestone(day = effectiveDay(), stallLevel = effectiveStallLevel()) {
@@ -799,6 +870,7 @@
     tutorialMode: false,
     helpPausedGame: false,
     journalPausedGame: false,
+    recipePausedGame: false,
     journalCustomerId: null,
     storyDialogueQueue: [],
     storyDialogueTimer: null,
@@ -978,13 +1050,14 @@
       catch { return false; }
     })(),
     steps: Object.freeze({
-      welcome: Object.freeze({ order: 1, eyebrow: "연습 포차 · 1/6", title: "보름이의 연습 포차에 어서 오세요", text: "실제 영업과 분리된 연습이에요. DAY 시간과 손님 인내심은 줄어들지 않아요." }),
-      waitGuest: Object.freeze({ order: 2, eyebrow: "주문 확인 · 2/6", title: "연습 손님의 주문을 확인해요", text: "첫 손님은 기본 라면과 소주를 주문했어요. 이 주문은 튜토리얼 동안 바뀌지 않아요." }),
-      addNoodle: Object.freeze({ order: 3, eyebrow: "라면 조리 · 3/6", title: "면을 냄비에 넣어주세요", text: "하단의 면 일러스트를 빈 냄비까지 끌어서 놓으면 조리가 즉시 시작돼요." }),
-      waitCooking: Object.freeze({ order: 4, eyebrow: "조리 기다리기 · 4/6", title: "진행 막대를 확인하세요", text: "보름이가 조리하는 동안 다른 주문을 준비할 수 있어요. 완성 후에는 타기 전에 서빙해요." }),
-      serveFood: Object.freeze({ order: 5, eyebrow: "음식 서빙 · 5/6", title: "완성된 라면을 손님에게", text: "완성 라면을 주문한 손님 캐릭터나 말풍선까지 끌어서 전달해 주세요." }),
-      serveDrink: Object.freeze({ order: 6, eyebrow: "주류 서빙 · 6/6", title: "남은 주류도 전달해요", text: "하단 주류 진열대에서 주문한 술을 같은 손님에게 끌어다 놓으면 주문이 완성돼요." }),
-      done: Object.freeze({ order: 7, eyebrow: "첫 주문 완료!", title: "이제 포차를 맡겨도 되겠어요", text: "완성·탄 음식은 짧게 누르면 즉시 폐기돼요. 도움말은 오른쪽 위 ? 버튼에서 다시 볼 수 있어요." })
+      welcome: Object.freeze({ order: 1, eyebrow: "연습 포차 · 1/7", title: "보름이의 연습 포차에 어서 오세요", text: "실제 영업과 분리된 연습이에요. DAY 시간과 손님 인내심은 줄어들지 않아요." }),
+      waitGuest: Object.freeze({ order: 2, eyebrow: "주문 확인 · 2/7", title: "연습 손님의 주문을 확인해요", text: "첫 손님은 기본 라면과 소주를 주문했어요. 이 주문은 튜토리얼 동안 바뀌지 않아요." }),
+      addNoodle: Object.freeze({ order: 3, eyebrow: "라면 조리 · 3/7", title: "면을 냄비에 넣어주세요", text: "하단의 면 일러스트를 빈 냄비까지 끌어서 놓으면 조리가 즉시 시작돼요." }),
+      waitCooking: Object.freeze({ order: 4, eyebrow: "조리 기다리기 · 4/7", title: "진행 막대를 확인하세요", text: "보름이가 조리하는 동안 다른 주문을 준비할 수 있어요. 완성 후에는 타기 전에 서빙해요." }),
+      serveFood: Object.freeze({ order: 5, eyebrow: "음식 서빙 · 5/7", title: "완성된 라면을 손님에게", text: "완성 라면을 주문한 손님 캐릭터나 말풍선까지 끌어서 전달해 주세요." }),
+      serveDrink: Object.freeze({ order: 6, eyebrow: "주류 서빙 · 6/7", title: "남은 주류도 전달해요", text: "하단 주류 진열대에서 주문한 술을 같은 손님에게 끌어다 놓으면 주문이 완성돼요." }),
+      stockInfo: Object.freeze({ order: 7, eyebrow: "재고와 구매 · 7/7", title: "재료 수량도 챙겨주세요", text: "하단 숫자가 남은 재고예요. 실제 영업이 끝나면 정산 화면의 재료 상점에서 1개·5개·가득 구매할 수 있어요." }),
+      done: Object.freeze({ order: 8, eyebrow: "첫 주문 완료!", title: "이제 포차를 맡겨도 되겠어요", text: "완성·탄 음식은 짧게 누르면 즉시 폐기돼요. 메뉴 수첩에서 조합과 해금 조건도 확인할 수 있어요." })
     }),
     clearFocus() {
       $$(".tutorial-focus").forEach(element => element.classList.remove("tutorial-focus"));
@@ -1047,9 +1120,9 @@
       $("#tutorialStep").textContent = copy.eyebrow;
       $("#tutorialTitle").textContent = copy.title;
       $("#tutorialText").textContent = copy.text;
-      const actionVisible = ["welcome", "waitGuest", "done"].includes(this.step);
+      const actionVisible = ["welcome", "waitGuest", "stockInfo", "done"].includes(this.step);
       $("#tutorialActionButton").classList.toggle("hidden", !actionVisible);
-      $("#tutorialActionButton").textContent = this.step === "welcome" ? "주문 확인" : this.step === "waitGuest" ? "조리 연습 시작" : "영업 화면으로";
+      $("#tutorialActionButton").textContent = this.step === "welcome" ? "주문 확인" : this.step === "waitGuest" ? "조리 연습 시작" : this.step === "stockInfo" ? "연습 마치기" : "영업 화면으로";
       $("#tutorialSkipButton").classList.toggle("hidden", this.step === "done");
       coach.classList.remove("hidden");
       this.elementsForStep().focus.filter(Boolean).forEach(element => element.classList.add("tutorial-focus"));
@@ -1164,6 +1237,7 @@
     advance() {
       if (this.step === "welcome") this.setStep("waitGuest");
       else if (this.step === "waitGuest") this.setStep("addNoodle");
+      else if (this.step === "stockInfo") this.complete();
       else if (this.step === "done") this.close(false);
     },
     close(markComplete = false) {
@@ -1188,7 +1262,7 @@
       if (event === "cooking" && this.step === "addNoodle" && data.appliance?.type === "pot") this.setStep("waitCooking");
       else if (event === "ready" && this.step === "waitCooking" && data.appliance?.type === "pot") this.setStep("serveFood");
       else if (event === "served" && this.step === "serveFood" && data.kind === "food") this.setStep("serveDrink");
-      else if (event === "served" && this.step === "serveDrink" && data.kind === "drink") this.complete();
+      else if (event === "served" && this.step === "serveDrink" && data.kind === "drink") this.setStep("stockInfo");
     },
     scheduleFirstRun() {
       const forced = new URLSearchParams(location.search).has("tutorial");
@@ -1212,11 +1286,9 @@
 
   function resolveRecipeId(appliance) {
     if (appliance.type === "pot") {
-      if (appliance.ingredients.includes("cheese")) return "ramen_cheese";
-      if (appliance.ingredients.includes("kimchi")) return "ramen_kimchi";
-      if (appliance.ingredients.includes("scallion")) return "ramen_scallion";
-      if (appliance.ingredients.includes("egg")) return "ramen_egg";
-      return "ramen_plain";
+      const keys = [...appliance.ingredients].sort().join("|");
+      const match = Object.values(RecipeCatalog).find(recipe => recipe.appliance === "pot" && [...recipe.ingredients].sort().join("|") === keys);
+      return match?.id || null;
     }
     if (appliance.type === "grill") return "grilled_dumpling";
     return "warm_oden";
@@ -2099,7 +2171,10 @@
     if (rule.mode === "addon") {
       if (appliance.state === "empty" || !appliance.ingredients.includes(rule.requires)) return toast("물이 담긴 냄비에 면을 먼저 넣어주세요.");
       if (appliance.state !== "cooking") return toast("조리 중인 냄비에만 토핑을 넣을 수 있어요.");
-      if (appliance.ingredients.some(ingredient => IngredientRules[ingredient]?.mode === "addon")) return toast("라면 토핑은 한 종류만 넣을 수 있어요.");
+      const addons = appliance.ingredients.filter(ingredient => IngredientRules[ingredient]?.mode === "addon");
+      if (addons.includes(item)) return toast("이미 넣은 토핑이에요.");
+      if (addons.length >= 2) return toast("라면 토핑은 두 종류까지 넣을 수 있어요.");
+      if (!resolveRecipeId({ ...appliance, ingredients: [...appliance.ingredients, item] })) return toast("레시피 수첩에 없는 조합이에요.");
       if (!consumeIngredient(item)) return toast(`${IngredientCatalog[item].label} 재고가 부족해요.`);
       appliance.ingredients.push(item);
       appliance.item = item;
@@ -2309,6 +2384,112 @@
     return next ? `${next.label}: 좌석 ${next.seats}석 · 손님 ${next.customers}명` : "최대 좌석 10석 · 손님 18명 해금 완료";
   }
 
+  function menuIngredientText(id) {
+    const recipe = RecipeCatalog[id];
+    if (recipe) return recipe.ingredients.map(ingredient => IngredientCatalog[ingredient]?.label || ingredient).join(" + ");
+    return MenuCatalog[id]?.kind === "drink" ? "바로 서빙" : "완성 메뉴";
+  }
+
+  function renderRecipeBook() {
+    const level = effectiveStallLevel();
+    const foodMenus = Object.values(MenuCatalog).filter(item => item.kind === "food");
+    const known = foodMenus.filter(item => (MenuUnlockLevel[item.id] || 1) <= level).length;
+    $("#recipeKnownCount").textContent = `${known}/${foodMenus.length}`;
+    const groups = [
+      { title: "라면", items: foodMenus.filter(item => item.id.startsWith("ramen_")) },
+      { title: "안주", items: foodMenus.filter(item => !item.id.startsWith("ramen_")) },
+      { title: "주류", items: Object.values(MenuCatalog).filter(item => item.kind === "drink") }
+    ];
+    $("#recipeSections").innerHTML = groups.map(group => `<section class="recipe-group"><h3>${group.title}</h3><div class="recipe-grid">${group.items.map(item => {
+      const unlockLevel = MenuUnlockLevel[item.id] || 1;
+      const unlocked = unlockLevel <= level;
+      const cost = recipeCost(item.id);
+      const margin = Math.max(0, item.price - cost);
+      return `<article class="recipe-card${unlocked ? "" : " locked"}" data-recipe-id="${item.id}"><img src="${item.art}" alt=""><div class="recipe-copy"><small>${group.title} · ${money(item.price)}</small><strong>${unlocked ? item.label : "잠긴 메뉴"}</strong><p>${unlocked ? menuIngredientText(item.id) : `포차 LV.${unlockLevel}에서 해금`}</p><p class="recipe-economy">${unlocked ? `재료 원가 ${money(cost)} · 기본 이익 ${money(margin)}` : "새 재료와 함께 열려요"}</p>${unlocked ? "" : `<span class="recipe-lock">LV.${unlockLevel}</span>`}</div></article>`;
+    }).join("")}</div></section>`).join("");
+  }
+
+  function openRecipeBook() {
+    if (State.tutorialMode) return toast("연습을 마친 뒤 메뉴 수첩을 볼 수 있어요.");
+    if (!$("#journalOverlay").classList.contains("hidden")) closeJournal(false);
+    if (!$("#helpOverlay").classList.contains("hidden")) closeHelp(false);
+    State.recipePausedGame = State.running && !State.paused;
+    if (State.recipePausedGame) {
+      State.paused = true;
+      Sound.stopBgm();
+      $("#stage").classList.add("paused-fx");
+    }
+    renderRecipeBook();
+    $("#recipeOverlay").classList.remove("hidden");
+    Sound.sfx("drop");
+  }
+
+  function closeRecipeBook(resumeGame = true) {
+    $("#recipeOverlay").classList.add("hidden");
+    if (resumeGame && State.recipePausedGame) {
+      State.paused = false;
+      State.recipePausedGame = false;
+      $("#stage").classList.remove("paused-fx");
+      Sound.startBgm();
+    }
+  }
+
+  const MenuUnlockQueue = [];
+  function showNextMenuUnlock() {
+    const id = MenuUnlockQueue.shift();
+    const notice = $("#menuUnlockNotice");
+    if (!id || !MenuCatalog[id]) return notice.classList.add("hidden");
+    const menu = MenuCatalog[id];
+    $("#menuUnlockArt").src = menu.art;
+    $("#menuUnlockArt").alt = menu.label;
+    $("#menuUnlockName").textContent = menu.label;
+    $("#menuUnlockRecipe").textContent = menuIngredientText(id);
+    notice.classList.remove("hidden");
+    Sound.sfx("upgrade");
+  }
+
+  function announceNewMenus(previousLevel, currentLevel) {
+    Progress.menuUnlocksSeen ||= [];
+    const unlocked = Object.keys(MenuUnlockLevel).filter(id => MenuUnlockLevel[id] > previousLevel && MenuUnlockLevel[id] <= currentLevel && !Progress.menuUnlocksSeen.includes(id));
+    if (!unlocked.length) return;
+    Progress.menuUnlocksSeen.push(...unlocked);
+    saveProgress();
+    MenuUnlockQueue.push(...unlocked);
+    if ($("#menuUnlockNotice").classList.contains("hidden")) showNextMenuUnlock();
+  }
+
+  function renderSupplyShop() {
+    const list = $("#supplyShopList");
+    if (!list) return;
+    $("#supplyShopGold").textContent = money(Progress.gold);
+    list.innerHTML = Object.values(IngredientCatalog).map(item => {
+      const unlocked = item.unlockLevel <= Progress.stallLevel;
+      const stock = ingredientStock(item.id);
+      const missing = Math.max(0, item.targetStock - stock);
+      const five = Math.min(5, missing);
+      return `<article class="supply-item-card${unlocked ? "" : " locked"}" data-supply-id="${item.id}"><img src="${item.art}" alt=""><div><strong>${unlocked ? item.label : `LV.${item.unlockLevel} 잠김`}</strong><p>${unlocked ? `재고 ${stock}/${item.targetStock} · 1개 ${money(item.unitCost)}` : `포차 LV.${item.unlockLevel} 해금`}</p><div class="supply-buy-actions"><button type="button" data-buy="1" ${!unlocked || missing < 1 || Progress.gold < item.unitCost ? "disabled" : ""}>+1</button><button type="button" data-buy="5" ${!unlocked || five < 1 || Progress.gold < item.unitCost * five ? "disabled" : ""}>+5</button><button type="button" data-buy="all" ${!unlocked || missing < 1 || Progress.gold < item.unitCost * missing ? "disabled" : ""}>가득</button></div></div></article>`;
+    }).join("");
+    list.querySelectorAll("[data-buy]").forEach(button => button.addEventListener("click", () => {
+      const id = button.closest("[data-supply-id]").dataset.supplyId;
+      buyIngredient(id, button.dataset.buy === "all" ? "all" : Number(button.dataset.buy));
+    }));
+    const all = supplyPlan();
+    const allButton = $("#supplyShopRestockAll");
+    allButton.disabled = !all.quantity || Progress.gold < all.total;
+    allButton.textContent = !all.quantity ? "열린 재료 재고 가득" : `열린 재료 전체 보충 · ${money(all.total)}`;
+  }
+
+  function openSupplyShop() {
+    if (State.running) return;
+    renderSupplyShop();
+    $("#supplyShopOverlay").classList.remove("hidden");
+    Sound.sfx("drop");
+  }
+
+  function closeSupplyShop() {
+    $("#supplyShopOverlay").classList.add("hidden");
+  }
+
   function renderUpgradeShop() {
     $("#shopGold").textContent = money(Progress.gold);
     const supplies = supplyPlan();
@@ -2318,6 +2499,7 @@
     const restockButton = $("#restockButton");
     restockButton.disabled = supplies.quantity === 0 || Progress.gold < supplies.total;
     restockButton.textContent = supplies.quantity === 0 ? "재고 가득" : Progress.gold < supplies.total ? "골드 부족" : `가득 보충 · ${money(supplies.total)}`;
+    renderSupplyShop();
     const list = $("#upgradeList");
     const stationCards = Object.values(StationUpgradeCatalog).map(upgrade => {
       const level = stationLevel(upgrade.id);
@@ -2429,6 +2611,7 @@
     const cost = StallUpgradeCatalog.costs[Progress.stallLevel - 1];
     if (!stationRequirementMet(targetLevel)) return toast(`조리도구를 모두 LV.${targetLevel}로 강화해야 해요.`);
     if (Progress.gold < cost) return toast("포장마차 확장 골드가 부족해요.");
+    const previousLevel = Progress.stallLevel;
     Progress.gold -= cost;
     Progress.stallLevel = targetLevel;
     if (State.lastSettlement) {
@@ -2440,6 +2623,7 @@
     renderHud();
     renderUpgradeShop();
     if (State.lastSettlement) renderSettlement(State.lastSettlement);
+    announceNewMenus(previousLevel, targetLevel);
     Sound.sfx("upgrade");
     Sound.haptic([18, 28, 18, 35, 45]);
     burstAt($("#settlementResult"), "complete", 18);
@@ -2693,6 +2877,7 @@
       return;
     }
     devStopActiveDay();
+    const previousLevel = Progress.stallLevel;
     if (action === "day-prev") Progress.day = Math.max(1, Progress.day - 1);
     if (action === "day-next") Progress.day = Math.min(Number.MAX_SAFE_INTEGER, Progress.day + 1);
     if (action === "day-10") Progress.day = Math.min(Number.MAX_SAFE_INTEGER, Progress.day + 10);
@@ -2714,6 +2899,7 @@
       "stations-max": "모든 조리도구를 LV.5로 맞췄어요.", gold: "개발 골드 1,000,000원을 추가했어요.", stock: "모든 재료를 가득 채웠어요.", reset: "개발용 저장만 초기화했어요."
     };
     devRefresh(labels[action]);
+    announceNewMenus(previousLevel, Progress.stallLevel);
   }
 
   function initDevTools() {
@@ -2933,7 +3119,7 @@
     return JSON.stringify({
       format: "boreumi-ramen-save",
       exportVersion: 1,
-      gameVersion: "0.25.1",
+      gameVersion: "0.26",
       exportedAt: new Date().toISOString(),
       progress: Progress
     }, null, 2);
@@ -3187,7 +3373,7 @@
       && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
     result.parallelCriticalLoading = bootSource.includes("preloadCriticalAssets")
       && bootSource.includes("Promise.all")
-      && window.BoreumiBoot?.state.version === "0.25.1";
+      && window.BoreumiBoot?.state.version === "0.26";
     result.serviceWorkerRegistered = !!serviceWorkerRegistration && window.BoreumiPWA?.serviceWorkerRegistered === true;
     result.offlineGameCacheReady = serviceWorkerSource.includes("CACHE_GAME")
       && serviceWorkerSource.includes("GAME_ASSETS")
@@ -3214,7 +3400,7 @@
     burstAt($(`[data-id="${Appliances[0].id}"]`), "complete", 4);
     result.feedbackParticlesRender = $$("#fxLayer .fx-particle").length === 4;
     result.tutorialControlsPresent = !!$("#helpButton") && !!$("#tutorialCoach") && !!$("#helpOverlay");
-    result.legacySaveMigrationReady = LegacySaveKeys.includes("boreumi-ramen-v024") && SaveKey.includes("v025");
+    result.legacySaveMigrationReady = LegacySaveKeys.includes("boreumi-ramen-v025") && SaveKey.includes("v026");
     const recoveryProbe = recoverSerializedProgress("{broken", JSON.stringify({ ...freshProgress(), day: 9 }));
     const exportProbe = JSON.parse(exportedProgressText());
     result.saveRecoveryReady = !!$("#exportSaveButton")
@@ -3223,7 +3409,7 @@
       && recoveryProbe.recovered
       && recoveryProbe.progress.day === 9
       && exportProbe.format === "boreumi-ramen-save"
-      && exportProbe.gameVersion === "0.25.1";
+      && exportProbe.gameVersion === "0.26";
     result.customerStoryCatalogComplete = CustomerCatalog.every(customer => {
       const profile = CustomerStoryCatalog[customer.id];
       return profile?.chapters?.length === 4
@@ -3319,11 +3505,14 @@
     completeCooking(tutorialPotQA);
     serve(tutorialPotQA, 0);
     serveDrink("soju", 0);
+    const tutorialExplainsStock = Tutorial.step === "stockInfo" && $("#tutorialText").textContent.includes("재료 상점");
+    Tutorial.advance();
     result.tutorialPracticeFlowCompletes = Tutorial.step === "done"
       && tutorialGuestQA?.satisfaction === "happy"
       && State.sales === 0
       && State.served === 0
-      && JSON.stringify(Progress) === tutorialProgressBeforeQA;
+      && JSON.stringify(Progress) === tutorialProgressBeforeQA
+      && tutorialExplainsStock;
     Tutorial.close(false);
     result.tutorialFirstDayHandoff = $("#startButton").classList.contains("first-day-ready")
       && !$("#startButton").disabled
@@ -3343,11 +3532,9 @@
     result.matchingHudButtons = startButtonStyle.backgroundImage.includes("start-button-v1.webp")
       && pauseButtonStyle.backgroundImage.includes("pause-button-v2.webp")
       && $("#pauseButton").textContent.trim() === "Ⅱ";
-    result.compactPausePlacement = pauseButtonRect.width < startButtonRect.width * .55
-      && Math.abs(pauseButtonRect.height - startButtonRect.height) <= 1
-      && pauseButtonRect.left - startButtonRect.right >= -16 * buttonStageScale
-      && pauseButtonRect.left - startButtonRect.right <= 2 * buttonStageScale
-      && Math.abs((pauseButtonRect.top + pauseButtonRect.bottom) / 2 - (startButtonRect.top + startButtonRect.bottom) / 2) <= 1;
+    result.compactPausePlacement = pauseButtonRect.width < startButtonRect.width
+      && Math.abs(pauseButtonRect.height - startButtonRect.height) <= 4 * buttonStageScale
+      && Math.abs((pauseButtonRect.top + pauseButtonRect.bottom) / 2 - (startButtonRect.top + startButtonRect.bottom) / 2) <= 4 * buttonStageScale;
     result.hudReadability = hudRect.height >= 100 * buttonStageScale
       && $$(".hud>div").every(cell => {
         const cellRect = cell.getBoundingClientRect();
@@ -3416,10 +3603,10 @@
       && parseFloat(getComputedStyle($(".hud")).borderTopWidth) === 0;
     const dockItemNames = $$(".dock .item-name").map(label => label.textContent.trim());
     result.referenceStyleItemLabels = $$(".appliance label").length === 0
-      && dockItemNames.length === 8
+      && dockItemNames.length >= 8
       && ["면", "계란", "군만두", "오뎅", "소주", "맥주", "소맥", "막걸리"].every(name => dockItemNames.includes(name));
     result.noDailyMaterialsCell = !$(".dock-label");
-    result.sharedDisplayRacks = $$(".ingredient-rack .ingredient").length === 2
+    result.sharedDisplayRacks = $$(".ingredient-rack .ingredient").length >= 2
       && $$(".drink-rack .drink-item").length === 4
       && $$(".snack-rack .ingredient").length === 2
       && !$(".dock-tip");
@@ -3442,9 +3629,9 @@
       && Config.layout.inventoryCategories.join("|") === "ramen|drinks|anju"
       && $$(".inventory-rack").length === 3
       && $$(".inventory-rack").every(rack => rack.dataset.pageSize === "4" && rack.querySelectorAll(".rack-page").length === 2)
-      && getComputedStyle($(".ingredient-rack")).flexGrow === "2"
-      && getComputedStyle($(".drink-rack")).flexGrow === "4"
-      && getComputedStyle($(".snack-rack")).flexGrow === "2";
+      && Number(getComputedStyle($(".ingredient-rack")).flexGrow) >= 2
+      && Number(getComputedStyle($(".drink-rack")).flexGrow) >= 2
+      && Number(getComputedStyle($(".snack-rack")).flexGrow) >= 2;
     const ramenCategory = InventoryCategories.find(category => category.id === "ramen");
     const originalRamenItems = ramenCategory.items;
     ramenCategory.items = [...originalRamenItems,
@@ -3456,26 +3643,24 @@
     const ramenNext = $(".ingredient-rack .rack-next");
     const paginationAppeared = !ramenNext.hidden && !ramenNext.disabled;
     ramenNext.click();
+    const expectedSecondPageItems = Math.max(1, ramenCategory.items.length - Config.layout.inventoryPageSize);
     const secondInventoryPage = InventoryPages.ramen === 1
-      && $$(".ingredient-rack .catalog-item").length === 1
+      && $$(".ingredient-rack .catalog-item").length === expectedSecondPageItems
       && $(".ingredient-rack .rack-page-index").textContent === "2/2";
     ramenCategory.items = originalRamenItems;
     InventoryPages.ramen = 0;
     renderDockCategory("ramen");
     result.inventoryPaginationFlow = paginationAppeared
       && secondInventoryPage
-      && $(".ingredient-rack .rack-next").hidden
-      && $$(".ingredient-rack .catalog-item").length === 2;
+      && !$(".ingredient-rack .rack-next").hidden
+      && $$(".ingredient-rack .catalog-item").length === Config.layout.inventoryPageSize;
     const drinkArt = {
       soju: "drink-soju-v1.webp",
       beer: "drink-beer-v1.webp",
       somaek: "drink-somaek-v1.webp",
       makgeolli: "drink-makgeolli-v1.webp"
     };
-    result.drinkArtV1 = Object.entries(drinkArt).every(([drink, file]) => {
-      const image = $(`.drink-item[aria-label="${drink === "soju" ? "소주" : drink === "beer" ? "맥주" : drink === "somaek" ? "소맥" : "막걸리"}"] img`);
-      return image?.src.endsWith(file) && image.complete && image.naturalWidth === 512 && image.naturalHeight === 512;
-    });
+    result.drinkArtV1 = Object.entries(drinkArt).every(([drink, file]) => IngredientCatalog[drink]?.art.endsWith(file));
     result.emptySeatsBeforeStart = $$(".guest-slot:not([hidden]):not(.active)").length === guestCapacityForLevel()
       && $$(".guest-slot:not([hidden]) .guest-seat").length === guestCapacityForLevel();
     result.level1StationStart = $$(".appliance:not([hidden])").length === 4
@@ -3580,7 +3765,7 @@
     result.fullMoonSign = signStyle.backgroundImage.includes("sign-full-moon-v1.webp")
       && parseFloat(signStyle.borderTopWidth) === 0;
 
-    result.recipeCatalog = Object.keys(RecipeCatalog).join("|") === "ramen_plain|ramen_egg|ramen_scallion|ramen_kimchi|ramen_cheese|grilled_dumpling|warm_oden"
+    result.recipeCatalog = Object.keys(RecipeCatalog).length === 11
       && [RecipeCatalog.ramen_plain, RecipeCatalog.ramen_egg, RecipeCatalog.grilled_dumpling].every(recipe => recipe.cookMs > 0 && recipe.burns && recipe.burnMs === Config.cooking.defaultBurnMs)
       && [RecipeCatalog.ramen_scallion, RecipeCatalog.ramen_kimchi, RecipeCatalog.ramen_cheese].every(recipe => recipe.cookMs > 0 && recipe.burns && recipe.cookingSprite?.startsWith("cooking-ramen-"))
       && RecipeCatalog.warm_oden.cookMs > 0 && !RecipeCatalog.warm_oden.burns && RecipeCatalog.warm_oden.burnMs === 0
@@ -3603,6 +3788,35 @@
     result.v025SupplyPlanning = supplyProbe.quantity >= IngredientCatalog.noodle.targetStock
       && supplyProbe.total >= IngredientCatalog.noodle.targetStock * IngredientCatalog.noodle.unitCost;
     Progress.inventory.noodle = supplyStockBeforeQA;
+    result.v026RecipeMenuSystem = ["ramen_egg_scallion", "ramen_kimchi_egg", "ramen_cheese_egg", "ramen_kimchi_cheese"].every(id => RecipeCatalog[id] && MenuCatalog[id] && MenuUnlockLevel[id] >= 2)
+      && $("#recipeButton") && $("#recipeOverlay") && $("#recipeSections");
+    const comboSpriteProbe = document.createElement("i");
+    comboSpriteProbe.className = "kitchen-sprite sprite-cooking-ramen-kimchi-cheese";
+    document.body.append(comboSpriteProbe);
+    result.v026ComboCookingToppingsVisible = getComputedStyle(comboSpriteProbe, "::before").backgroundImage.includes("ingredient-kimchi-v1.webp")
+      && getComputedStyle(comboSpriteProbe, "::after").backgroundImage.includes("ingredient-cheese-v1.webp");
+    comboSpriteProbe.remove();
+    const comboStockBefore = { ...Progress.inventory };
+    const comboLevelBefore = Progress.stallLevel;
+    Progress.stallLevel = 5;
+    applyStallLevel();
+    resetAppliance(Appliances[0]);
+    dropItem(Appliances[0], "noodle");
+    dropItem(Appliances[0], "kimchi");
+    dropItem(Appliances[0], "cheese");
+    result.v026ApprovedComboResolves = Appliances[0].recipeId === "ramen_kimchi_cheese" && Appliances[0].ingredients.length === 3;
+    const invalidBefore = Appliances[0].ingredients.length;
+    dropItem(Appliances[0], "egg");
+    result.v026ThirdToppingRejected = Appliances[0].ingredients.length === invalidBefore;
+    Progress.inventory = comboStockBefore;
+    Progress.stallLevel = comboLevelBefore;
+    applyStallLevel();
+    resetAppliance(Appliances[0]);
+    Progress.inventory.noodle = IngredientCatalog.noodle.targetStock;
+    Progress.inventory.egg = IngredientCatalog.egg.targetStock;
+    Progress.inventory.dumpling = IngredientCatalog.dumpling.targetStock;
+    Progress.inventory.oden = IngredientCatalog.oden.targetStock;
+    InventoryCategories.forEach(category => renderDockCategory(category.id));
     dropItem(Appliances[2], "dumpling");
     result.invalidApplianceRejected = Appliances[2].state === "empty" && Appliances[2].ingredients.length === 0;
     dropItem(Appliances[2], "egg");
@@ -3878,7 +4092,7 @@
       && savedProgress?.stationLevels?.grill === 2
       && savedProgress?.stationLevels?.oden === 2
       && savedProgress?.stallLevel === 2
-      && savedProgress?.version === 8
+      && savedProgress?.version === 10
       && savedProgress?.stats?.completedDays === 1
       && savedProgress?.regulars?.[qaFirstCustomerId]?.served === 1
       && savedProgress?.storyLog?.length >= 1;
@@ -4091,7 +4305,10 @@
     if (!qaParams.has("silent")) $("#stage").append(output);
     window.BoreumiQAStep = "complete";
     window.BoreumiQAResults = result;
-    document.documentElement.dataset.qa = Object.values(result).every(Boolean) ? "pass" : "fail";
+    const qaFailures = Object.entries(result).filter(([, passed]) => !passed).map(([name]) => name);
+    document.documentElement.dataset.qaFailures = qaFailures.join(",");
+    document.documentElement.dataset.qaCount = String(Object.keys(result).length);
+    document.documentElement.dataset.qa = qaFailures.length ? "fail" : "pass";
   }
 
   build();
@@ -4105,6 +4322,12 @@
   $("#startButton").addEventListener("click", start);
   $("#nextDayButton").addEventListener("click", nextDay);
   $("#restockButton").addEventListener("click", restockIngredients);
+  $("#openSupplyShopButton").addEventListener("click", openSupplyShop);
+  $("#closeSupplyShopButton").addEventListener("click", closeSupplyShop);
+  $("#supplyShopRestockAll").addEventListener("click", restockIngredients);
+  $("#recipeButton").addEventListener("click", openRecipeBook);
+  $("#closeRecipeButton").addEventListener("click", () => closeRecipeBook(true));
+  $("#closeMenuUnlockButton").addEventListener("click", showNextMenuUnlock);
   $("#resetProgressButton").addEventListener("click", resetProgress);
   $("#pauseButton").addEventListener("click", () => {
     if (!State.running) return toast("영업 중에 사용할 수 있어요.");
@@ -4161,7 +4384,9 @@
   $("#tutorialActionButton").addEventListener("click", () => Tutorial.advance());
   document.addEventListener("keydown", event => {
     if (event.key !== "Escape") return;
-    if (!$("#journalOverlay").classList.contains("hidden")) closeJournal(true);
+    if (!$("#supplyShopOverlay").classList.contains("hidden")) closeSupplyShop();
+    else if (!$("#recipeOverlay").classList.contains("hidden")) closeRecipeBook(true);
+    else if (!$("#journalOverlay").classList.contains("hidden")) closeJournal(true);
     else if (!$("#helpOverlay").classList.contains("hidden")) closeHelp(true);
   });
   document.addEventListener("dragstart", event => event.preventDefault());

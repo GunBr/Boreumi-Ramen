@@ -11,7 +11,7 @@
   let viewportFrame = 0;
 
   const state = {
-    version: "0.25.1",
+    version: "0.26",
     installed: standaloneQuery.matches || fullscreenQuery.matches || isIOSStandalone,
     landscapeRequested: true,
     cssLandscapeFallback: false,
