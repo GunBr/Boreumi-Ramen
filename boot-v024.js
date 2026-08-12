@@ -40,7 +40,7 @@
   ];
 
   const state = {
-    version: "0.25",
+    version: "0.25.1",
     dataReady: false,
     gameReady: false,
     resourcesLoaded: 0,

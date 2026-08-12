@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_VERSION = "boreumi-ramen-v025-0825e";
+const CACHE_VERSION = "boreumi-ramen-v0251-0825a";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -22,6 +22,7 @@ const CORE_ASSETS = [
   "./mobile-v024.css",
   "./story-v024.css",
   "./readability-v025.css",
+  "./dev-tools-v0251.css",
   "./boot-v024.js",
   "./pwa-v024.js",
   "./script.js",

@@ -1,0 +1,16 @@
+/* V0.25.1 · ?dev에서만 보이는 독립 개발 도구. */
+#devTools[hidden]{display:none!important}
+#stage[data-dev="true"] .dev-tools{position:absolute;z-index:900;right:18px;top:196px;width:330px;color:#fff5d8;font-family:inherit;filter:drop-shadow(0 9px 15px #140705aa)}
+#stage[data-dev="true"] .dev-toggle{position:absolute;right:0;top:-42px;width:74px;height:38px;border:3px solid #f0bd64;border-radius:12px;background:#70291f;color:#ffe8a9;font-size:18px;font-weight:1000;box-shadow:inset 0 0 0 2px #3c120e,0 4px 7px #18060488}
+#stage[data-dev="true"] .dev-panel{padding:13px;border:4px solid #d49242;border-radius:18px;background:linear-gradient(165deg,#542116f5,#21100df7);box-shadow:inset 0 0 0 2px #ffd98a44}
+#stage[data-dev="true"] .dev-tools.collapsed .dev-panel{display:none}
+#stage[data-dev="true"] .dev-panel header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 11px;border-bottom:2px solid #e2a65c55}
+#stage[data-dev="true"] .dev-panel header div{display:flex;flex-direction:column}
+#stage[data-dev="true"] .dev-panel small{font-size:13px;color:#e5b879;white-space:nowrap}
+#stage[data-dev="true"] .dev-panel strong{font-size:23px;color:#fff0bd;white-space:nowrap}
+#stage[data-dev="true"] #devState{font-size:15px;font-weight:950;color:#ffd86f;white-space:nowrap}
+#stage[data-dev="true"] .dev-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:11px}
+#stage[data-dev="true"] .dev-grid button{min-width:0;height:43px;padding:0 7px;border:2px solid #e7aa5e;border-radius:10px;background:linear-gradient(#f0b65f,#b85c32);color:#4a1a12;font-size:15px;font-weight:1000;white-space:nowrap;box-shadow:inset 0 2px #ffe2a2,0 3px 5px #16060499}
+#stage[data-dev="true"] .dev-grid button:active{transform:translateY(2px)}
+#stage[data-dev="true"] .dev-grid button[data-dev-action="finish"]{background:linear-gradient(#ffcf69,#db7835)}
+#stage[data-dev="true"] .dev-grid button[data-dev-action="reset"]{background:linear-gradient(#e9c2a2,#a65d48)}

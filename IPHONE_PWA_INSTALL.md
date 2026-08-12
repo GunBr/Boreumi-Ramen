@@ -1,11 +1,11 @@
-# iPhone PWA 설치와 V0.25 업데이트
+# iPhone PWA 설치와 V0.25.1 업데이트
 
 ## GitHub Desktop으로 올리기
 
-1. V0.25 ZIP을 압축 해제합니다.
-2. `Boreumi-Ramen_V0.25` 폴더 안의 파일을 기존 GitHub 저장소에 넣습니다.
+1. V0.25.1 ZIP을 압축 해제합니다.
+2. `Boreumi-Ramen_V0.25.1` 폴더 안의 파일을 기존 GitHub 저장소에 넣습니다.
 3. GitHub Desktop에서 변경 파일을 확인합니다.
-4. Summary에 `V0.25 재료와 메뉴 시스템`을 입력합니다.
+4. Summary에 `V0.25.1 개발 도구`를 입력합니다.
 5. `Commit to main`을 누른 뒤 `Push origin`을 누릅니다.
 
 ZIP 파일 자체는 GitHub 저장소에 넣지 않습니다.

@@ -1,18 +1,19 @@
 (() => {
   "use strict";
 
-  document.title = "보름이의 라면포차 V0.25";
+  document.title = "보름이의 라면포차 V0.25.1";
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
   const UrlParams = new URLSearchParams(location.search);
   const IsQA = UrlParams.has("qa");
+  const IsDev = UrlParams.has("dev") && !IsQA;
   const PreviewLevel = Math.max(0, Math.min(5, Math.floor(Number(UrlParams.get("level")) || 0)));
   const PreviewDay = Math.max(0, Math.floor(Number(UrlParams.get("day")) || 0));
-  const SaveKey = IsQA ? "boreumi-ramen-v025-qa" : "boreumi-ramen-v025";
-  const BackupKey = IsQA ? "boreumi-ramen-v025-backup-qa" : "boreumi-ramen-v025-backup";
-  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v025-audio-qa" : "boreumi-ramen-v025-audio";
-  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v025-tutorial-qa" : "boreumi-ramen-v025-tutorial";
+  const SaveKey = IsQA ? "boreumi-ramen-v0251-qa" : IsDev ? "boreumi-ramen-v0251-dev" : "boreumi-ramen-v025";
+  const BackupKey = IsQA ? "boreumi-ramen-v0251-backup-qa" : IsDev ? "boreumi-ramen-v0251-backup-dev" : "boreumi-ramen-v025-backup";
+  const AudioPreferenceKey = IsQA ? "boreumi-ramen-v0251-audio-qa" : IsDev ? "boreumi-ramen-v0251-audio-dev" : "boreumi-ramen-v025-audio";
+  const TutorialPreferenceKey = IsQA ? "boreumi-ramen-v0251-tutorial-qa" : IsDev ? "boreumi-ramen-v0251-tutorial-dev" : "boreumi-ramen-v025-tutorial";
   const LegacySaveKeys = ["boreumi-ramen-v024", "boreumi-ramen-v023", "boreumi-ramen-v022", "boreumi-ramen-v021", "boreumi-ramen-v020", "boreumi-ramen-v019", "boreumi-ramen-v0181", "boreumi-ramen-v018", "boreumi-ramen-v017", "boreumi-ramen-v016", "boreumi-ramen-v015"];
   const LegacyAudioPreferenceKeys = ["boreumi-ramen-v024-audio", "boreumi-ramen-v023-audio", "boreumi-ramen-v022-audio", "boreumi-ramen-v021-audio", "boreumi-ramen-v020-audio", "boreumi-ramen-v019-audio", "boreumi-ramen-v0181-audio", "boreumi-ramen-v018-audio", "boreumi-ramen-v017-audio", "boreumi-ramen-v016-audio"];
   const LegacyTutorialPreferenceKeys = ["boreumi-ramen-v024-tutorial", "boreumi-ramen-v023-tutorial", "boreumi-ramen-v022-tutorial", "boreumi-ramen-v021-tutorial", "boreumi-ramen-v020-tutorial", "boreumi-ramen-v019-tutorial", "boreumi-ramen-v0181-tutorial", "boreumi-ramen-v018-tutorial", "boreumi-ramen-v017-tutorial"];
@@ -502,7 +503,7 @@
         if (recovery.recovered) localStorage.setItem(SaveKey, JSON.stringify(recovery.progress));
         return recovery.progress;
       }
-      if (!IsQA) {
+      if (!IsQA && !IsDev) {
         const legacyKey = LegacySaveKeys.find(key => localStorage.getItem(key));
         const legacy = legacyKey ? decodeProgress(localStorage.getItem(legacyKey)) : null;
         if (legacy) {
@@ -1191,7 +1192,7 @@
     },
     scheduleFirstRun() {
       const forced = new URLSearchParams(location.search).has("tutorial");
-      if (IsQA || (this.completed && !forced)) return;
+      if (IsQA || IsDev || (this.completed && !forced)) return;
       const launch = () => setTimeout(() => {
         if (!$("#helpOverlay").classList.contains("hidden")) return;
         this.start();
@@ -1359,6 +1360,7 @@
     $("#stallLevel").textContent = String(effectiveStallLevel());
     $("#walletGold").textContent = money(Progress.gold);
     renderJournalBadge();
+    renderDevTools();
   }
 
   function toast(text) {
@@ -2631,6 +2633,102 @@
     Tutorial.handle("started");
   }
 
+  function renderDevTools() {
+    if (!IsDev) return;
+    const state = $("#devState");
+    if (state) state.textContent = `DAY ${Progress.day} · LV.${Progress.stallLevel} · ${money(Progress.gold)}`;
+  }
+
+  function devStopActiveDay() {
+    State.running = false;
+    State.paused = false;
+    clearInterval(State.dayTimer);
+    clearGuestTimers();
+    clearTakeoutTimers();
+    Sound.stopBgm();
+    clearGuestDialogues();
+    resetGuests();
+    resetTakeoutOrders();
+    resetCompletionPass();
+    Appliances.forEach(resetAppliance);
+    State.sales = 0;
+    State.guests = 0;
+    State.time = Config.daySeconds;
+    State.waste = 0;
+    State.served = 0;
+    State.missed = 0;
+    State.takeoutServed = 0;
+    State.takeoutMissed = 0;
+    State.takeoutPenalty = 0;
+    State.ratings = { happy: 0, okay: 0, tired: 0 };
+    State.dayStories = [];
+    $(".hud").classList.remove("running");
+    $("#startButton").disabled = false;
+    $("#startButton").setAttribute("aria-label", "영업 시작");
+    $("#startButton strong").textContent = "영업 시작";
+  }
+
+  function devRefresh(message) {
+    Progress.stationLevels = Object.fromEntries(Object.entries(Progress.stationLevels).map(([key, value]) => [key, Math.max(Progress.stallLevel, value)]));
+    State.lastSettlement = null;
+    State.goal = goalForDay();
+    $("#settlementOverlay").classList.add("hidden");
+    saveProgress();
+    applyStallLevel();
+    renderHud();
+    renderJournal();
+    renderUpgradeShop();
+    renderDevTools();
+    if (message) toast(message);
+  }
+
+  function devAction(action) {
+    if (!IsDev) return;
+    if (action === "finish") {
+      if (!State.running) return toast("현재 진행 중인 영업이 없어요.");
+      State.time = 0;
+      renderHud();
+      finishDay();
+      renderDevTools();
+      return;
+    }
+    devStopActiveDay();
+    if (action === "day-prev") Progress.day = Math.max(1, Progress.day - 1);
+    if (action === "day-next") Progress.day = Math.min(Number.MAX_SAFE_INTEGER, Progress.day + 1);
+    if (action === "day-10") Progress.day = Math.min(Number.MAX_SAFE_INTEGER, Progress.day + 10);
+    if (action === "day-100") Progress.day = 100;
+    if (action === "level-prev") Progress.stallLevel = Math.max(1, Progress.stallLevel - 1);
+    if (action === "level-next") Progress.stallLevel = Math.min(5, Progress.stallLevel + 1);
+    if (action === "level-max") {
+      Progress.stallLevel = 5;
+      Progress.day = Math.max(50, Progress.day);
+      Progress.stationLevels = { pot: 5, grill: 5, oden: 5 };
+    }
+    if (action === "stations-max") Progress.stationLevels = { pot: 5, grill: 5, oden: 5 };
+    if (action === "gold") Progress.gold = Math.min(Number.MAX_SAFE_INTEGER, Progress.gold + 1000000);
+    if (action === "stock") Object.values(IngredientCatalog).forEach(item => { Progress.inventory[item.id] = item.targetStock; });
+    if (action === "reset") Progress = freshProgress();
+    const labels = {
+      "day-prev": "이전 DAY를 미리 봐요.", "day-next": "다음 DAY를 미리 봐요.", "day-10": "DAY를 10일 건너뛰었어요.", "day-100": "DAY 100 상태예요.",
+      "level-prev": "이전 포차 레벨을 확인해요.", "level-next": "다음 포차 레벨을 확인해요.", "level-max": "최대 포차 상태를 열었어요.",
+      "stations-max": "모든 조리도구를 LV.5로 맞췄어요.", gold: "개발 골드 1,000,000원을 추가했어요.", stock: "모든 재료를 가득 채웠어요.", reset: "개발용 저장만 초기화했어요."
+    };
+    devRefresh(labels[action]);
+  }
+
+  function initDevTools() {
+    if (!IsDev) return;
+    const tools = $("#devTools");
+    tools.hidden = false;
+    $("#stage").dataset.dev = "true";
+    $("#devToggle").addEventListener("click", () => {
+      tools.classList.toggle("collapsed");
+      $("#devToggle").setAttribute("aria-expanded", String(!tools.classList.contains("collapsed")));
+    });
+    tools.querySelectorAll("[data-dev-action]").forEach(button => button.addEventListener("click", () => devAction(button.dataset.devAction)));
+    renderDevTools();
+  }
+
   function payload(element) {
     if (element.matches(".ingredient")) {
       const image = element.querySelector("img");
@@ -2835,7 +2933,7 @@
     return JSON.stringify({
       format: "boreumi-ramen-save",
       exportVersion: 1,
-      gameVersion: "0.25",
+      gameVersion: "0.25.1",
       exportedAt: new Date().toISOString(),
       progress: Progress
     }, null, 2);
@@ -3089,7 +3187,7 @@
       && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
     result.parallelCriticalLoading = bootSource.includes("preloadCriticalAssets")
       && bootSource.includes("Promise.all")
-      && window.BoreumiBoot?.state.version === "0.25";
+      && window.BoreumiBoot?.state.version === "0.25.1";
     result.serviceWorkerRegistered = !!serviceWorkerRegistration && window.BoreumiPWA?.serviceWorkerRegistered === true;
     result.offlineGameCacheReady = serviceWorkerSource.includes("CACHE_GAME")
       && serviceWorkerSource.includes("GAME_ASSETS")
@@ -3125,7 +3223,7 @@
       && recoveryProbe.recovered
       && recoveryProbe.progress.day === 9
       && exportProbe.format === "boreumi-ramen-save"
-      && exportProbe.gameVersion === "0.25";
+      && exportProbe.gameVersion === "0.25.1";
     result.customerStoryCatalogComplete = CustomerCatalog.every(customer => {
       const profile = CustomerStoryCatalog[customer.id];
       return profile?.chapters?.length === 4
@@ -4076,6 +4174,7 @@
   resize();
   updateMobileCare();
   startPpomiPoses();
+  initDevTools();
   window.BoreumiBoot?.markGameReady();
   Tutorial.scheduleFirstRun();
   browserQA().catch(error => {
