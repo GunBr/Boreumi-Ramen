@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_VERSION = "boreumi-ramen-v0262-0828a";
+const CACHE_VERSION = "boreumi-ramen-v0263-0813e";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -26,6 +26,7 @@ const CORE_ASSETS = [
   "./menu-v026.css",
   "./patch-v0261.css",
   "./patch-v0262.css",
+  "./patch-v0263.css",
   "./boot-v024.js",
   "./pwa-v024.js",
   "./script.js",
@@ -55,6 +56,9 @@ const CORE_ASSETS = [
   ,"./assets/art-v0261/cooking-ramen-plain-no-scallion-v1.webp"
   ,"./assets/art-v0261/food-ramen-plain-no-scallion-v1.webp"
   ,"./assets/art-v0262/food-ramen-egg-no-scallion-v1.webp"
+  ,"./assets/art-v0263/kitchen-worktable-v1.webp"
+  ,"./assets/art-v0263/cooking-oden-two-v1.webp"
+  ,"./assets/art-v0263/cooking-oden-one-v1.webp"
   ,"./assets/art-v025/food-ramen-scallion-v1.webp"
   ,"./assets/art-v025/food-ramen-kimchi-v1.webp"
   ,"./assets/art-v025/food-ramen-cheese-v1.webp"
@@ -77,6 +81,8 @@ const GAME_ASSETS = [
   "./assets/art-v012/completion-pass-vertical-v1.webp",
   "./assets/art-v012/cooking-dumpling.webp",
   "./assets/art-v012/cooking-oden-v2.webp",
+  "./assets/art-v0263/cooking-oden-two-v1.webp",
+  "./assets/art-v0263/cooking-oden-one-v1.webp",
   "./assets/art-v012/cooking-ramen.webp",
   "./assets/art-v012/customer-artist-v1.webp",
   "./assets/art-v012/customer-baker.webp",

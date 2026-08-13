@@ -1,0 +1,107 @@
+/* V0.26.3: PC utility layout, persistent guest dialogue, calm settlement and foreground furniture. */
+
+/* Keep the PC controls in the narrow gap between the moon sign and the first order card. */
+html:not([data-mobile-layout="true"]) #stage[data-guest-capacity="3"] .quick-supply-button{
+  left:calc(50% - 706px)!important;right:auto!important;top:127px!important;width:116px!important
+}
+html:not([data-mobile-layout="true"]) #stage[data-guest-capacity="3"] .recipe-button{
+  left:calc(50% - 706px)!important;right:auto!important;top:189px!important;width:56px!important;padding:0!important;font-size:17px!important
+}
+html:not([data-mobile-layout="true"]) #stage[data-guest-capacity="3"] .journal-button{
+  left:calc(50% - 646px)!important;right:auto!important;top:189px!important;width:56px!important;padding:0 5px!important
+}
+html:not([data-mobile-layout="true"]) #stage[data-guest-capacity="3"] .help-button{
+  left:calc(50% - 706px)!important;right:auto!important;top:251px!important
+}
+html:not([data-mobile-layout="true"]) #stage[data-guest-capacity="3"] .sound-button{
+  left:calc(50% - 646px)!important;right:auto!important;top:251px!important
+}
+
+/* Expanded guest layouts use the quiet lower-left shelf instead of crossing an order card. */
+html:not([data-mobile-layout="true"]) #stage:not([data-guest-capacity="3"]) .quick-supply-button{
+  left:28px!important;right:auto!important;top:286px!important;width:116px!important
+}
+html:not([data-mobile-layout="true"]) #stage:not([data-guest-capacity="3"]) .recipe-button{
+  left:28px!important;right:auto!important;top:348px!important;width:56px!important;padding:0!important;font-size:17px!important
+}
+html:not([data-mobile-layout="true"]) #stage:not([data-guest-capacity="3"]) .journal-button{
+  left:88px!important;right:auto!important;top:348px!important;width:56px!important;padding:0 5px!important
+}
+html:not([data-mobile-layout="true"]) #stage:not([data-guest-capacity="3"]) .help-button{
+  left:28px!important;right:auto!important;top:410px!important
+}
+html:not([data-mobile-layout="true"]) #stage:not([data-guest-capacity="3"]) .sound-button{
+  left:90px!important;right:auto!important;top:410px!important
+}
+
+/* Dialogue stays beneath its guest, rests translucent, and becomes solid when the player reads it. */
+#stage .story-whisper{
+  left:var(--whisper-x,50%)!important;top:var(--whisper-y,455px)!important;
+  width:430px!important;min-height:94px!important;padding:10px 48px 10px 88px!important;
+  border-width:4px!important;border-radius:21px!important;
+  opacity:0!important;visibility:hidden;pointer-events:none!important;
+  transform:translate(-50%,8px)!important;
+  transition:opacity .18s ease,transform .18s ease,filter .18s ease!important
+}
+#stage .story-whisper.show{
+  opacity:.68!important;visibility:visible;pointer-events:auto!important;
+  transform:translate(-50%,0)!important;filter:saturate(.9)
+}
+#stage .story-whisper.show:hover,
+#stage .story-whisper.show:focus-within{opacity:1!important;filter:none}
+#stage .story-whisper::before{
+  left:50%!important;top:-13px!important;width:22px!important;height:22px!important;
+  border-left-width:4px!important;border-top-width:4px!important;transform:translateX(-50%) rotate(45deg)!important
+}
+#stage .story-whisper-portrait{left:13px!important;bottom:7px!important;width:66px!important;height:80px!important}
+#stage .story-whisper-copy small{font-size:13px!important}
+#stage .story-whisper-copy strong{font-size:18px!important}
+#stage .story-whisper-copy p{font-size:15px!important;line-height:1.3!important}
+#stage .story-whisper-close{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;padding:0;
+  display:grid;place-items:center;border:3px solid #74351f;border-radius:50%;
+  background:#fff1c6;color:#6b2c1d;font-size:20px;line-height:1;font-weight:1000;
+  box-shadow:inset 0 0 0 2px #fff9e3,0 3px 6px #4c1b1055;cursor:pointer
+}
+#stage .story-whisper-close:active{transform:translateY(calc(-50% + 2px))}
+
+/* Remove the temporary center plank and restore the matching painted shelf behind it. */
+#stage[data-stall-level="1"] .service-table::after{display:none!important}
+#stage .shelf-foreground-fix{
+  position:absolute;z-index:16;inset:0;display:block;pointer-events:none;
+  background:url("assets/art-v012/environment-cozy-pocha-level1-v6.webp") center/100% 100% no-repeat;
+  clip-path:polygon(18% 43%,34% 43%,34% 66%,18% 66%)
+}
+#stage:not([data-stall-level="1"]) .shelf-foreground-fix{display:none}
+
+/* A painted wooden worktable anchors every foreground appliance. */
+#stage .kitchen-worktable{
+  position:absolute;z-index:40;left:50%;top:790px;transform:translateX(-50%);
+  width:min(1900px,calc(100% - 28px));height:383px;display:block;pointer-events:none;
+  background:url("assets/art-v0263/kitchen-worktable-v1.webp") center top/100% 100% no-repeat;
+  filter:brightness(.66) saturate(.82) drop-shadow(0 -7px 10px #1b08069c);
+  opacity:.96
+}
+
+/* Oden stays ready after serving and its illustration visibly steps down 3 → 2 → 1. */
+.sprite-cooking-oden-two{background-image:url("assets/art-v0263/cooking-oden-two-v1.webp")!important}
+.sprite-cooking-oden-one{background-image:url("assets/art-v0263/cooking-oden-one-v1.webp")!important}
+
+/* Settlement headings and actions keep dedicated space at every desktop scale. */
+#stage .management-heading{padding-right:104px!important;gap:22px}
+#stage .management-heading #settlementResult{
+  flex:0 1 370px;max-width:370px;margin-left:auto!important;margin-right:10px!important;
+  padding:11px 24px!important;font-size:24px!important;text-align:center;white-space:nowrap
+}
+#stage .settlement-close{right:10px!important;top:0!important}
+#stage[data-stall-level="1"] .shop-heading{
+  height:82px!important;align-items:flex-start!important;gap:18px;padding-top:2px
+}
+#stage[data-stall-level="1"] .shop-heading h3{font-size:28px!important;line-height:1.08}
+#stage[data-stall-level="1"] .shop-heading p{font-size:18px!important;padding:7px 13px!important}
+#stage .supply-shop{margin-bottom:10px!important}
+
+@media(max-height:520px),(max-width:980px){
+  #stage .story-whisper{width:410px!important;min-height:88px!important;padding-left:82px!important}
+  #stage .story-whisper-copy p{font-size:15px!important}
+}

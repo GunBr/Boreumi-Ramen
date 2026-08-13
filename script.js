@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  document.title = "보름이의 라면포차 V0.26.2";
+  document.title = "보름이의 라면포차 V0.26.3";
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
@@ -795,17 +795,6 @@
     if ($("#boreumi")?.dataset.mode === "idle") setBoreumiIdlePosition();
   }
 
-  function goalForDay(day = Progress.day) {
-    const safeDay = Math.max(1, Number(day) || 1);
-    const longTermGrowth = Math.min(20000, Math.floor(Math.log2(safeDay) * 1800 / 500) * 500);
-    const weeklyRhythm = [0, 500, 0, 1000, 500, 1500, 0][(safeDay - 1) % 7];
-    return 10000 + longTermGrowth + weeklyRhythm;
-  }
-
-  function goalBonusForDay(day = Progress.day) {
-    return 1000 + Math.min(9000, Math.floor(Math.log2(Math.max(1, Number(day) || 1))) * 500);
-  }
-
   function stationLevel(type) {
     return Math.max(1, Math.min(5, Progress.stationLevels[type] || 1));
   }
@@ -896,7 +885,6 @@
     takeoutPenalty: 0,
     takeoutSerial: 0,
     ratings: { happy: 0, okay: 0, tired: 0 },
-    goal: goalForDay(),
     lastSettlement: null,
     dayStories: []
   };
@@ -1007,9 +995,9 @@
   };
 
   const Appliances = [
-    ...Array.from({ length: 3 }, (_, index) => ({ id: `pot-${index}`, type: "pot", slot: index, state: "empty", item: null, ingredients: [], recipeId: null, cookRemaining: 0, burnRemaining: 0 })),
-    ...Array.from({ length: 2 }, (_, index) => ({ id: `grill-${index}`, type: "grill", slot: index, state: "empty", item: null, ingredients: [], recipeId: null, cookRemaining: 0, burnRemaining: 0 })),
-    { id: "oden-0", type: "oden", slot: 0, state: "empty", item: null, ingredients: [], recipeId: null, cookRemaining: 0, burnRemaining: 0 }
+    ...Array.from({ length: 3 }, (_, index) => ({ id: `pot-${index}`, type: "pot", slot: index, state: "empty", item: null, ingredients: [], recipeId: null, cookRemaining: 0, burnRemaining: 0, servingsShown: 0 })),
+    ...Array.from({ length: 2 }, (_, index) => ({ id: `grill-${index}`, type: "grill", slot: index, state: "empty", item: null, ingredients: [], recipeId: null, cookRemaining: 0, burnRemaining: 0, servingsShown: 0 })),
+    { id: "oden-0", type: "oden", slot: 0, state: "empty", item: null, ingredients: [], recipeId: null, cookRemaining: 0, burnRemaining: 0, servingsShown: 0 }
   ];
 
   const Guests = Array.from({ length: Config.layout.futureGuestCapacity }, (_, index) => ({
@@ -1432,11 +1420,16 @@
     return value.toLocaleString("ko-KR") + "원";
   }
 
+  function cumulativeSales() {
+    if (State.tutorialMode) return Progress.stats.totalSales;
+    return Progress.stats.totalSales + (State.running ? State.sales : 0);
+  }
+
   function renderHud() {
     const dayText = String(effectiveDay());
     $("#dayNumber").textContent = dayText;
     $("#stage").dataset.dayDigits = String(dayText.length);
-    $("#goalAmount").textContent = State.tutorialMode ? "연습 전용" : money(State.goal);
+    $("#goalAmount").textContent = State.tutorialMode ? "저장 안 됨" : money(cumulativeSales());
     $("#time").textContent = State.tutorialMode ? "시간 정지" : `${String(Math.floor(State.time / 60)).padStart(2, "0")}:${String(State.time % 60).padStart(2, "0")}`;
     $("#timeFill").style.width = State.tutorialMode ? "100%" : `${State.time / Config.daySeconds * 100}%`;
     $("#sales").textContent = State.tutorialMode ? "저장 안 됨" : money(State.sales);
@@ -1506,6 +1499,11 @@
 
   function spriteFor(appliance) {
     if (appliance.state === "empty") return appliance.type;
+    if (appliance.type === "oden" && ["cooking", "ready"].includes(appliance.state)) {
+      if (appliance.servingsShown <= 1) return "cooking-oden-one";
+      if (appliance.servingsShown === 2) return "cooking-oden-two";
+      return "cooking-oden";
+    }
     if (appliance.state === "cooking") {
       if (appliance.type === "pot") return recipeFor(appliance)?.cookingSprite || (appliance.ingredients.includes("egg") ? "cooking-ramen-egg" : "cooking-ramen");
       return `cooking-${appliance.type === "grill" ? "dumpling" : "oden"}`;
@@ -1542,7 +1540,9 @@
     element.classList.toggle("keeps-warm", appliance.state === "ready" && recipeFor(appliance)?.burns === false);
     element.dataset.state = appliance.state;
     element.dataset.recipe = appliance.recipeId || "";
-    element.setAttribute("aria-label", `${appliance.type === "pot" ? `냄비 ${appliance.slot + 1}` : appliance.type === "grill" ? `그릴 ${appliance.slot + 1}` : "오뎅바"} · ${applianceStateLabel(appliance)}`);
+    element.dataset.odenCount = appliance.type === "oden" && appliance.state !== "empty" ? String(Math.max(1, appliance.servingsShown || 1)) : "0";
+    const odenStatus = appliance.type === "oden" && appliance.state === "ready" ? ` · 계속 서빙 가능 · 오뎅 ${Math.max(1, appliance.servingsShown)}개 보임` : "";
+    element.setAttribute("aria-label", `${appliance.type === "pot" ? `냄비 ${appliance.slot + 1}` : appliance.type === "grill" ? `그릴 ${appliance.slot + 1}` : "오뎅바"} · ${applianceStateLabel(appliance)}${odenStatus}`);
     art.innerHTML = `<i class="kitchen-sprite sprite-${spriteFor(appliance)}"></i><span class="cook-fx" aria-hidden="true"><i></i><i></i><i></i></span>`;
     renderProgress(appliance);
   }
@@ -1663,30 +1663,52 @@
     const customer = CustomerById[dialogue.customerId];
     const record = regularRecord(dialogue.customerId);
     const relationship = relationshipInfo(record);
-    const activeGuest = Guests.find(guest => guest.active && guest.customerId === dialogue.customerId);
-    if (activeGuest) {
-      const slot = document.querySelector('[data-guest="' + activeGuest.index + '"]');
-      const point = stagePointFor(slot);
-      const left = Math.max(330, Math.min(Config.stage.currentWidth - 330, point.x));
-      element.style.setProperty("--whisper-x", left + "px");
-    } else {
-      element.style.setProperty("--whisper-x", "50%");
-    }
+    const positionDialogue = () => {
+      const activeGuest = Guests.find(guest => guest.active && guest.customerId === dialogue.customerId);
+      if (activeGuest) {
+        const slot = document.querySelector('[data-guest="' + activeGuest.index + '"]');
+        const guestArt = slot?.querySelector(".guest-art") || slot;
+        const stage = $("#stage");
+        const stageRect = stage.getBoundingClientRect();
+        const guestRect = guestArt.getBoundingClientRect();
+        const scale = stageRect.width / stage.offsetWidth || 1;
+        const left = Math.max(230, Math.min(stage.offsetWidth - 230, (guestRect.left + guestRect.width / 2 - stageRect.left) / scale));
+        const top = Math.max(360, Math.min(555, (guestRect.bottom - stageRect.top) / scale + 8));
+        element.style.setProperty("--whisper-x", left + "px");
+        element.style.setProperty("--whisper-y", top + "px");
+      } else {
+        element.style.setProperty("--whisper-x", "50%");
+        element.style.setProperty("--whisper-y", "455px");
+      }
+    };
+    positionDialogue();
     element.classList.toggle("episode", dialogue.kind === "episode");
     $("#storyWhisperPortrait").style.backgroundImage = 'url("' + customer.art + '")';
     $("#storyWhisperMeta").textContent = dialogue.meta || relationship.label;
     $("#storyWhisperName").textContent = dialogue.title || customer.name;
     $("#storyWhisperText").textContent = dialogue.text;
     element.hidden = false;
-    requestAnimationFrame(() => element.classList.add("show"));
+    requestAnimationFrame(() => {
+      positionDialogue();
+      element.classList.add("show");
+    });
+    [160, 480, 900].forEach(delay => setTimeout(() => {
+      if (!element.hidden && element.classList.contains("show")) positionDialogue();
+    }, delay));
+    State.storyDialogueTimer = null;
+  }
+
+  function dismissGuestDialogue() {
+    const element = $("#storyWhisper");
+    if (!element || element.hidden || State.storyDialogueTimer) return;
+    element.classList.remove("show");
     State.storyDialogueTimer = setTimeout(() => {
-      element.classList.remove("show");
+      element.hidden = true;
       State.storyDialogueTimer = setTimeout(() => {
-        element.hidden = true;
         State.storyDialogueTimer = null;
         showNextGuestDialogue();
-      }, 230);
-    }, dialogue.kind === "episode" ? 3300 : 2550);
+      }, 420);
+    }, 180);
   }
 
   function clearGuestDialogues() {
@@ -1940,7 +1962,7 @@
       return toast(`${MenuCatalog[itemId].label} 재고가 없어요.`);
     }
     orderItem.fulfilled = true;
-    if (appliance) resetAppliance(appliance);
+    if (appliance) takeApplianceServing(appliance);
     if (passIndex != null) clearPassSlot(passIndex, false);
     teleportToTakeout(orderIndex);
     renderTakeoutOrder(order);
@@ -2165,6 +2187,7 @@
     appliance.item = item;
     appliance.ingredients = [item];
     appliance.recipeId = resolveRecipeId(appliance);
+    appliance.servingsShown = appliance.type === "oden" ? 3 : 0;
     const recipe = recipeFor(appliance);
     appliance.cookRemaining = effectiveCookMs(recipe);
     appliance.burnRemaining = effectiveBurnMs(recipe);
@@ -2259,6 +2282,19 @@
     appliance.recipeId = null;
     appliance.cookRemaining = 0;
     appliance.burnRemaining = 0;
+    appliance.servingsShown = 0;
+    renderAppliance(appliance);
+  }
+
+  function takeApplianceServing(appliance) {
+    if (appliance?.type !== "oden") {
+      resetAppliance(appliance);
+      return;
+    }
+    appliance.servingsShown = Math.max(1, (appliance.servingsShown || 3) - 1);
+    appliance.state = "ready";
+    appliance.cookRemaining = 0;
+    appliance.burnRemaining = 0;
     renderAppliance(appliance);
   }
 
@@ -2281,7 +2317,7 @@
     if (!slot || slot.recipeId) return toast("다른 빈 완성대 칸을 사용해 주세요.");
     if (appliance?.state !== "ready") return toast("완성된 음식만 완성대에 둘 수 있어요.");
     slot.recipeId = appliance.recipeId;
-    resetAppliance(appliance);
+    takeApplianceServing(appliance);
     renderPassSlot(passIndex);
     teleportToPass();
     Sound.sfx("drop");
@@ -2376,7 +2412,7 @@
       return toast(`${MenuCatalog[itemId].label} 재고가 없어요.`);
     }
     orderItem.fulfilled = true;
-    if (appliance) resetAppliance(appliance);
+    if (appliance) takeApplianceServing(appliance);
     teleportToGuest(guestIndex);
     renderGuest(guest);
     Sound.sfx("serve");
@@ -2571,7 +2607,7 @@
       : "모든 재료가 가득해요";
     const restockButton = $("#restockButton");
     restockButton.disabled = supplies.quantity === 0 || Progress.gold < supplies.total;
-    restockButton.textContent = supplies.quantity === 0 ? "재고 가득" : Progress.gold < supplies.total ? "골드 부족" : `가득 보충 · ${money(supplies.total)}`;
+    restockButton.textContent = supplies.quantity === 0 ? "재고 가득" : Progress.gold < supplies.total ? "잔액 부족" : `가득 보충 · ${money(supplies.total)}`;
     renderSupplyShop();
     const list = $("#upgradeList");
     const stationCards = Object.values(StationUpgradeCatalog).map(upgrade => {
@@ -2620,17 +2656,16 @@
   function renderSettlement(settlement = State.lastSettlement) {
     if (!settlement) return;
     $("#settlementDay").textContent = String(settlement.completedDay);
-    $("#settlementResult").textContent = settlement.levelUp ? `포차 LV.${settlement.newStallLevel} 확장!` : settlement.goalMet ? "목표 달성!" : "목표까지 조금 남았어요";
-    $("#settlementResult").classList.toggle("failed", !settlement.goalMet);
+    $("#settlementResult").textContent = settlement.levelUp ? `포차 LV.${settlement.newStallLevel} 확장!` : "오늘도 수고했어요";
+    $("#settlementResult").classList.remove("failed");
     $("#settlementOverlay").classList.toggle("level-up", settlement.levelUp);
-    $("#summaryGoal").textContent = money(settlement.goal);
+    $("#summaryGoal").textContent = money(settlement.cumulativeSales);
     $("#summarySales").textContent = money(settlement.sales);
     $("#summaryServed").textContent = `${settlement.served}건 · 포장 ${settlement.takeoutServed}건`;
     $("#summaryMissed").textContent = `${settlement.missed}명 · 포장 ${settlement.takeoutMissed}건`;
     $("#summaryWaste").textContent = `${settlement.waste}개`;
     $("#summaryRating").textContent = settlement.rating;
     $("#rewardSales").textContent = `+${money(settlement.sales)}`;
-    $("#rewardGoal").textContent = `+${money(settlement.goalBonus)}`;
     $("#rewardService").textContent = `+${money(settlement.serviceBonus)}`;
     $("#rewardTakeoutPenalty").textContent = `-${money(settlement.takeoutPenalty)}`;
     $("#rewardTotal").textContent = `+${money(settlement.totalReward)}`;
@@ -2666,7 +2701,7 @@
     const level = stationLevel(type);
     const cost = StationUpgradeCatalog[type].costs[level - 1];
     if (cost == null) return toast("이미 최대 단계예요.");
-    if (Progress.gold < cost) return toast("골드가 부족해요.");
+    if (Progress.gold < cost) return toast("보유 금액이 부족해요.");
     Progress.gold -= cost;
     Progress.stationLevels[type] += 1;
     saveProgress();
@@ -2682,7 +2717,7 @@
     const targetLevel = Progress.stallLevel + 1;
     const cost = StallUpgradeCatalog.costs[Progress.stallLevel - 1];
     if (!stationRequirementMet(targetLevel)) return toast(`조리도구를 모두 LV.${targetLevel}로 강화해야 해요.`);
-    if (Progress.gold < cost) return toast("포장마차 확장 골드가 부족해요.");
+    if (Progress.gold < cost) return toast("포장마차 확장에 필요한 금액이 부족해요.");
     const previousLevel = Progress.stallLevel;
     Progress.gold -= cost;
     Progress.stallLevel = targetLevel;
@@ -2706,7 +2741,6 @@
     if (State.running) return;
     $("#settlementOverlay").classList.add("hidden");
     State.lastSettlement = null;
-    State.goal = goalForDay();
     $("#startButton").disabled = false;
     $("#startButton").setAttribute("aria-label", "영업 시작");
     $("#startButton strong").textContent = "영업 시작";
@@ -2744,7 +2778,6 @@
     try { localStorage.removeItem(TutorialPreferenceKey); } catch { /* A fresh tutorial will still be available this session. */ }
     disarmResetButton();
     State.lastSettlement = null;
-    State.goal = goalForDay();
     State.sales = 0;
     State.guests = 0;
     State.time = Config.daySeconds;
@@ -2772,15 +2805,12 @@
   function settleDay() {
     const completedDay = Progress.day;
     const previousStallLevel = Progress.stallLevel;
-    const goal = State.goal;
-    const goalMet = State.sales >= goal;
-    const goalBonus = goalMet ? goalBonusForDay(completedDay) : 0;
     const serviceBonus = State.ratings.happy * 400 + State.ratings.okay * 200;
-    const totalReward = Math.max(0, State.sales + goalBonus + serviceBonus - State.takeoutPenalty);
+    const totalReward = Math.max(0, State.sales + serviceBonus - State.takeoutPenalty);
+    const cumulativeSalesTotal = Progress.stats.totalSales + State.sales;
     const settlement = {
       completedDay,
-      goal,
-      goalMet,
+      cumulativeSales: cumulativeSalesTotal,
       sales: State.sales,
       served: State.served,
       missed: State.missed,
@@ -2789,7 +2819,6 @@
       takeoutPenalty: State.takeoutPenalty,
       waste: State.waste,
       rating: satisfactionLabel(),
-      goalBonus,
       serviceBonus,
       totalReward,
       previousStallLevel,
@@ -2800,8 +2829,8 @@
     Progress.gold += totalReward;
     Progress.day += 1;
     Progress.stats.completedDays += 1;
-    Progress.stats.successfulDays += goalMet ? 1 : 0;
-    Progress.stats.totalSales += State.sales;
+    Progress.stats.successfulDays += 1;
+    Progress.stats.totalSales = cumulativeSalesTotal;
     Progress.stats.totalServed += State.served;
     Progress.stats.totalMissed += State.missed;
     Progress.stats.totalWaste += State.waste;
@@ -2835,7 +2864,7 @@
     clearGuestDialogues();
     renderHud();
     renderSettlement();
-    toast(`영업 종료 · ${money(State.lastSettlement.totalReward)} 획득`);
+    toast(`영업 종료 · ${money(State.lastSettlement.totalReward)} 정산`);
   }
 
   function hasOpenOrders() {
@@ -2885,7 +2914,6 @@
     State.closing = false;
     $("#stage").dataset.closing = "false";
     State.time = Config.daySeconds;
-    State.goal = goalForDay();
     State.sales = 0;
     State.guests = 0;
     State.waste = 0;
@@ -2966,7 +2994,6 @@
   function devRefresh(message) {
     Progress.stationLevels = Object.fromEntries(Object.entries(Progress.stationLevels).map(([key, value]) => [key, Math.max(Progress.stallLevel, value)]));
     State.lastSettlement = null;
-    State.goal = goalForDay();
     $("#settlementOverlay").classList.add("hidden");
     saveProgress();
     applyStallLevel();
@@ -3008,7 +3035,7 @@
     const labels = {
       "day-prev": "이전 DAY를 미리 봐요.", "day-next": "다음 DAY를 미리 봐요.", "day-10": "DAY를 10일 건너뛰었어요.", "day-100": "DAY 100 상태예요.",
       "level-prev": "이전 포차 레벨을 확인해요.", "level-next": "다음 포차 레벨을 확인해요.", "level-max": "최대 포차 상태를 열었어요.",
-      "stations-max": "모든 조리도구를 LV.5로 맞췄어요.", gold: "개발 골드 1,000,000원을 추가했어요.", stock: "모든 재료를 가득 채웠어요.", reset: "개발용 저장만 초기화했어요."
+      "stations-max": "모든 조리도구를 LV.5로 맞췄어요.", gold: "개발 보유금 1,000,000원을 추가했어요.", stock: "모든 재료를 가득 채웠어요.", reset: "개발용 저장만 초기화했어요."
     };
     devRefresh(labels[action]);
     announceNewMenus(previousLevel, Progress.stallLevel);
@@ -3231,7 +3258,7 @@
     return JSON.stringify({
       format: "boreumi-ramen-save",
       exportVersion: 1,
-      gameVersion: "0.26.1",
+      gameVersion: "0.26.3",
       exportedAt: new Date().toISOString(),
       progress: Progress
     }, null, 2);
@@ -3258,7 +3285,6 @@
     if (!raw || typeof raw !== "object" || !Number.isFinite(Number(raw.day))) throw new Error("보름이의 라면포차 저장 파일이 아니에요.");
     Progress = sanitizeProgress(raw);
     if (!saveProgress()) throw new Error("기기에 저장하지 못했어요.");
-    State.goal = goalForDay();
     applyStallLevel();
     renderHud();
     renderJournal();
@@ -3439,8 +3465,9 @@
     let serviceWorkerSource = "";
     let patchCssSource = "";
     let patchV0262CssSource = "";
+    let patchV0263CssSource = "";
     try {
-      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse, patchResponse, patchV0262Response] = await Promise.all([
+      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse, patchResponse, patchV0262Response, patchV0263Response] = await Promise.all([
         fetch("app.webmanifest", { cache: "no-store" }),
         fetch("pwa-v024.css", { cache: "no-store" }),
         fetch("experience-v024.css", { cache: "no-store" }),
@@ -3449,7 +3476,8 @@
         fetch("boot-v024.js", { cache: "no-store" }),
         fetch("service-worker.js", { cache: "no-store" }),
         fetch("patch-v0261.css", { cache: "no-store" }),
-        fetch("patch-v0262.css", { cache: "no-store" })
+        fetch("patch-v0262.css", { cache: "no-store" }),
+        fetch("patch-v0263.css", { cache: "no-store" })
       ]);
       pwaManifest = await manifestResponse.json();
       pwaCssSource = await cssResponse.text();
@@ -3460,6 +3488,7 @@
       serviceWorkerSource = await workerResponse.text();
       patchCssSource = await patchResponse.text();
       patchV0262CssSource = await patchV0262Response.text();
+      patchV0263CssSource = await patchV0263Response.text();
     } catch {
       // Individual checks below report the unavailable PWA resource.
     }
@@ -3491,7 +3520,7 @@
       && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
     result.parallelCriticalLoading = bootSource.includes("preloadCriticalAssets")
       && bootSource.includes("Promise.all")
-      && bootSource.includes('version: "0.26.2"');
+      && bootSource.includes('version: "0.26.3"');
     result.mobileSafeCenteredLayout = patchCssSource.includes('data-mobile-layout="true"')
       && patchCssSource.includes("max(42px,var(--pwa-safe-left))")
       && patchCssSource.includes('data-force-landscape="true"][data-mobile-layout="true"]')
@@ -3532,7 +3561,7 @@
       && recoveryProbe.recovered
       && recoveryProbe.progress.day === 9
       && exportProbe.format === "boreumi-ramen-save"
-      && exportProbe.gameVersion === "0.26.1";
+      && exportProbe.gameVersion === "0.26.3";
     result.customerStoryCatalogComplete = CustomerCatalog.every(customer => {
       const profile = CustomerStoryCatalog[customer.id];
       return profile?.chapters?.length === 4
@@ -3565,9 +3594,11 @@
       && $$("#regularGrid .regular-card").length === unlockedCustomers().length
       && !!$("#storyEntries")
       && $("#journalKnownCount").textContent.includes("/");
-    result.nonBlockingGuestDialogue = !!$("#storyWhisper")
-      && storyCssSource.includes("pointer-events:none")
-      && getComputedStyle($("#storyWhisper")).pointerEvents === "none";
+    result.persistentGuestDialogue = !!$("#storyWhisper")
+      && !!$("#closeStoryWhisperButton")
+      && patchV0263CssSource.includes("focus-within")
+      && patchV0263CssSource.includes("pointer-events:auto")
+      && patchV0263CssSource.includes("--whisper-y");
     result.journalTouchLayoutReady = storyCssSource.includes("touch-action:pan-y")
       && storyCssSource.includes(".journal-button")
       && serviceWorkerSource.includes("story-v024.css");
@@ -3879,8 +3910,7 @@
       });
     });
     const visibleOrderBubbles = $$(".guest-slot.active .bubble");
-    result.mobileOrderUiNoOverlap = document.documentElement.dataset.mobileLayout !== "true"
-      || visibleOrderBubbles.every(bubble => {
+    result.orderUiNoOverlap = visibleOrderBubbles.every(bubble => {
         const bubbleRect = bubble.getBoundingClientRect();
         return mobileControls.every(control => {
           const controlRect = control.getBoundingClientRect();
@@ -3890,6 +3920,7 @@
             || controlRect.top >= bubbleRect.bottom;
         });
       });
+    result.mobileOrderUiNoOverlap = document.documentElement.dataset.mobileLayout !== "true" || result.orderUiNoOverlap;
     result.healingGameTiming = Config.daySeconds === 300
       && Config.guests.waitsForever
       && Config.guests.wrongPenaltyMs === 0
@@ -4045,9 +4076,20 @@
       && getComputedStyle($(".sprite-ramen-egg")).backgroundImage.includes("food-ramen-egg-no-scallion-v1.webp")
       && FoodArt.potEgg.includes("food-ramen-egg-no-scallion-v1.webp");
     result.completeFoodArt = !!$(".sprite-dumpling") && getComputedStyle($(".sprite-dumpling")).backgroundImage.includes("food-dumpling-v2");
-    result.odenStaysInBar = !!$(".sprite-oden-warm")
-      && getComputedStyle($(".sprite-oden-warm")).backgroundImage.includes("cooking-oden-v2.webp")
+    result.odenStaysInBar = !!$(".sprite-cooking-oden")
+      && getComputedStyle($(".sprite-cooking-oden")).backgroundImage.includes("cooking-oden-v2.webp")
       && !$(".sprite-oden-food");
+    takeApplianceServing(Appliances[5]);
+    const odenTwoArt = getComputedStyle($(".sprite-cooking-oden-two")).backgroundImage;
+    takeApplianceServing(Appliances[5]);
+    const odenOneArt = getComputedStyle($(".sprite-cooking-oden-one")).backgroundImage;
+    takeApplianceServing(Appliances[5]);
+    result.odenContinuousServing = Appliances[5].state === "ready"
+      && Appliances[5].recipeId === "warm_oden"
+      && Appliances[5].servingsShown === 1
+      && odenTwoArt.includes("cooking-oden-two-v1.webp")
+      && odenOneArt.includes("cooking-oden-one-v1.webp")
+      && $("[data-id='oden-0']").dataset.odenCount === "1";
     const readyPayload = payload($(`[data-id="${Appliances[0].id}"]`));
     result.sameReadyDragArt = readyPayload?.image.includes("food-ramen-plain-no-scallion-v1.webp");
     const plainCookingProbe = document.createElement("i");
@@ -4199,7 +4241,7 @@
       && Progress.stallLevel === 1
       && Object.values(Progress.stationLevels).every(level => level === 1)
       && $("#dayNumber").textContent === "1"
-      && $("#goalAmount").textContent === money(goalForDay(1));
+      && $("#goalAmount").textContent === money(cumulativeSales());
     const walletRect = $("#walletBadge").getBoundingClientRect();
     result.walletBadgeReadable = walletRect.top >= hudRect.bottom - 2
       && walletRect.right <= stage.right
@@ -4211,7 +4253,7 @@
       && StallUpgradeCatalog.costs.length === 4
       && StallUpgradeCatalog.costs.every((cost, index) => !index || cost > StallUpgradeCatalog.costs[index - 1]);
 
-    State.sales = State.goal + 500;
+    State.sales = 10500;
     State.served = 3;
     State.missed = 1;
     State.takeoutServed = 0;
@@ -4219,9 +4261,9 @@
     State.takeoutPenalty = 0;
     State.waste = 2;
     State.ratings = { happy: 2, okay: 1, tired: 0 };
-    const expectedGoalBonus = goalBonusForDay(Progress.day);
     const expectedServiceBonus = State.ratings.happy * 400 + State.ratings.okay * 200;
-    const expectedReward = State.sales + expectedGoalBonus + expectedServiceBonus;
+    const expectedReward = State.sales + expectedServiceBonus;
+    const expectedCumulativeSales = Progress.stats.totalSales + State.sales;
     resetGuests();
     Guests[0].active = true;
     State.closing = true;
@@ -4240,16 +4282,14 @@
     result.settlementOverlayAppears = !$("#settlementOverlay").classList.contains("hidden")
       && !State.running
       && State.lastSettlement?.completedDay === 1
-      && State.lastSettlement.goalMet
-      && $("#settlementResult").textContent === "목표 달성!";
-    result.settlementSummaryAccurate = $("#summaryGoal").textContent === money(State.lastSettlement.goal)
+      && $("#settlementResult").textContent === "오늘도 수고했어요";
+    result.settlementSummaryAccurate = $("#summaryGoal").textContent === money(expectedCumulativeSales)
       && $("#summarySales").textContent === money(State.lastSettlement.sales)
       && $("#summaryServed").textContent === "3건 · 포장 0건"
       && $("#summaryMissed").textContent === "1명 · 포장 0건"
       && $("#summaryWaste").textContent === "2개"
       && $("#summaryRating").textContent === "최고예요";
-    result.rewardBreakdownAccurate = State.lastSettlement.goalBonus === expectedGoalBonus
-      && State.lastSettlement.serviceBonus === expectedServiceBonus
+    result.rewardBreakdownAccurate = State.lastSettlement.serviceBonus === expectedServiceBonus
       && State.lastSettlement.takeoutPenalty === 0
       && State.lastSettlement.totalReward === expectedReward
       && Progress.gold === expectedReward
@@ -4328,10 +4368,9 @@
       $("#nextDayButton").click();
       result.nextDayProgression = State.running
         && Progress.day === 2
-        && State.goal === goalForDay(2)
         && State.sales === 0
         && $("#dayNumber").textContent === "2"
-        && $("#goalAmount").textContent === money(goalForDay(2))
+        && $("#goalAmount").textContent === money(Progress.stats.totalSales)
         && $("#settlementOverlay").classList.contains("hidden");
     }
 
@@ -4517,16 +4556,14 @@
 
     const dayBeforeInfiniteQA = Progress.day;
     Progress.day = 123456;
-    State.goal = goalForDay();
     renderHud();
     result.infiniteDayCounter = $("#dayNumber").textContent === "123456"
       && $("#stage").dataset.dayDigits === "6"
       && sanitizeProgress({ day: 123456 }).day === 123456;
-    result.infiniteDifficultyStaysPlayable = goalForDay(1) === 10000
-      && goalForDay(1000000) <= 31500
-      && goalBonusForDay(1000000) <= 10000;
+    result.infiniteDifficultyStaysPlayable = Config.guests.waitsForever
+      && !Config.cooking.burns
+      && Progress.stats.totalSales >= 0;
     Progress.day = dayBeforeInfiniteQA;
-    State.goal = goalForDay();
     renderHud();
 
     const output = document.createElement("pre");
@@ -4580,6 +4617,7 @@
   $("#soundButton").addEventListener("click", () => Sound.setEnabled(!Sound.enabled));
   $("#helpButton").addEventListener("click", openHelp);
   $("#journalButton").addEventListener("click", openJournal);
+  $("#closeStoryWhisperButton").addEventListener("click", dismissGuestDialogue);
   $("#settlementJournalButton").addEventListener("click", openJournal);
   $("#closeJournalButton").addEventListener("click", () => closeJournal(true));
   $("#journalAllButton").addEventListener("click", () => {
