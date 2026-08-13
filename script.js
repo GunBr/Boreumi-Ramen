@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  document.title = "보름이의 라면포차 V0.26.1";
+  document.title = "보름이의 라면포차 V0.26.2";
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
@@ -42,8 +42,8 @@
     },
     boreumi: { idleWidth: 300, cookingWidth: 300, servingWidth: 360, idleOffset: -210 },
     daySeconds: 300,
-    cooking: { tickMs: 50, defaultBurnMs: 10000 },
-    guests: { tickMs: 100, patienceMs: 40000, wrongPenaltyMs: 2500 },
+    cooking: { tickMs: 50, burns: false, defaultBurnMs: 0 },
+    guests: { tickMs: 100, waitsForever: true, patienceMs: 40000, wrongPenaltyMs: 0 },
     takeout: {
       patienceMs: 36000,
       missedPenalty: 500,
@@ -56,7 +56,7 @@
 
   const FoodArt = {
     pot: "assets/art-v0261/food-ramen-plain-no-scallion-v1.webp",
-    potEgg: "assets/art-v012/food-ramen-v2.webp",
+    potEgg: "assets/art-v0262/food-ramen-egg-no-scallion-v1.webp",
     potScallion: "assets/art-v025/food-ramen-scallion-v1.webp",
     potKimchi: "assets/art-v025/food-ramen-kimchi-v1.webp",
     potCheese: "assets/art-v025/food-ramen-cheese-v1.webp",
@@ -75,8 +75,8 @@
       appliance: "pot",
       ingredients: Object.freeze(["noodle"]),
       cookMs: 4200,
-      burns: true,
-      burnMs: Config.cooking.defaultBurnMs,
+      burns: false,
+      burnMs: 0,
       sprite: "ramen-plain",
       art: FoodArt.pot
     }),
@@ -86,8 +86,8 @@
       appliance: "pot",
       ingredients: Object.freeze(["noodle", "egg"]),
       cookMs: 4200,
-      burns: true,
-      burnMs: Config.cooking.defaultBurnMs,
+      burns: false,
+      burnMs: 0,
       sprite: "ramen-egg",
       art: FoodArt.potEgg
     }),
@@ -97,8 +97,8 @@
       appliance: "pot",
       ingredients: Object.freeze(["noodle", "scallion"]),
       cookMs: 4200,
-      burns: true,
-      burnMs: Config.cooking.defaultBurnMs,
+      burns: false,
+      burnMs: 0,
       sprite: "ramen-scallion",
       cookingSprite: "cooking-ramen-scallion",
       art: FoodArt.potScallion
@@ -109,8 +109,8 @@
       appliance: "pot",
       ingredients: Object.freeze(["noodle", "kimchi"]),
       cookMs: 4400,
-      burns: true,
-      burnMs: Config.cooking.defaultBurnMs,
+      burns: false,
+      burnMs: 0,
       sprite: "ramen-kimchi",
       cookingSprite: "cooking-ramen-kimchi",
       art: FoodArt.potKimchi
@@ -121,8 +121,8 @@
       appliance: "pot",
       ingredients: Object.freeze(["noodle", "cheese"]),
       cookMs: 4400,
-      burns: true,
-      burnMs: Config.cooking.defaultBurnMs,
+      burns: false,
+      burnMs: 0,
       sprite: "ramen-cheese",
       cookingSprite: "cooking-ramen-cheese",
       art: FoodArt.potCheese
@@ -130,25 +130,25 @@
     ramen_egg_scallion: Object.freeze({
       id: "ramen_egg_scallion", label: "계란 대파 라면", appliance: "pot",
       ingredients: Object.freeze(["noodle", "egg", "scallion"]), cookMs: 4500,
-      burns: true, burnMs: Config.cooking.defaultBurnMs, sprite: "ramen-egg-scallion",
+      burns: false, burnMs: 0, sprite: "ramen-egg-scallion",
       cookingSprite: "cooking-ramen-egg-scallion", art: FoodArt.potEggScallion
     }),
     ramen_kimchi_egg: Object.freeze({
       id: "ramen_kimchi_egg", label: "김치 계란 라면", appliance: "pot",
       ingredients: Object.freeze(["noodle", "kimchi", "egg"]), cookMs: 4700,
-      burns: true, burnMs: Config.cooking.defaultBurnMs, sprite: "ramen-kimchi-egg",
+      burns: false, burnMs: 0, sprite: "ramen-kimchi-egg",
       cookingSprite: "cooking-ramen-kimchi-egg", art: FoodArt.potKimchiEgg
     }),
     ramen_cheese_egg: Object.freeze({
       id: "ramen_cheese_egg", label: "치즈 계란 라면", appliance: "pot",
       ingredients: Object.freeze(["noodle", "cheese", "egg"]), cookMs: 4700,
-      burns: true, burnMs: Config.cooking.defaultBurnMs, sprite: "ramen-cheese-egg",
+      burns: false, burnMs: 0, sprite: "ramen-cheese-egg",
       cookingSprite: "cooking-ramen-cheese-egg", art: FoodArt.potCheeseEgg
     }),
     ramen_kimchi_cheese: Object.freeze({
       id: "ramen_kimchi_cheese", label: "김치 치즈 라면", appliance: "pot",
       ingredients: Object.freeze(["noodle", "kimchi", "cheese"]), cookMs: 4900,
-      burns: true, burnMs: Config.cooking.defaultBurnMs, sprite: "ramen-kimchi-cheese",
+      burns: false, burnMs: 0, sprite: "ramen-kimchi-cheese",
       cookingSprite: "cooking-ramen-kimchi-cheese", art: FoodArt.potKimchiCheese
     }),
     grilled_dumpling: Object.freeze({
@@ -157,8 +157,8 @@
       appliance: "grill",
       ingredients: Object.freeze(["dumpling"]),
       cookMs: 3600,
-      burns: true,
-      burnMs: Config.cooking.defaultBurnMs,
+      burns: false,
+      burnMs: 0,
       sprite: "dumpling",
       art: FoodArt.grill
     }),
@@ -642,7 +642,7 @@
   }
 
   function buyIngredient(id, requestedQuantity) {
-    if (State.running || !IngredientCatalog[id]) return false;
+    if (!IngredientCatalog[id]) return false;
     const item = IngredientCatalog[id];
     if (!isIngredientUnlocked(id, Progress.stallLevel)) return toast(`포차 LV.${item.unlockLevel}에서 구매할 수 있어요.`);
     const missing = Math.max(0, item.targetStock - ingredientStock(id));
@@ -816,7 +816,7 @@
   }
 
   function effectiveBurnMs(recipe) {
-    if (!recipe.burns) return 0;
+    if (!Config.cooking.burns || !recipe.burns) return 0;
     const upgrade = StationUpgradeCatalog[recipe.appliance];
     return recipe.burnMs + upgrade.burnBonus[stationLevel(recipe.appliance) - 1];
   }
@@ -872,6 +872,7 @@
     helpPausedGame: false,
     journalPausedGame: false,
     recipePausedGame: false,
+    supplyPausedGame: false,
     journalCustomerId: null,
     storyDialogueQueue: [],
     storyDialogueTimer: null,
@@ -1706,10 +1707,18 @@
   function renderPatience(guest) {
     const slot = $(`[data-guest="${guest.index}"]`);
     if (!slot) return;
+    const patience = slot.querySelector(".patience");
+    if (Config.guests.waitsForever) {
+      patience.hidden = true;
+      patience.setAttribute("aria-label", "손님은 주문이 모두 나올 때까지 기다립니다");
+      slot.classList.remove("low-patience");
+      return;
+    }
     const ratio = guest.maxPatience ? Math.max(0, Math.min(1, guest.patience / guest.maxPatience)) : 0;
-    slot.querySelector(".patience i").style.width = `${ratio * 100}%`;
+    patience.hidden = false;
+    patience.querySelector("i").style.width = `${ratio * 100}%`;
     slot.classList.toggle("low-patience", guest.active && ratio <= .3);
-    slot.querySelector(".patience").setAttribute("aria-label", `손님 인내심 ${Math.round(ratio * 100)}%`);
+    patience.setAttribute("aria-label", `손님 인내심 ${Math.round(ratio * 100)}%`);
   }
 
   function renderGuest(guest) {
@@ -2011,12 +2020,14 @@
     const elapsed = Math.min(250, Math.max(0, now - State.guestClock));
     State.guestClock = now;
     if (!State.running || State.paused || State.tutorialMode) return;
-    Guests.forEach(guest => {
-      if (!guest.active || guest.serving) return;
-      guest.patience = Math.max(0, guest.patience - elapsed);
-      if (guest.patience <= 0) expireGuest(guest);
-      else renderPatience(guest);
-    });
+    if (!Config.guests.waitsForever) {
+      Guests.forEach(guest => {
+        if (!guest.active || guest.serving) return;
+        guest.patience = Math.max(0, guest.patience - elapsed);
+        if (guest.patience <= 0) expireGuest(guest);
+        else renderPatience(guest);
+      });
+    }
     TakeoutOrders.forEach(order => {
       if (!order.active || order.packed) return;
       order.patience = Math.max(0, order.patience - elapsed);
@@ -2038,22 +2049,51 @@
     });
   }
 
-  function laneLeftFor(target, spriteWidth) {
-    const laneElement = $(".characters");
-    const lane = laneElement.getBoundingClientRect();
-    const stage = $("#stage").getBoundingClientRect();
-    const stageScale = stage.width / Config.stage.currentWidth;
-    const targetCenter = target.left + target.width / 2;
-    return (targetCenter - lane.left) / stageScale - spriteWidth / 2;
+  function stageBoxFor(element) {
+    const stage = $("#stage");
+    let current = element;
+    let left = 0;
+    let top = 0;
+    while (current && current !== stage) {
+      left += current.offsetLeft;
+      top += current.offsetTop;
+      const transform = getComputedStyle(current).transform;
+      if (transform && transform !== "none") {
+        const matrix = new DOMMatrixReadOnly(transform);
+        left += matrix.e;
+        top += matrix.f;
+      }
+      current = current.offsetParent;
+    }
+    if (current === stage) {
+      return { left, top, width: element.offsetWidth, height: element.offsetHeight };
+    }
+    const stageRect = stage.getBoundingClientRect();
+    const targetRect = element.getBoundingClientRect();
+    const scale = stageRect.width / Config.stage.currentWidth || 1;
+    return {
+      left: (targetRect.left - stageRect.left) / scale,
+      top: (targetRect.top - stageRect.top) / scale,
+      width: targetRect.width / scale,
+      height: targetRect.height / scale
+    };
   }
 
-  function animateBoreumi(mode, pose, left) {
+  function laneLeftFor(targetElement, spriteWidth) {
+    const target = stageBoxFor(targetElement);
+    const lane = stageBoxFor($(".characters"));
+    return target.left + target.width / 2 - lane.left - spriteWidth / 2;
+  }
+
+  function animateBoreumi(mode, pose, targetElement) {
     const boreumi = $("#boreumi");
     clearTimeout(State.boreumiTimer);
     boreumi.dataset.mode = mode;
     boreumi.dataset.pose = pose;
     const laneWidth = $(".characters").clientWidth;
-    const spriteWidth = mode === "cooking" ? Config.boreumi.cookingWidth : mode === "serving" ? Config.boreumi.servingWidth : Config.boreumi.idleWidth;
+    const fallbackWidth = mode === "cooking" ? Config.boreumi.cookingWidth : mode === "serving" ? Config.boreumi.servingWidth : Config.boreumi.idleWidth;
+    const spriteWidth = boreumi.offsetWidth || fallbackWidth;
+    const left = laneLeftFor(targetElement, spriteWidth);
     boreumi.style.left = Math.max(12, Math.min(laneWidth - spriteWidth - 12, left)) + "px";
     boreumi.classList.remove("teleport", "action");
     void boreumi.offsetWidth;
@@ -2067,8 +2107,9 @@
   function setBoreumiIdlePosition() {
     const boreumi = $("#boreumi");
     const laneWidth = $(".characters").clientWidth || Config.stage.currentWidth;
+    const spriteWidth = boreumi.offsetWidth || Config.boreumi.idleWidth;
     const levelOffset = guestCapacityForLevel() >= 4 ? 0 : Config.boreumi.idleOffset;
-    boreumi.style.left = `${(laneWidth - Config.boreumi.idleWidth) / 2 + levelOffset}px`;
+    boreumi.style.left = `${(laneWidth - spriteWidth) / 2 + levelOffset}px`;
   }
 
   function setBoreumiIdle(delay = 0) {
@@ -2087,9 +2128,8 @@
   function teleport(appliance, text) {
     const targetElement = $(`[data-id="${appliance.id}"]`);
     if (!targetElement || targetElement.hidden) return setBoreumiIdle();
-    const target = targetElement.getBoundingClientRect();
     const pose = appliance.type === "pot" ? (IngredientRules[appliance.item]?.mode === "addon" ? "egg" : "noodle") : appliance.type;
-    animateBoreumi("cooking", pose, laneLeftFor(target, Config.boreumi.cookingWidth));
+    animateBoreumi("cooking", pose, targetElement);
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 920);
     burstAt($(`[data-id="${appliance.id}"]`), "drop", 5);
     say(text);
@@ -2098,24 +2138,21 @@
   function teleportToGuest(guestIndex) {
     const targetElement = $(`[data-guest="${guestIndex}"]`);
     if (!targetElement || targetElement.hidden) return setBoreumiIdle();
-    const target = targetElement.getBoundingClientRect();
-    animateBoreumi("serving", "serve", laneLeftFor(target, Config.boreumi.servingWidth));
+    animateBoreumi("serving", "serve", targetElement);
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 820);
   }
 
   function teleportToTakeout(orderIndex) {
     const targetElement = $(`[data-takeout="${orderIndex}"]`);
     if (!targetElement || targetElement.hidden) return setBoreumiIdle();
-    const target = targetElement.getBoundingClientRect();
-    animateBoreumi("serving", "serve", laneLeftFor(target, Config.boreumi.servingWidth));
+    animateBoreumi("serving", "serve", targetElement);
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 820);
   }
 
   function teleportToPass() {
     const targetElement = $("#completionPass");
     if (!targetElement || targetElement.hidden) return setBoreumiIdle();
-    const target = targetElement.getBoundingClientRect();
-    animateBoreumi("cooking", "grill", laneLeftFor(target, Config.boreumi.cookingWidth));
+    animateBoreumi("cooking", "grill", targetElement);
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 720);
   }
 
@@ -2188,7 +2225,7 @@
     const rule = IngredientRules[item];
     if (!rule || !accepts(appliance, item)) return toast("이 재료는 다른 조리기구에 넣어주세요.");
     if (!isIngredientUnlocked(item)) return toast(`${IngredientCatalog[item].label}은(는) 포차 LV.${IngredientCatalog[item].unlockLevel}에서 열려요.`);
-    if (!State.tutorialMode && ingredientStock(item) <= 0) return toast(`${IngredientCatalog[item].label} 재고가 없어요. 영업 후 재료 상점에서 보충해 주세요.`);
+    if (!State.tutorialMode && ingredientStock(item) <= 0) return toast(`${IngredientCatalog[item].label} 재고가 없어요. 위쪽 재료 상점에서 보충해 주세요.`);
     if (appliance.state === "ready") return toast("완성된 음식을 먼저 서빙하거나 버려주세요.");
     if (appliance.state === "burnt") return toast("탄 음식을 먼저 버려주세요.");
 
@@ -2265,7 +2302,6 @@
   }
 
   function rejectOrderItem(guest) {
-    if (!State.tutorialMode) guest.patience = Math.max(0, guest.patience - Config.guests.wrongPenaltyMs);
     renderPatience(guest);
     const slot = $(`[data-guest="${guest.index}"]`);
     slot.classList.remove("wrong-order");
@@ -2274,11 +2310,11 @@
     setTimeout(() => slot.classList.remove("wrong-order"), 430);
     Sound.sfx("wrong");
     Sound.haptic(22);
-    if (!State.tutorialMode && guest.patience <= 0) expireGuest(guest);
-    else toast(State.tutorialMode ? "연습 주문은 기본 라면과 소주예요." : "주문과 다른 메뉴예요. 인내심이 줄었어요.");
+    toast(State.tutorialMode ? "연습 주문은 기본 라면과 소주예요." : "주문과 다른 메뉴예요. 다시 확인해 주세요.");
   }
 
   function satisfactionFor(guest) {
+    if (Config.guests.waitsForever) return "happy";
     const ratio = guest.maxPatience ? guest.patience / guest.maxPatience : 0;
     if (ratio >= .65) return "happy";
     if (ratio >= .3) return "okay";
@@ -2385,11 +2421,9 @@
   function stationEffectText(type, level = stationLevel(type)) {
     const upgrade = StationUpgradeCatalog[type];
     const speed = Math.round((1 - upgrade.speed[level - 1]) * 100);
-    const burnSeconds = upgrade.burnBonus[level - 1] / 1000;
     const price = Math.round(upgrade.priceBonus[level - 1] * 100);
     const effects = [speed ? `조리 ${speed}% 단축` : "기본 조리 속도"];
-    if (type === "oden") effects.push("완성 후 계속 보온");
-    else if (burnSeconds) effects.push(`타기까지 +${burnSeconds}초`);
+    effects.push("완성 후 계속 보온");
     if (price) effects.push(`음식값 +${price}%`);
     return effects.join(" · ");
   }
@@ -2504,14 +2538,29 @@
   }
 
   function openSupplyShop() {
-    if (State.running) return;
+    if (State.tutorialMode) return toast("연습을 마친 뒤 재료 상점을 이용할 수 있어요.");
+    if (!$("#journalOverlay").classList.contains("hidden")) closeJournal(false);
+    if (!$("#helpOverlay").classList.contains("hidden")) closeHelp(false);
+    if (!$("#recipeOverlay").classList.contains("hidden")) closeRecipeBook(false);
+    State.supplyPausedGame = State.running && !State.paused;
+    if (State.supplyPausedGame) {
+      State.paused = true;
+      Sound.stopBgm();
+      $("#stage").classList.add("paused-fx");
+    }
     renderSupplyShop();
     $("#supplyShopOverlay").classList.remove("hidden");
     Sound.sfx("drop");
   }
 
-  function closeSupplyShop() {
+  function closeSupplyShop(resumeGame = true) {
     $("#supplyShopOverlay").classList.add("hidden");
+    if (resumeGame && State.supplyPausedGame) {
+      State.paused = false;
+      State.supplyPausedGame = false;
+      $("#stage").classList.remove("paused-fx");
+      Sound.startBgm();
+    }
   }
 
   function renderUpgradeShop() {
@@ -2551,7 +2600,6 @@
   }
 
   function restockIngredients() {
-    if (State.running) return;
     const supplies = supplyPlan();
     if (!supplies.quantity) return toast("모든 재료가 가득해요.");
     if (Progress.gold < supplies.total) return toast(`재료 보충에 ${money(supplies.total)}이 필요해요.`);
@@ -2833,6 +2881,7 @@
     Appliances.forEach(resetAppliance);
     State.running = true;
     State.paused = false;
+    State.supplyPausedGame = false;
     State.closing = false;
     $("#stage").dataset.closing = "false";
     State.time = Config.daySeconds;
@@ -3389,8 +3438,9 @@
     let bootSource = "";
     let serviceWorkerSource = "";
     let patchCssSource = "";
+    let patchV0262CssSource = "";
     try {
-      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse, patchResponse] = await Promise.all([
+      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse, patchResponse, patchV0262Response] = await Promise.all([
         fetch("app.webmanifest", { cache: "no-store" }),
         fetch("pwa-v024.css", { cache: "no-store" }),
         fetch("experience-v024.css", { cache: "no-store" }),
@@ -3398,7 +3448,8 @@
         fetch("story-v024.css", { cache: "no-store" }),
         fetch("boot-v024.js", { cache: "no-store" }),
         fetch("service-worker.js", { cache: "no-store" }),
-        fetch("patch-v0261.css", { cache: "no-store" })
+        fetch("patch-v0261.css", { cache: "no-store" }),
+        fetch("patch-v0262.css", { cache: "no-store" })
       ]);
       pwaManifest = await manifestResponse.json();
       pwaCssSource = await cssResponse.text();
@@ -3408,6 +3459,7 @@
       bootSource = await bootResponse.text();
       serviceWorkerSource = await workerResponse.text();
       patchCssSource = await patchResponse.text();
+      patchV0262CssSource = await patchV0262Response.text();
     } catch {
       // Individual checks below report the unavailable PWA resource.
     }
@@ -3439,7 +3491,7 @@
       && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
     result.parallelCriticalLoading = bootSource.includes("preloadCriticalAssets")
       && bootSource.includes("Promise.all")
-      && bootSource.includes('version: "0.26.1"');
+      && bootSource.includes('version: "0.26.2"');
     result.mobileSafeCenteredLayout = patchCssSource.includes('data-mobile-layout="true"')
       && patchCssSource.includes("max(42px,var(--pwa-safe-left))")
       && patchCssSource.includes('data-force-landscape="true"][data-mobile-layout="true"]')
@@ -3759,6 +3811,29 @@
     result.pauseButton = State.paused && !$("#pauseOverlay").classList.contains("hidden");
     $("#resumeButton").click();
     result.resumeButton = !State.paused && $("#pauseOverlay").classList.contains("hidden");
+    const supplyGoldBefore = Progress.gold;
+    const supplyNoodleBefore = Progress.inventory.noodle;
+    Progress.gold = 1000;
+    Progress.inventory.noodle = 0;
+    renderHud();
+    $("#quickSupplyButton").click();
+    const businessShopOpened = State.running
+      && State.paused
+      && State.supplyPausedGame
+      && !$("#supplyShopOverlay").classList.contains("hidden");
+    $(`[data-supply-id="noodle"] [data-buy="1"]`).click();
+    const boughtDuringBusiness = Progress.inventory.noodle === 1
+      && Progress.gold === 1000 - IngredientCatalog.noodle.unitCost;
+    $("#closeSupplyShopButton").click();
+    result.businessSupplyShop = businessShopOpened
+      && boughtDuringBusiness
+      && !State.paused
+      && !State.supplyPausedGame
+      && $("#supplyShopOverlay").classList.contains("hidden");
+    Progress.gold = supplyGoldBefore;
+    Progress.inventory.noodle = supplyNoodleBefore;
+    InventoryCategories.forEach(category => renderDockCategory(category.id));
+    renderHud();
     activateGuest(0);
     const qaFirstCustomerId = Guests[0].customerId;
     result.arrivalState = $$(".guest-slot:not([hidden]).active").length === 1
@@ -3787,16 +3862,22 @@
     renderGuest(Guests[0]);
     result.menuCatalogIncludesDrinks = ["soju", "beer", "somaek", "makgeolli"].every(id => MenuCatalog[id]?.kind === "drink" && MenuCatalog[id].price > 0);
     result.drinksAreDraggable = $$(".drink-rack .drink-item").every(item => item.matches("button.ingredient") && payload(item)?.kind === "drink");
-    result.patienceStartsFull = Guests[0].patience === Guests[0].maxPatience
-      && parseFloat($(`[data-guest="0"] .patience i`).style.width) === 100;
-    const activeBubbleRect = $(`[data-guest="0"] .bubble`).getBoundingClientRect();
-    const activePatienceRect = $(`[data-guest="0"] .patience`).getBoundingClientRect();
-    result.patienceBelowOrderBubble = activePatienceRect.top >= activeBubbleRect.bottom - 1
-      && activePatienceRect.top - activeBubbleRect.bottom <= 10 * buttonStageScale
-      && activePatienceRect.width >= 155 * buttonStageScale
-      && getComputedStyle($(`[data-guest="0"] .patience`)).visibility === "visible"
-      && parseInt(getComputedStyle($(`[data-guest="0"] .patience`)).zIndex, 10) > parseInt(getComputedStyle($(`[data-guest="0"] .bubble`)).zIndex, 10);
-    const mobileControls = [$("#walletBadge"), $("#recipeButton"), $("#journalButton"), $("#helpButton"), $("#soundButton")];
+    const hallPatienceElement = $(`[data-guest="0"] .patience`);
+    result.guestsWaitForeverUi = Config.guests.waitsForever
+      && hallPatienceElement.hidden
+      && getComputedStyle(hallPatienceElement).display === "none"
+      && hallPatienceElement.getAttribute("aria-label").includes("모두 나올 때까지");
+    const mobileControls = [$("#walletBadge"), $("#quickSupplyButton"), $("#recipeButton"), $("#journalButton"), $("#helpButton"), $("#soundButton")];
+    result.topControlsNoOverlap = mobileControls.every((control, index) => {
+      const rect = control.getBoundingClientRect();
+      return mobileControls.slice(index + 1).every(other => {
+        const otherRect = other.getBoundingClientRect();
+        return rect.right <= otherRect.left
+          || rect.left >= otherRect.right
+          || rect.bottom <= otherRect.top
+          || rect.top >= otherRect.bottom;
+      });
+    });
     const visibleOrderBubbles = $$(".guest-slot.active .bubble");
     result.mobileOrderUiNoOverlap = document.documentElement.dataset.mobileLayout !== "true"
       || visibleOrderBubbles.every(bubble => {
@@ -3809,11 +3890,11 @@
             || controlRect.top >= bubbleRect.bottom;
         });
       });
-    result.relaxedGameTiming = Config.daySeconds === 300
-      && Config.guests.patienceMs === 40000
-      && Config.cooking.defaultBurnMs === 10000
-      && Config.guests.patienceMs > RecipeCatalog.ramen_plain.cookMs * 8
-      && Config.cooking.defaultBurnMs > RecipeCatalog.ramen_plain.cookMs * 2;
+    result.healingGameTiming = Config.daySeconds === 300
+      && Config.guests.waitsForever
+      && Config.guests.wrongPenaltyMs === 0
+      && !Config.cooking.burns
+      && Config.cooking.defaultBurnMs === 0;
     const topping = $("[data-item='dumpling']");
     const toppingPayload = payload(topping);
     showGhost(toppingPayload);
@@ -3852,9 +3933,8 @@
       && parseFloat(signStyle.borderTopWidth) === 0;
 
     result.recipeCatalog = Object.keys(RecipeCatalog).length === 11
-      && [RecipeCatalog.ramen_plain, RecipeCatalog.ramen_egg, RecipeCatalog.grilled_dumpling].every(recipe => recipe.cookMs > 0 && recipe.burns && recipe.burnMs === Config.cooking.defaultBurnMs)
-      && [RecipeCatalog.ramen_scallion, RecipeCatalog.ramen_kimchi, RecipeCatalog.ramen_cheese].every(recipe => recipe.cookMs > 0 && recipe.burns && recipe.cookingSprite?.startsWith("cooking-ramen-"))
-      && RecipeCatalog.warm_oden.cookMs > 0 && !RecipeCatalog.warm_oden.burns && RecipeCatalog.warm_oden.burnMs === 0
+      && Object.values(RecipeCatalog).every(recipe => recipe.cookMs > 0 && !recipe.burns && recipe.burnMs === 0)
+      && [RecipeCatalog.ramen_scallion, RecipeCatalog.ramen_kimchi, RecipeCatalog.ramen_cheese].every(recipe => recipe.cookingSprite?.startsWith("cooking-ramen-"))
       && RecipeCatalog.ramen_plain.ingredients.join("|") === "noodle"
       && RecipeCatalog.ramen_egg.ingredients.join("|") === "noodle|egg";
     result.v025IngredientMenuSystem = Object.keys(IngredientCatalog).length === 11
@@ -3866,7 +3946,8 @@
     const toppingSpriteProbe = document.createElement("i");
     toppingSpriteProbe.className = "kitchen-sprite sprite-cooking-ramen-kimchi";
     document.body.append(toppingSpriteProbe);
-    result.v025CookingToppingVisible = getComputedStyle(toppingSpriteProbe, "::after").backgroundImage.includes("ingredient-kimchi-v1.webp");
+    result.naturalCookingToppingArt = getComputedStyle(toppingSpriteProbe).backgroundImage.includes("food-ramen-kimchi-v1.webp")
+      && getComputedStyle(toppingSpriteProbe, "::after").display === "none";
     toppingSpriteProbe.remove();
     const supplyStockBeforeQA = Progress.inventory.noodle;
     Progress.inventory.noodle = 0;
@@ -3879,8 +3960,9 @@
     const comboSpriteProbe = document.createElement("i");
     comboSpriteProbe.className = "kitchen-sprite sprite-cooking-ramen-kimchi-cheese";
     document.body.append(comboSpriteProbe);
-    result.v026ComboCookingToppingsVisible = getComputedStyle(comboSpriteProbe, "::before").backgroundImage.includes("ingredient-kimchi-v1.webp")
-      && getComputedStyle(comboSpriteProbe, "::after").backgroundImage.includes("ingredient-cheese-v1.webp");
+    result.naturalComboCookingArt = getComputedStyle(comboSpriteProbe).backgroundImage.includes("food-ramen-kimchi-cheese-v1.webp")
+      && getComputedStyle(comboSpriteProbe, "::before").display === "none"
+      && getComputedStyle(comboSpriteProbe, "::after").display === "none";
     comboSpriteProbe.remove();
     const comboStockBefore = { ...Progress.inventory };
     const comboLevelBefore = Progress.stallLevel;
@@ -3917,6 +3999,14 @@
     dropItem(Appliances[1], "noodle");
     dropItem(Appliances[1], "egg");
     result.eggPose = $("#boreumi").dataset.pose === "egg";
+    const cookingBoreumi = $("#boreumi");
+    const cookingLaneBox = stageBoxFor($(".characters"));
+    const cookingTargetBox = stageBoxFor($(`[data-id="${Appliances[1].id}"]`));
+    const cookingTargetDelta = (
+      cookingLaneBox.left + parseFloat(cookingBoreumi.style.left) + cookingBoreumi.offsetWidth / 2
+      - cookingTargetBox.left - cookingTargetBox.width / 2
+    );
+    result.cookingCharacterTargetsStation = Math.abs(cookingTargetDelta) <= 2;
     const eggIngredientCount = Appliances[1].ingredients.length;
     dropItem(Appliances[1], "egg");
     result.duplicateAddonRejected = Appliances[1].ingredients.length === eggIngredientCount;
@@ -3951,7 +4041,9 @@
     await new Promise(resolve => setTimeout(resolve, 4400));
     result.independentTimers = Appliances[0].state === "ready" && Appliances[1].state === "ready" && Appliances[3].state === "ready" && Appliances[5].state === "ready";
     result.noEggPlainRamen = !!$(".sprite-ramen-plain") && getComputedStyle($(".sprite-ramen-plain")).backgroundImage.includes("food-ramen-plain-no-scallion-v1");
-    result.eggRamenVariant = !!$(".sprite-ramen-egg") && getComputedStyle($(".sprite-ramen-egg")).backgroundImage.includes("food-ramen-v2");
+    result.eggRamenWithoutScallion = !!$(".sprite-ramen-egg")
+      && getComputedStyle($(".sprite-ramen-egg")).backgroundImage.includes("food-ramen-egg-no-scallion-v1.webp")
+      && FoodArt.potEgg.includes("food-ramen-egg-no-scallion-v1.webp");
     result.completeFoodArt = !!$(".sprite-dumpling") && getComputedStyle($(".sprite-dumpling")).backgroundImage.includes("food-dumpling-v2");
     result.odenStaysInBar = !!$(".sprite-oden-warm")
       && getComputedStyle($(".sprite-oden-warm")).backgroundImage.includes("cooking-oden-v2.webp")
@@ -3969,7 +4061,8 @@
     document.body.append(scallionReadyProbe);
     result.plainRamenHasNoDefaultScallion = getComputedStyle(plainCookingProbe).backgroundImage.includes("cooking-ramen-plain-no-scallion-v1.webp")
       && getComputedStyle(plainCookingProbe, "::after").backgroundImage === "none"
-      && getComputedStyle(scallionCookingProbe, "::after").backgroundImage.includes("ingredient-scallion-v1.webp")
+      && getComputedStyle(scallionCookingProbe).backgroundImage.includes("food-ramen-scallion-v1.webp")
+      && getComputedStyle(scallionCookingProbe, "::after").display === "none"
       && getComputedStyle($(".sprite-ramen-plain")).backgroundImage.includes("food-ramen-plain-no-scallion-v1.webp")
       && getComputedStyle(scallionReadyProbe).backgroundImage.includes("food-ramen-scallion-v1.webp");
     plainCookingProbe.remove();
@@ -3988,9 +4081,9 @@
     result.wrongOrderRejected = Appliances[3].state === "ready"
       && Guests[0].active
       && State.sales === salesBeforeWrongOrder
-      && Guests[0].patience <= patienceBeforeWrongOrder - Config.guests.wrongPenaltyMs;
-    result.wrongOrderPenaltyVisible = $(`[data-guest="0"]`).classList.contains("wrong-order")
-      && parseFloat($(`[data-guest="0"] .patience i`).style.width) < 100;
+      && Guests[0].patience === patienceBeforeWrongOrder;
+    result.wrongOrderHasNoTimerPenalty = $(`[data-guest="0"]`).classList.contains("wrong-order")
+      && $(`[data-guest="0"] .patience`).hidden;
     const wasteBeforeReadyTap = State.waste;
     qaPointerTap($(`[data-id="${Appliances[3].id}"]`), 904);
     result.readyTapDiscards = Appliances[3].state === "empty"
@@ -3998,26 +4091,20 @@
       && !$("#dragGhost").classList.contains("show");
 
     Appliances[5].burnRemaining = 0;
+    Appliances[1].burnRemaining = 0;
     burnFood(Appliances[5]);
+    burnFood(Appliances[1]);
     await new Promise(resolve => setTimeout(resolve, 160));
-    result.odenNeverBurns = Appliances[5].state === "ready"
-      && payload($(`[data-id="${Appliances[5].id}"]`))?.kind === "food"
-      && $(`[data-id="${Appliances[5].id}"]`).classList.contains("keeps-warm");
-
-    Appliances[1].burnRemaining = 70;
-    renderProgress(Appliances[1]);
-    await new Promise(resolve => setTimeout(resolve, 160));
-    const burntPayload = payload($(`[data-id="${Appliances[1].id}"]`));
-    result.readyBurns = Appliances[1].state === "burnt"
-      && $(`[data-id="${Appliances[1].id}"]`).classList.contains("burnt")
-      && burntPayload?.kind === "waste";
-    const salesBeforeBurntServe = State.sales;
-    serve(Appliances[1], 0);
-    result.burntCannotServe = Appliances[1].state === "burnt" && State.sales === salesBeforeBurntServe;
+    result.allFoodKeepsWarm = [Appliances[1], Appliances[5]].every(appliance => appliance.state === "ready"
+      && effectiveBurnMs(recipeFor(appliance)) === 0
+      && payload($(`[data-id="${appliance.id}"]`))?.kind === "food"
+      && $(`[data-id="${appliance.id}"]`).classList.contains("keeps-warm"));
+    result.noBurntFoodState = !Appliances.some(appliance => appliance.state === "burnt")
+      && Object.values(RecipeCatalog).every(recipe => !recipe.burns && recipe.burnMs === 0);
     result.dragDiscardRemoved = !$("#discardBin") && !document.querySelector(".discard-bin");
     const wasteBeforeDiscard = State.waste;
     qaPointerTap($(`[data-id="${Appliances[1].id}"]`), 905);
-    result.burntTapDiscards = Appliances[1].state === "empty" && !$("#dragGhost").classList.contains("show");
+    result.readyFoodCanBeCleared = Appliances[1].state === "empty" && !$("#dragGhost").classList.contains("show");
     result.discardResetsStation = Appliances[1].state === "empty"
       && Appliances[1].recipeId === null
       && Appliances[1].ingredients.length === 0
@@ -4031,6 +4118,14 @@
       && !Guests[0].order.items.find(item => item.id === "soju")?.fulfilled
       && $(`[data-guest="0"] [data-order-item="ramen_plain"]`).classList.contains("fulfilled");
     result.serveBackPose = $("#boreumi").dataset.mode === "serving" && $("#boreumi").dataset.pose === "serve";
+    const servingBoreumi = $("#boreumi");
+    const servingLaneBox = stageBoxFor($(".characters"));
+    const servingGuestBox = stageBoxFor($(`[data-guest="0"]`));
+    const servingTargetDelta = (
+      servingLaneBox.left + parseFloat(servingBoreumi.style.left) + servingBoreumi.offsetWidth / 2
+      - servingGuestBox.left - servingGuestBox.width / 2
+    );
+    result.servingCharacterTargetsGuest = Math.abs(servingTargetDelta) <= 2;
     const serveRect = $("#boreumi").getBoundingClientRect();
     const guestRowRect = $("#guestRow").getBoundingClientRect();
     const stageScale = $("#stage").getBoundingClientRect().width / Config.stage.currentWidth;
@@ -4067,21 +4162,23 @@
     result.noDuplicateSeatedCustomers = currentCustomerIds.length === new Set(currentCustomerIds).size;
     const waitingGuestPatience = Guests[2].patience;
     const missedBeforeTimeout = State.missed;
-    const timedOutCustomerId = Guests[1].customerId;
+    const waitingCustomerId = Guests[1].customerId;
+    const missedRecordBefore = Progress.regulars[waitingCustomerId].missed;
     Guests[1].patience = 60;
     renderPatience(Guests[1]);
     await new Promise(resolve => setTimeout(resolve, 180));
-    result.unservedGuestTimesOut = Guests[1].active
-      && Guests[1].serving
-      && Guests[1].satisfaction === "angry"
-      && State.missed === missedBeforeTimeout + 1
-      && Progress.regulars[timedOutCustomerId].missed === 1
-      && $(`[data-guest="1"]`).classList.contains("angry");
-    result.guestTimersIndependent = Guests[2].active
+    result.unservedGuestWaitsForever = Guests[1].active
+      && !Guests[1].serving
+      && Guests[1].satisfaction === "waiting"
+      && Guests[1].patience === 60
+      && State.missed === missedBeforeTimeout
+      && Progress.regulars[waitingCustomerId].missed === missedRecordBefore
+      && !$(`[data-guest="1"]`).classList.contains("angry");
+    result.allHallGuestsWaitForever = Guests[2].active
       && !Guests[2].serving
-      && Guests[2].patience < waitingGuestPatience;
+      && Guests[2].patience === waitingGuestPatience;
     await new Promise(resolve => setTimeout(resolve, 760));
-    result.timedOutGuestLeavesWithoutSale = !Guests[1].active
+    result.waitingGuestStaysWithoutSale = Guests[1].active
       && State.sales === MenuCatalog.ramen_plain.price + MenuCatalog.soju.price;
 
     const stage = $("#stage").getBoundingClientRect();
@@ -4184,14 +4281,15 @@
       && Progress.gold === goldBeforeUpgrade - potUpgradeCost
       && effectiveCookMs(RecipeCatalog.ramen_plain) === Math.round(RecipeCatalog.ramen_plain.cookMs * .92)
       && $("[data-upgrade-card='pot'] .upgrade-level").textContent === "LV.2/5";
-    const grillBurnBeforeUpgrade = effectiveBurnMs(RecipeCatalog.grilled_dumpling);
+    const grillCookBeforeUpgrade = effectiveCookMs(RecipeCatalog.grilled_dumpling);
     const odenCookBeforeUpgrade = effectiveCookMs(RecipeCatalog.warm_oden);
     $("[data-station-upgrade='grill']").click();
     $("[data-station-upgrade='oden']").click();
     result.allUpgradeEffectsApply = Progress.stationLevels.grill === 2
       && Progress.stationLevels.oden === 2
-      && effectiveBurnMs(RecipeCatalog.grilled_dumpling) === grillBurnBeforeUpgrade + 2000
+      && effectiveCookMs(RecipeCatalog.grilled_dumpling) < grillCookBeforeUpgrade
       && effectiveCookMs(RecipeCatalog.warm_oden) < odenCookBeforeUpgrade
+      && effectiveBurnMs(RecipeCatalog.grilled_dumpling) === 0
       && StationUpgradeCatalog.oden.priceBonus[4] === .15;
     result.stallUpgradeRequiresStations = stallButtonInitiallyDisabled
       && stationRequirementMet(2)
@@ -4262,18 +4360,16 @@
         && $$(".guest-slot:not([hidden])").length === testCase.seats
         && Number($("#stage").dataset.layoutWidth) === testCase.width
         && Config.stage.currentWidth >= testCase.width;
-      const laneRect = $(".characters").getBoundingClientRect();
-      const stageRect = $("#stage").getBoundingClientRect();
-      const levelScale = stageRect.width / Config.stage.currentWidth;
       const visibleStation = $$(".appliance:not([hidden])").at(-1);
       const visibleGuest = $$(".guest-slot:not([hidden])").at(-1);
-      const stationRect = visibleStation?.getBoundingClientRect();
-      const guestRect = visibleGuest?.getBoundingClientRect();
-      const stationExpected = (stationRect.left + stationRect.width / 2 - laneRect.left) / levelScale - Config.boreumi.cookingWidth / 2;
-      const guestExpected = (guestRect.left + guestRect.width / 2 - laneRect.left) / levelScale - Config.boreumi.servingWidth / 2;
+      const laneBox = stageBoxFor($(".characters"));
+      const stationBox = stageBoxFor(visibleStation);
+      const guestBox = stageBoxFor(visibleGuest);
+      const stationExpected = stationBox.left + stationBox.width / 2 - laneBox.left - Config.boreumi.cookingWidth / 2;
+      const guestExpected = guestBox.left + guestBox.width / 2 - laneBox.left - Config.boreumi.servingWidth / 2;
       dynamicBoreumiTargetsPass = dynamicBoreumiTargetsPass
-        && Math.abs(laneLeftFor(stationRect, Config.boreumi.cookingWidth) - stationExpected) < .5
-        && Math.abs(laneLeftFor(guestRect, Config.boreumi.servingWidth) - guestExpected) < .5;
+        && Math.abs(laneLeftFor(visibleStation, Config.boreumi.cookingWidth) - stationExpected) < .5
+        && Math.abs(laneLeftFor(visibleGuest, Config.boreumi.servingWidth) - guestExpected) < .5;
     });
     result.seatAndCustomerMilestones = milestoneLayoutPass;
     result.dynamicBoreumiTargets = dynamicBoreumiTargetsPass;
@@ -4459,6 +4555,7 @@
   $("#closeSettlementButton").addEventListener("click", closeSettlement);
   $("#restockButton").addEventListener("click", restockIngredients);
   $("#openSupplyShopButton").addEventListener("click", openSupplyShop);
+  $("#quickSupplyButton").addEventListener("click", openSupplyShop);
   $("#closeSupplyShopButton").addEventListener("click", closeSupplyShop);
   $("#supplyShopRestockAll").addEventListener("click", restockIngredients);
   $("#recipeButton").addEventListener("click", openRecipeBook);

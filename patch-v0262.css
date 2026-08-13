@@ -1,0 +1,53 @@
+/* V0.26.2: 느긋한 영업, 영업 중 재료 상점, 완성형 조리 일러스트. */
+
+/* 손님은 주문이 모두 나올 때까지 기다리므로 시간 막대를 표시하지 않는다. */
+#stage .guest-slot .patience[hidden]{display:none!important}
+
+/* 영업 화면에서 바로 여는 재료 상점. */
+#stage .quick-supply-button{
+  position:absolute;z-index:74;top:127px;
+  right:max(612px,calc((100% - 1920px)/2 + 612px));
+  width:116px;height:54px;padding:0 10px;border:4px solid #69371f;border-radius:14px;
+  background:linear-gradient(180deg,#8ac77a,#4f9454 72%,#347143);color:#fff9dc;
+  box-shadow:inset 0 0 0 2px #eaffd0a6,0 7px 12px #1809068f;
+  display:grid;place-items:center;font-size:18px;font-weight:950;text-shadow:0 2px #24512d
+}
+#stage .quick-supply-button:active{transform:translateY(2px)}
+#stage[data-stall-level] .wallet-badge{
+  width:260px;padding-left:11px;padding-right:11px;gap:8px;font-size:17px
+}
+#stage[data-stall-level] .wallet-badge b{font-size:19px}
+#stage[data-growth-level="2"] .quick-supply-button,
+#stage[data-growth-level="3"] .quick-supply-button{
+  top:185px;right:max(410px,calc((100% - 1920px)/2 + 410px))
+}
+#stage[data-tutorial="true"] .quick-supply-button{display:none}
+
+/* 토핑 아이콘을 얹지 않고, 메뉴별 완성형 일러스트를 조리 중에도 그대로 사용한다. */
+.sprite-cooking-ramen-egg{background-image:url("assets/art-v0262/food-ramen-egg-no-scallion-v1.webp")!important}
+.sprite-cooking-ramen-scallion{background-image:url("assets/art-v025/food-ramen-scallion-v1.webp")!important}
+.sprite-cooking-ramen-kimchi{background-image:url("assets/art-v025/food-ramen-kimchi-v1.webp")!important}
+.sprite-cooking-ramen-cheese{background-image:url("assets/art-v025/food-ramen-cheese-v1.webp")!important}
+.sprite-cooking-ramen-egg-scallion{background-image:url("assets/art-v026/food-ramen-egg-scallion-v1.webp")!important}
+.sprite-cooking-ramen-kimchi-egg{background-image:url("assets/art-v026/food-ramen-kimchi-egg-v1.webp")!important}
+.sprite-cooking-ramen-cheese-egg{background-image:url("assets/art-v026/food-ramen-cheese-egg-v1.webp")!important}
+.sprite-cooking-ramen-kimchi-cheese{background-image:url("assets/art-v026/food-ramen-kimchi-cheese-v1.webp")!important}
+.sprite-cooking-ramen-egg::before,.sprite-cooking-ramen-egg::after,
+.sprite-cooking-ramen-scallion::before,.sprite-cooking-ramen-scallion::after,
+.sprite-cooking-ramen-kimchi::before,.sprite-cooking-ramen-kimchi::after,
+.sprite-cooking-ramen-cheese::before,.sprite-cooking-ramen-cheese::after,
+.sprite-cooking-ramen-egg-scallion::before,.sprite-cooking-ramen-egg-scallion::after,
+.sprite-cooking-ramen-kimchi-egg::before,.sprite-cooking-ramen-kimchi-egg::after,
+.sprite-cooking-ramen-cheese-egg::before,.sprite-cooking-ramen-cheese-egg::after,
+.sprite-cooking-ramen-kimchi-cheese::before,.sprite-cooking-ramen-kimchi-cheese::after{
+  content:none!important;display:none!important;background-image:none!important
+}
+.sprite-ramen-egg{background-image:url("assets/art-v0262/food-ramen-egg-no-scallion-v1.webp")!important}
+
+@media (max-height:520px),(max-width:980px){
+  #stage .quick-supply-button{top:188px!important}
+}
+html[data-mobile-layout="true"] #stage .quick-supply-button{
+  top:256px!important;right:194px!important
+}
+html[data-mobile-layout="true"] #stage[data-stall-level] .wallet-badge{width:245px}
