@@ -1,0 +1,90 @@
+/* V0.26.5: lower full-width guest counter, seated props, and overlap-proof settlement. */
+
+/* The complete guest group moves down together; recessed pocha props meet the painted shelf line at y=632. */
+#stage[data-stall-level] .guest-row{
+  top:172px!important
+}
+#stage .guest-counter-front{
+  z-index:18;left:0!important;right:0!important;top:442px!important;transform:none!important;
+  width:100%!important;height:190px!important;
+  background:url("assets/art-v0265/guest-counter-shelf-v1.webp") center/100% 100% no-repeat!important;
+  filter:brightness(.87) saturate(.92) drop-shadow(0 11px 13px #140604a8)!important
+}
+#stage .guest-counter-front::after{bottom:-6px;height:14px}
+#stage[data-guest-capacity] .ppomi-perch{
+  left:auto!important;right:190px!important;top:323px!important;z-index:19!important
+}
+
+/* Settlement fills the safe stage and contains every child inside an explicit grid cell. */
+#stage[data-stall-level] .management-overlay{
+  padding:26px 30px!important
+}
+#stage[data-stall-level] .management-panel{
+  position:relative!important;width:100%!important;max-width:none!important;height:100%!important;
+  min-width:0!important;min-height:0!important;padding:26px 34px 24px!important;
+  display:grid!important;grid-template-rows:112px minmax(0,1fr) 72px!important;
+  overflow:hidden!important
+}
+#stage[data-stall-level] .management-heading{
+  min-width:0!important;height:auto!important;padding:0 94px 16px 14px!important;overflow:hidden!important
+}
+#stage[data-stall-level] .management-heading>div{flex:0 0 330px!important;min-width:0!important}
+#stage[data-stall-level] .management-heading #settlementResult{
+  flex:0 1 380px!important;width:auto!important;max-width:380px!important;min-width:260px!important;
+  overflow:hidden!important;text-overflow:ellipsis!important
+}
+#stage[data-stall-level] .management-body{
+  width:100%!important;min-width:0!important;min-height:0!important;
+  display:grid!important;grid-template-columns:minmax(0,38%) minmax(0,62%)!important;
+  gap:24px!important;padding:16px 6px!important;overflow:hidden!important
+}
+#stage[data-stall-level] .management-body>*{
+  position:relative!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:0!important;
+  margin:0!important;box-sizing:border-box!important;overflow:hidden!important
+}
+#stage[data-stall-level] .settlement-column{
+  display:grid!important;grid-template-rows:auto auto 58px minmax(0,1fr)!important;
+  align-content:start!important;gap:10px!important;padding-right:0!important
+}
+#stage[data-stall-level] .summary-grid{
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important
+}
+#stage[data-stall-level] .summary-grid article{
+  width:auto!important;max-width:100%!important;min-width:0!important;overflow:hidden!important
+}
+#stage[data-stall-level] .summary-grid small,
+#stage[data-stall-level] .summary-grid b{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+#stage[data-stall-level] .reward-board,
+#stage[data-stall-level] .growth-board,
+#stage[data-stall-level] .story-recap{width:100%!important;max-width:100%!important;min-width:0!important}
+#stage[data-stall-level] .story-recap{overflow:hidden!important}
+#stage[data-stall-level] .story-recap strong{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#stage[data-stall-level] .upgrade-column{
+  padding-left:24px!important;border-left:3px solid #99502b4a!important;
+  display:grid!important;grid-template-rows:76px 72px minmax(0,1fr)!important;gap:9px!important
+}
+#stage[data-stall-level] .shop-heading{
+  width:100%!important;max-width:100%!important;min-width:0!important;height:76px!important;
+  padding:0!important;margin:0!important;overflow:hidden!important
+}
+#stage[data-stall-level] .shop-heading>div{min-width:0!important;overflow:hidden!important}
+#stage[data-stall-level] .shop-heading h3{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#stage[data-stall-level] .shop-heading p{flex:none!important;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+#stage[data-stall-level] .supply-shop{
+  width:100%!important;max-width:100%!important;min-width:0!important;height:72px!important;
+  margin:0!important;overflow:hidden!important
+}
+#stage[data-stall-level] .supply-shop>div{min-width:0!important;overflow:hidden!important}
+#stage[data-stall-level] .supply-shop strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#stage[data-stall-level] .supply-shop>span{flex:none!important}
+#stage[data-stall-level] .upgrade-list{
+  width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-template-rows:repeat(2,minmax(0,1fr))!important;gap:9px!important;overflow:hidden!important
+}
+#stage[data-stall-level] .upgrade-card{width:auto!important;max-width:100%!important;min-width:0!important;overflow:hidden!important}
+#stage[data-stall-level] .management-actions{
+  position:relative!important;width:100%!important;min-width:0!important;height:72px!important;
+  margin:0!important;padding:9px 8px 0!important;overflow:hidden!important
+}

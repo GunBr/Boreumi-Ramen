@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  document.title = "보름이의 라면포차 V0.26.4";
+  document.title = "보름이의 라면포차 V0.26.5";
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
@@ -2325,6 +2325,10 @@
     renderAppliance(appliance);
   }
 
+  function resetDailyOden() {
+    Appliances.filter(appliance => appliance.type === "oden").forEach(resetAppliance);
+  }
+
   function takeApplianceServing(appliance) {
     if (appliance?.type !== "oden") {
       resetAppliance(appliance);
@@ -2793,6 +2797,7 @@
     if (State.running) return;
     $("#settlementOverlay").classList.add("hidden");
     State.lastSettlement = null;
+    resetDailyOden();
     $("#startButton").disabled = false;
     $("#startButton").setAttribute("aria-label", "영업 시작");
     $("#startButton strong").textContent = "영업 시작";
@@ -3314,7 +3319,7 @@
     return JSON.stringify({
       format: "boreumi-ramen-save",
       exportVersion: 1,
-      gameVersion: "0.26.4",
+      gameVersion: "0.26.5",
       exportedAt: new Date().toISOString(),
       progress: Progress
     }, null, 2);
@@ -3523,8 +3528,9 @@
     let patchV0262CssSource = "";
     let patchV0263CssSource = "";
     let patchV0264CssSource = "";
+    let patchV0265CssSource = "";
     try {
-      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse, patchResponse, patchV0262Response, patchV0263Response, patchV0264Response] = await Promise.all([
+      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse, patchResponse, patchV0262Response, patchV0263Response, patchV0264Response, patchV0265Response] = await Promise.all([
         fetch("app.webmanifest", { cache: "no-store" }),
         fetch("pwa-v024.css", { cache: "no-store" }),
         fetch("experience-v024.css", { cache: "no-store" }),
@@ -3535,7 +3541,8 @@
         fetch("patch-v0261.css", { cache: "no-store" }),
         fetch("patch-v0262.css", { cache: "no-store" }),
         fetch("patch-v0263.css", { cache: "no-store" }),
-        fetch("patch-v0264.css", { cache: "no-store" })
+        fetch("patch-v0264.css", { cache: "no-store" }),
+        fetch("patch-v0265.css", { cache: "no-store" })
       ]);
       pwaManifest = await manifestResponse.json();
       pwaCssSource = await cssResponse.text();
@@ -3548,6 +3555,7 @@
       patchV0262CssSource = await patchV0262Response.text();
       patchV0263CssSource = await patchV0263Response.text();
       patchV0264CssSource = await patchV0264Response.text();
+      patchV0265CssSource = await patchV0265Response.text();
     } catch {
       // Individual checks below report the unavailable PWA resource.
     }
@@ -3579,7 +3587,7 @@
       && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
     result.parallelCriticalLoading = bootSource.includes("preloadCriticalAssets")
       && bootSource.includes("Promise.all")
-      && bootSource.includes('version: "0.26.4"');
+      && bootSource.includes('version: "0.26.5"');
     result.mobileSafeCenteredLayout = patchCssSource.includes('data-mobile-layout="true"')
       && patchCssSource.includes("max(42px,var(--pwa-safe-left))")
       && patchCssSource.includes('data-force-landscape="true"][data-mobile-layout="true"]')
@@ -3620,7 +3628,7 @@
       && recoveryProbe.recovered
       && recoveryProbe.progress.day === 9
       && exportProbe.format === "boreumi-ramen-save"
-      && exportProbe.gameVersion === "0.26.4";
+      && exportProbe.gameVersion === "0.26.5";
     result.customerStoryCatalogComplete = CustomerCatalog.every(customer => {
       const profile = CustomerStoryCatalog[customer.id];
       return profile?.chapters?.length === 4
@@ -3659,9 +3667,9 @@
       && patchV0263CssSource.includes("pointer-events:auto")
       && patchV0263CssSource.includes("--whisper-y");
     result.customerCounterForeground = !!$(".guest-counter-front")
-      && getComputedStyle($(".guest-counter-front")).backgroundImage.includes("guest-counter-front-v1.webp")
-      && patchV0264CssSource.includes("Boreumi stays in front")
-      && serviceWorkerSource.includes("guest-counter-front-v1.webp");
+      && getComputedStyle($(".guest-counter-front")).backgroundImage.includes("guest-counter-shelf-v1.webp")
+      && patchV0265CssSource.includes("complete guest group moves down together")
+      && serviceWorkerSource.includes("guest-counter-shelf-v1.webp");
     result.journalTouchLayoutReady = storyCssSource.includes("touch-action:pan-y")
       && storyCssSource.includes(".journal-button")
       && serviceWorkerSource.includes("story-v024.css");
@@ -3801,18 +3809,25 @@
       && ppomiRect.right <= guestCounterRect.right + 2
       && ppomiRect.bottom >= guestCounterRect.top
       && ppomiRect.bottom <= guestCounterRect.top + ppomiRect.height / 2;
-    result.guestLowerBodiesScreened = guestCounterStyle.backgroundImage.includes("guest-counter-front-v1.webp")
+    result.guestLowerBodiesScreened = guestCounterStyle.backgroundImage.includes("guest-counter-shelf-v1.webp")
       && parseFloat(guestCounterStyle.height) >= 180
       && guestCounterRect.width >= guestRowRectBeforeStart.width
       && parseInt(guestCounterStyle.zIndex, 10) > parseInt(getComputedStyle($("#guestRow")).zIndex, 10)
       && parseInt(getComputedStyle($(".characters")).zIndex, 10) > parseInt(guestCounterStyle.zIndex, 10);
+    result.guestCounterReachesBothEdges = Math.abs(guestCounterRect.left - guestStageRect.left) <= 2
+      && Math.abs(guestCounterRect.right - guestStageRect.right) <= 2
+      && Math.abs(parseFloat(guestCounterStyle.top) + parseFloat(guestCounterStyle.height) - 632) <= .5;
+    result.guestGroupLoweredTogether = parseFloat(getComputedStyle($("#guestRow")).top) === 172
+      && parseFloat(getComputedStyle($("#ppomiPerch")).top) === 323
+      && parseFloat(guestCounterStyle.top) === 442;
     result.guestSidePropsPreserved = guestCounterRect.left <= guestRowRectBeforeStart.left
       && guestCounterRect.right >= guestRowRectBeforeStart.right
       && guestCounterRect.left >= guestStageRect.left
       && guestCounterRect.right <= guestStageRect.right;
-    result.integratedWoodApronArt = guestCounterStyle.backgroundImage.includes("guest-counter-front-v1.webp")
+    result.integratedWoodApronArt = guestCounterStyle.backgroundImage.includes("guest-counter-shelf-v1.webp")
       && guestCounterStyle.backgroundSize === "100% 100%"
-      && guestCounterStyle.pointerEvents === "none";
+      && guestCounterStyle.pointerEvents === "none"
+      && patchV0265CssSource.includes("recessed");
     result.naturalWoodApronEnds = guestCounterStyle.filter.includes("brightness")
       && guestCounterStyle.filter.includes("drop-shadow");
     result.pochaHudArt = getComputedStyle($(".hud")).backgroundImage.includes("hud-panel-v1.webp")
@@ -4219,6 +4234,13 @@
       && $(`[data-id="${appliance.id}"]`).classList.contains("keeps-warm"));
     result.noBurntFoodState = !Appliances.some(appliance => appliance.state === "burnt")
       && Object.values(RecipeCatalog).every(recipe => !recipe.burns && recipe.burnMs === 0);
+    resetDailyOden();
+    result.odenResetsForNewDay = Appliances.filter(appliance => appliance.type === "oden").every(appliance => appliance.state === "empty"
+      && appliance.recipeId === null
+      && appliance.ingredients.length === 0
+      && appliance.servingsShown === 0
+      && $(`[data-id="${appliance.id}"]`).dataset.state === "empty")
+      && nextDay.toString().includes("resetDailyOden");
     result.dragDiscardRemoved = !$("#discardBin") && !document.querySelector(".discard-bin");
     const wasteBeforeDiscard = State.waste;
     qaPointerTap($(`[data-id="${Appliances[1].id}"]`), 905);
@@ -4428,13 +4450,27 @@
     const level2HeadingRect = $(".management-heading").getBoundingClientRect();
     const level2BodyRect = $(".management-body").getBoundingClientRect();
     const level2FooterRect = $(".management-actions").getBoundingClientRect();
+    const settlementColumnRect = $(".settlement-column").getBoundingClientRect();
+    const upgradeColumnRect = $(".upgrade-column").getBoundingClientRect();
+    const summaryGridRect = $(".summary-grid").getBoundingClientRect();
+    const shopHeadingRect = $(".shop-heading").getBoundingClientRect();
+    const supplyShopRect = $(".supply-shop").getBoundingClientRect();
+    const upgradeListRect = $(".upgrade-list").getBoundingClientRect();
+    const resultRect = $("#settlementResult").getBoundingClientRect();
+    const closeRect = $("#closeSettlementButton").getBoundingClientRect();
     result.settlementFitsEveryStallLevel = level2PanelRect.left >= stage.left
       && level2PanelRect.right <= stage.right
       && level2PanelRect.top >= stage.top
       && level2PanelRect.bottom <= stage.bottom
       && level2HeadingRect.bottom <= level2BodyRect.top + 2
       && level2BodyRect.bottom <= level2FooterRect.top + 2
-      && patchV0264CssSource.includes("#stage[data-stall-level] .management-panel");
+      && patchV0265CssSource.includes("overlap-proof settlement");
+    result.settlementContentNeverOverlaps = settlementColumnRect.right <= upgradeColumnRect.left + 2
+      && summaryGridRect.right <= settlementColumnRect.right + 2
+      && shopHeadingRect.bottom <= supplyShopRect.top + 2
+      && supplyShopRect.bottom <= upgradeListRect.top + 2
+      && upgradeListRect.bottom <= level2BodyRect.bottom + 2
+      && resultRect.right <= closeRect.left + 2;
     const savedProgress = JSON.parse(localStorage.getItem(SaveKey) || "null");
     result.progressSavedLocally = savedProgress?.day === 2
       && savedProgress?.gold === Progress.gold
