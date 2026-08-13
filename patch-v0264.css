@@ -1,0 +1,127 @@
+/* V0.26.4: unified customer counter, vertical utilities, aligned tools and level-safe settlement. */
+
+/* The customer portraits sit behind one solid counter; Boreumi stays in front at z-index 31. */
+#stage .service-table{display:none!important}
+#stage .characters::before{display:none!important}
+#stage .guest-counter-front{
+  position:absolute;z-index:18;left:50%;top:382px;transform:translateX(-50%);
+  width:min(1620px,calc(100% - 300px));height:190px;display:block;pointer-events:none;
+  background:url("assets/art-v0264/guest-counter-front-v1.webp") center/100% 100% no-repeat;
+  filter:brightness(.84) saturate(.92) drop-shadow(0 13px 15px #140604a8);
+}
+#stage .guest-counter-front::after{
+  content:"";position:absolute;left:3%;right:3%;bottom:-8px;height:18px;border-radius:50%;
+  background:#12060482;filter:blur(8px)
+}
+
+/* Grill and oden base lines now match the pots. */
+#stage[data-stall-level] .right-zone .appliance.grill .kitchen-sprite,
+#stage[data-stall-level] .right-zone .appliance.oden .kitchen-sprite{
+  transform:translateY(30px) scale(1.04)!important
+}
+
+/* One quiet vertical utility rail at the upper-right edge of the HUD. */
+html[data-mobile-layout] #stage[data-guest-capacity] .quick-supply-button,
+html[data-mobile-layout] #stage[data-guest-capacity] .recipe-button,
+html[data-mobile-layout] #stage[data-guest-capacity] .journal-button,
+html[data-mobile-layout] #stage[data-guest-capacity] .help-button,
+html[data-mobile-layout] #stage[data-guest-capacity] .sound-button{
+  left:auto!important;right:24px!important;width:142px!important;height:50px!important;
+  padding:0 10px!important;display:flex!important;align-items:center;justify-content:center;
+  border-radius:14px!important;font-size:17px!important;line-height:1!important
+}
+html[data-mobile-layout] #stage[data-guest-capacity] .quick-supply-button{top:190px!important}
+html[data-mobile-layout] #stage[data-guest-capacity] .recipe-button{top:248px!important}
+html[data-mobile-layout] #stage[data-guest-capacity] .journal-button{top:306px!important}
+html[data-mobile-layout] #stage[data-guest-capacity] .help-button{top:364px!important}
+html[data-mobile-layout] #stage[data-guest-capacity] .sound-button{top:422px!important}
+#stage .sound-button span{font-size:17px!important;line-height:1;white-space:nowrap}
+#stage[data-guest-capacity] .ppomi-perch{left:auto!important;right:190px!important}
+
+/* Hall and takeout guests both wait without a countdown. */
+#stage .takeout-patience[hidden]{display:none!important}
+
+/* Settlement uses the same complete layout at stall LV.1 through LV.5. */
+#stage[data-stall-level] .management-overlay{
+  position:absolute;z-index:320;inset:0;display:grid;place-items:center;padding:50px 70px;
+  background:radial-gradient(circle at 50% 42%,#3f1e15b8,#100706eb 72%);backdrop-filter:blur(4px)
+}
+#stage[data-stall-level] .management-overlay.hidden{display:none}
+#stage[data-stall-level] .management-panel{
+  width:min(1620px,calc(100% - 100px));height:920px;padding:28px 38px 26px;
+  display:grid;grid-template-rows:100px minmax(0,1fr) 72px;color:#542719;
+  border:10px solid #5f2b1b;border-radius:30px;
+  background:radial-gradient(circle at 18% 12%,#fff5d9a8,transparent 34%),radial-gradient(circle at 82% 86%,#b7713330,transparent 38%),linear-gradient(180deg,#f8e8c2,#e7c287 58%,#d5a567);
+  box-shadow:0 26px 70px #070302e6,inset 0 0 0 4px #c985428f,inset 0 0 0 8px #ffeab68f,inset 0 -24px 38px #8d4b2630;text-align:left;overflow:hidden
+}
+#stage[data-stall-level] .management-heading{
+  position:relative;display:flex;align-items:center;gap:22px;padding:0 94px 16px 16px;
+  border-bottom:3px solid #99502b55
+}
+#stage[data-stall-level] .management-heading>div{min-width:270px;margin-right:auto}
+#stage[data-stall-level] .management-heading small,
+#stage[data-stall-level] .shop-heading small{display:block;color:#9a5630;font-size:16px;font-weight:900}
+#stage[data-stall-level] .management-heading h2{margin:3px 0 0;color:#5d2419;font-size:39px;line-height:1}
+#stage[data-stall-level] .management-heading #settlementResult{
+  flex:0 0 350px;max-width:350px;margin:0!important;padding:10px 20px!important;
+  border:4px solid #8d4528;border-radius:999px;background:linear-gradient(#fff0b9,#e9ba62);
+  box-shadow:0 6px 12px #5a251858;color:#a32d22;font-size:22px!important;font-weight:1000;text-align:center;white-space:nowrap
+}
+#stage[data-stall-level] .settlement-close{right:8px!important;top:9px!important;width:58px;height:58px}
+#stage[data-stall-level] .management-body{
+  min-height:0;display:grid;grid-template-columns:555px minmax(0,1fr);gap:30px;padding:16px 8px;overflow:hidden
+}
+#stage[data-stall-level] .settlement-column{min-height:0;display:grid;grid-template-rows:auto auto 58px auto;align-content:start;gap:10px}
+#stage[data-stall-level] .summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#stage[data-stall-level] .summary-grid article{
+  min-height:66px;padding:9px 13px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:2px solid #a66b4175;border-radius:14px;background:#fff4d7b8;box-shadow:inset 0 -5px 9px #a8612720
+}
+#stage[data-stall-level] .summary-grid small{color:#8d5938;font-size:16px;font-weight:900;white-space:nowrap}
+#stage[data-stall-level] .summary-grid b{color:#64281b;font-size:23px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#stage[data-stall-level] .reward-board{
+  padding:13px 20px 11px;border:3px solid #8e4a2c;border-radius:17px;
+  background:linear-gradient(150deg,#6b321f,#3c1b14);color:#ffe8b7;
+  box-shadow:inset 0 0 0 2px #eab96744,0 7px 12px #4a1a1150
+}
+#stage[data-stall-level] .reward-board h3{margin:0 0 6px;color:#ffe19a;font-size:20px}
+#stage[data-stall-level] .reward-board p,
+#stage[data-stall-level] .reward-board strong{margin:3px 0;display:flex;justify-content:space-between;align-items:center;font-size:16px}
+#stage[data-stall-level] .reward-board p b{color:#fff4cb;font-variant-numeric:tabular-nums}
+#stage[data-stall-level] .reward-board strong{margin-top:7px;padding-top:7px;border-top:2px solid #f1c36f55;color:#ffd970;font-size:19px}
+#stage[data-stall-level] .growth-board{
+  display:grid;grid-template-columns:108px 1fr 165px;align-items:center;gap:10px;padding:7px 12px;
+  border-radius:13px;background:#ad6d3b35;font-weight:900
+}
+#stage[data-stall-level] .growth-board i{height:13px;border:2px solid #70402a;border-radius:10px;background:#6c351d55;overflow:hidden}
+#stage[data-stall-level] .growth-board em{display:block;width:0;height:100%;background:linear-gradient(90deg,#e4903f,#ffd570)}
+#stage[data-stall-level] .growth-board small{text-align:right;color:#865033;font-size:14px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stage[data-stall-level] .upgrade-column{min-width:0;min-height:0;padding-left:28px;border-left:3px solid #99502b4a;overflow:hidden}
+#stage[data-stall-level] .shop-heading{height:76px!important;display:flex;align-items:flex-start!important;justify-content:space-between;gap:18px;padding-top:0!important}
+#stage[data-stall-level] .shop-heading h3{margin:2px 0 0;color:#5c261a;font-size:27px!important;line-height:1.08}
+#stage[data-stall-level] .shop-heading p{margin:3px 0 0;padding:7px 13px!important;border-radius:999px;background:#6b321f;color:#ffe4a7;font-size:18px!important;font-weight:900;white-space:nowrap}
+#stage[data-stall-level] .shop-heading p b{color:#ffdb6e;font-variant-numeric:tabular-nums}
+#stage[data-stall-level] .supply-shop{height:72px;margin:0 0 9px!important;padding:8px 11px 8px 16px}
+#stage[data-stall-level] .upgrade-list{height:calc(100% - 157px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:9px}
+#stage[data-stall-level] .upgrade-card{
+  min-width:0;min-height:0;padding:11px 14px 10px;display:grid;grid-template-rows:auto auto 1fr auto;
+  border:3px solid #a15e3688;border-radius:18px;background:linear-gradient(160deg,#fff3d5,#eac78e);
+  box-shadow:inset 0 -8px 14px #9f5a2820,0 6px 10px #60291b2f
+}
+#stage[data-stall-level] .upgrade-card header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#stage[data-stall-level] .upgrade-card h4{margin:0;color:#622719;font-size:21px}
+#stage[data-stall-level] .upgrade-level{padding:3px 8px;border-radius:999px;background:#8a4a2b;color:#ffe9bb;font-size:13px;font-weight:900;white-space:nowrap}
+#stage[data-stall-level] .upgrade-card>small{margin-top:3px;color:#9a5c3a;font-size:14px;font-weight:900;white-space:nowrap}
+#stage[data-stall-level] .upgrade-card p{margin:5px 0;color:#6e402b;font-size:14px;line-height:1.22;font-weight:750;overflow:hidden}
+#stage[data-stall-level] .upgrade-card button,
+#stage[data-stall-level] .management-actions button{
+  border:3px solid #6d301e;border-radius:12px;background:linear-gradient(#efb35d,#c86e32);color:#5a2117;
+  box-shadow:inset 0 2px #ffe6a9,0 4px 7px #4d1b124d;font-weight:1000;cursor:pointer
+}
+#stage[data-stall-level] .upgrade-card button{height:42px;font-size:16px}
+#stage[data-stall-level] .upgrade-card button:disabled{cursor:default;filter:grayscale(.55);opacity:.58}
+#stage[data-stall-level] .management-actions{display:flex;align-items:center;justify-content:space-between;padding:9px 10px 0;border-top:3px solid #99502b55}
+#stage[data-stall-level] .management-actions button{height:50px;padding:0 22px;font-size:17px}
+#stage[data-stall-level] #resetProgressButton{background:linear-gradient(#ead6b7,#bf9270);color:#623b2c}
+#stage[data-stall-level] #nextDayButton{min-width:250px;background:linear-gradient(#ffd06b,#df8538);font-size:20px}
+

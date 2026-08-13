@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  document.title = "보름이의 라면포차 V0.26.3";
+  document.title = "보름이의 라면포차 V0.26.4";
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
@@ -45,6 +45,7 @@
     cooking: { tickMs: 50, burns: false, defaultBurnMs: 0 },
     guests: { tickMs: 100, waitsForever: true, patienceMs: 40000, wrongPenaltyMs: 0 },
     takeout: {
+      waitsForever: true,
       patienceMs: 36000,
       missedPenalty: 500,
       firstArrivals: [9000, 25000, 41000],
@@ -601,6 +602,30 @@
     return items[Math.floor(randomUnit() * items.length)];
   }
 
+  function shuffled(items) {
+    const result = [...items];
+    for (let index = result.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(randomUnit() * (index + 1));
+      [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+    }
+    return result;
+  }
+
+  function nextRandomFoodOrder(level = effectiveStallLevel()) {
+    const pool = unlockedFoodOrderPool(level);
+    const key = pool.join("|");
+    if (State.foodOrderPoolKey !== key || State.foodOrderBag.length === 0) {
+      State.foodOrderPoolKey = key;
+      State.foodOrderBag = shuffled(pool);
+      if (State.foodOrderBag.length > 1 && State.foodOrderBag.at(-1) === State.lastFoodOrder) {
+        [State.foodOrderBag[0], State.foodOrderBag[State.foodOrderBag.length - 1]] = [State.foodOrderBag.at(-1), State.foodOrderBag[0]];
+      }
+    }
+    const foodId = State.foodOrderBag.pop();
+    State.lastFoodOrder = foodId;
+    return foodId;
+  }
+
   function effectiveStallLevel() {
     return PreviewLevel || Progress.stallLevel;
   }
@@ -865,6 +890,10 @@
     journalCustomerId: null,
     storyDialogueQueue: [],
     storyDialogueTimer: null,
+    dayDialogueCustomers: new Set(),
+    foodOrderBag: [],
+    foodOrderPoolKey: "",
+    lastFoodOrder: null,
     time: Config.daySeconds,
     sales: 0,
     guests: 0,
@@ -977,7 +1006,7 @@
       if (!button) return;
       button.setAttribute("aria-pressed", String(this.enabled));
       button.setAttribute("aria-label", this.enabled ? "소리 끄기" : "소리 켜기");
-      button.querySelector("span").textContent = this.enabled ? "♪" : "♩";
+      button.querySelector("span").textContent = this.enabled ? "음소거" : "소리 켜기";
       $("#stage").dataset.audio = this.enabled ? "on" : "off";
     },
     setEnabled(enabled) {
@@ -1043,11 +1072,11 @@
       welcome: Object.freeze({ order: 1, eyebrow: "연습 포차 · 1/7", title: "보름이의 연습 포차에 어서 오세요", text: "실제 영업과 분리된 연습이에요. DAY 시간과 손님 인내심은 줄어들지 않아요." }),
       waitGuest: Object.freeze({ order: 2, eyebrow: "주문 확인 · 2/7", title: "연습 손님의 주문을 확인해요", text: "첫 손님은 기본 라면과 소주를 주문했어요. 이 주문은 튜토리얼 동안 바뀌지 않아요." }),
       addNoodle: Object.freeze({ order: 3, eyebrow: "라면 조리 · 3/7", title: "면을 냄비에 넣어주세요", text: "하단의 면 일러스트를 빈 냄비까지 끌어서 놓으면 조리가 즉시 시작돼요." }),
-      waitCooking: Object.freeze({ order: 4, eyebrow: "조리 기다리기 · 4/7", title: "진행 막대를 확인하세요", text: "보름이가 조리하는 동안 다른 주문을 준비할 수 있어요. 완성 후에는 타기 전에 서빙해요." }),
+      waitCooking: Object.freeze({ order: 4, eyebrow: "조리 기다리기 · 4/7", title: "진행 막대를 확인하세요", text: "보름이가 조리하는 동안 다른 주문을 준비할 수 있어요. 완성된 음식은 탈 걱정 없이 계속 따뜻하게 보관돼요." }),
       serveFood: Object.freeze({ order: 5, eyebrow: "음식 서빙 · 5/7", title: "완성된 라면을 손님에게", text: "완성 라면을 주문한 손님 캐릭터나 말풍선까지 끌어서 전달해 주세요." }),
       serveDrink: Object.freeze({ order: 6, eyebrow: "주류 서빙 · 6/7", title: "남은 주류도 전달해요", text: "하단 주류 진열대에서 주문한 술을 같은 손님에게 끌어다 놓으면 주문이 완성돼요." }),
-      stockInfo: Object.freeze({ order: 7, eyebrow: "재고와 구매 · 7/7", title: "재료 수량도 챙겨주세요", text: "하단 숫자가 남은 재고예요. 실제 영업이 끝나면 정산 화면의 재료 상점에서 1개·5개·가득 구매할 수 있어요." }),
-      done: Object.freeze({ order: 8, eyebrow: "첫 주문 완료!", title: "이제 포차를 맡겨도 되겠어요", text: "완성·탄 음식은 짧게 누르면 즉시 폐기돼요. 메뉴 수첩에서 조합과 해금 조건도 확인할 수 있어요." })
+      stockInfo: Object.freeze({ order: 7, eyebrow: "재고와 구매 · 7/7", title: "재료 수량도 챙겨주세요", text: "하단 숫자가 남은 재고예요. 실제 영업 중에도 재료 상점을 열어 1개·5개·가득 구매할 수 있어요." }),
+      done: Object.freeze({ order: 8, eyebrow: "첫 주문 완료!", title: "이제 포차를 맡겨도 되겠어요", text: "완성된 음식은 짧게 누르면 정리할 수 있어요. 메뉴 수첩에서 조합과 해금 조건도 확인할 수 있어요." })
     }),
     clearFocus() {
       $$(".tutorial-focus").forEach(element => element.classList.remove("tutorial-focus"));
@@ -1560,7 +1589,7 @@
   }
 
   function assignOrder(guest) {
-    guest.order = createOrder(randomChoice(unlockedFoodOrderPool()), randomChoice(drinkOrderPool()));
+    guest.order = createOrder(nextRandomFoodOrder(), randomChoice(drinkOrderPool()));
   }
 
   function chooseCustomer() {
@@ -1649,6 +1678,8 @@
 
   function queueGuestDialogue(customerId, text, { kind = "arrival", meta = "", title = "" } = {}) {
     if (State.tutorialMode || !CustomerById[customerId] || !text) return;
+    if (State.dayDialogueCustomers.has(customerId)) return;
+    State.dayDialogueCustomers.add(customerId);
     State.storyDialogueQueue.push({ customerId, text, kind, meta, title });
     if (!State.storyDialogueTimer && $("#storyWhisper").hidden) showNextGuestDialogue();
   }
@@ -1778,7 +1809,7 @@
 
   function createTakeoutItems() {
     const level = effectiveStallLevel();
-    const ids = [randomChoice(unlockedFoodOrderPool(level))];
+    const ids = [nextRandomFoodOrder(level)];
     if (level >= 4 || (level >= 3 && randomUnit() < .5)) ids.push(randomChoice(drinkOrderPool()));
     return ids.map(id => ({ id, fulfilled: false }));
   }
@@ -1806,10 +1837,14 @@
       const itemHtml = `<span class="takeout-item${item.fulfilled ? " fulfilled" : ""}" data-takeout-item="${item.id}" aria-label="${menuItem.label}${item.fulfilled ? " 포장 완료" : " 대기"}"><img src="${menuItem.art}" alt="${menuItem.label}"></span>`;
       return index < order.items.length - 1 ? `${itemHtml}<b class="takeout-plus" aria-hidden="true">+</b>` : itemHtml;
     }).join("") : `<small>${order.missed ? "주문 취소" : "주문 대기"}</small>`;
+    const patience = element.querySelector(".takeout-patience");
     const ratio = order.maxPatience ? Math.max(0, Math.min(1, order.patience / order.maxPatience)) : 0;
-    element.querySelector(".takeout-patience i").style.width = `${ratio * 100}%`;
-    element.classList.toggle("low-patience", order.active && ratio <= .3);
-    element.setAttribute("aria-label", order.active ? `포장 주문 ${order.serial} · 남은 시간 ${Math.round(ratio * 100)}%` : "빈 포장 주문 칸");
+    patience.hidden = Config.takeout.waitsForever;
+    patience.querySelector("i").style.width = Config.takeout.waitsForever ? "100%" : `${ratio * 100}%`;
+    element.classList.toggle("low-patience", !Config.takeout.waitsForever && order.active && ratio <= .3);
+    element.setAttribute("aria-label", order.active
+      ? Config.takeout.waitsForever ? `포장 주문 ${order.serial} · 시간제한 없이 대기` : `포장 주문 ${order.serial} · 남은 시간 ${Math.round(ratio * 100)}%`
+      : "빈 포장 주문 칸");
     renderTakeoutQueue();
   }
 
@@ -1933,8 +1968,10 @@
     order.packed = true;
     order.active = false;
     State.sales += price;
+    Progress.gold += price;
     State.served += 1;
     State.takeoutServed += 1;
+    saveProgress();
     renderTakeoutOrder(order);
     renderHud();
     Sound.sfx("serve");
@@ -2050,12 +2087,14 @@
         else renderPatience(guest);
       });
     }
-    TakeoutOrders.forEach(order => {
-      if (!order.active || order.packed) return;
-      order.patience = Math.max(0, order.patience - elapsed);
-      if (order.patience <= 0) expireTakeout(order);
-      else renderTakeoutOrder(order);
-    });
+    if (!Config.takeout.waitsForever) {
+      TakeoutOrders.forEach(order => {
+        if (!order.active || order.packed) return;
+        order.patience = Math.max(0, order.patience - elapsed);
+        if (order.patience <= 0) expireTakeout(order);
+        else renderTakeoutOrder(order);
+      });
+    }
   }
 
   function resetGuests() {
@@ -2291,7 +2330,18 @@
       resetAppliance(appliance);
       return;
     }
-    appliance.servingsShown = Math.max(1, (appliance.servingsShown || 3) - 1);
+    const servings = appliance.servingsShown || 3;
+    if (servings <= 1) {
+      if (!consumeIngredient("oden")) {
+        resetAppliance(appliance);
+        toast("오뎅 재료가 없어 오뎅바가 비었어요. 재료 상점에서 보충해 주세요.");
+        return;
+      }
+      appliance.servingsShown = 3;
+      toast("오뎅바에 3개를 다시 채웠어요. 오뎅 재료 1개 사용");
+    } else {
+      appliance.servingsShown = servings - 1;
+    }
     appliance.state = "ready";
     appliance.cookRemaining = 0;
     appliance.burnRemaining = 0;
@@ -2373,9 +2423,11 @@
     guest.serving = true;
     guest.satisfaction = satisfactionFor(guest);
     State.sales += price;
+    Progress.gold += price;
     State.served += 1;
     State.ratings[guest.satisfaction] += 1;
     const storyMoment = recordCustomerStory(guest.customerId, guest);
+    saveProgress();
     renderGuest(guest);
     renderHud();
     say("맛있게 드세요!");
@@ -2826,7 +2878,7 @@
       levelUp: false,
       storyMoments: State.dayStories.length
     };
-    Progress.gold += totalReward;
+    Progress.gold = Math.max(0, Progress.gold + serviceBonus - State.takeoutPenalty);
     Progress.day += 1;
     Progress.stats.completedDays += 1;
     Progress.stats.successfulDays += 1;
@@ -2925,6 +2977,10 @@
     State.takeoutSerial = 0;
     State.ratings = { happy: 0, okay: 0, tired: 0 };
     State.dayStories = [];
+    State.dayDialogueCustomers.clear();
+    State.foodOrderBag = [];
+    State.foodOrderPoolKey = "";
+    State.lastFoodOrder = null;
     clearGuestDialogues();
     State.cookingClock = performance.now();
     State.guestClock = performance.now();
@@ -3258,7 +3314,7 @@
     return JSON.stringify({
       format: "boreumi-ramen-save",
       exportVersion: 1,
-      gameVersion: "0.26.3",
+      gameVersion: "0.26.4",
       exportedAt: new Date().toISOString(),
       progress: Progress
     }, null, 2);
@@ -3466,8 +3522,9 @@
     let patchCssSource = "";
     let patchV0262CssSource = "";
     let patchV0263CssSource = "";
+    let patchV0264CssSource = "";
     try {
-      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse, patchResponse, patchV0262Response, patchV0263Response] = await Promise.all([
+      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse, patchResponse, patchV0262Response, patchV0263Response, patchV0264Response] = await Promise.all([
         fetch("app.webmanifest", { cache: "no-store" }),
         fetch("pwa-v024.css", { cache: "no-store" }),
         fetch("experience-v024.css", { cache: "no-store" }),
@@ -3477,7 +3534,8 @@
         fetch("service-worker.js", { cache: "no-store" }),
         fetch("patch-v0261.css", { cache: "no-store" }),
         fetch("patch-v0262.css", { cache: "no-store" }),
-        fetch("patch-v0263.css", { cache: "no-store" })
+        fetch("patch-v0263.css", { cache: "no-store" }),
+        fetch("patch-v0264.css", { cache: "no-store" })
       ]);
       pwaManifest = await manifestResponse.json();
       pwaCssSource = await cssResponse.text();
@@ -3489,6 +3547,7 @@
       patchCssSource = await patchResponse.text();
       patchV0262CssSource = await patchV0262Response.text();
       patchV0263CssSource = await patchV0263Response.text();
+      patchV0264CssSource = await patchV0264Response.text();
     } catch {
       // Individual checks below report the unavailable PWA resource.
     }
@@ -3520,7 +3579,7 @@
       && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
     result.parallelCriticalLoading = bootSource.includes("preloadCriticalAssets")
       && bootSource.includes("Promise.all")
-      && bootSource.includes('version: "0.26.3"');
+      && bootSource.includes('version: "0.26.4"');
     result.mobileSafeCenteredLayout = patchCssSource.includes('data-mobile-layout="true"')
       && patchCssSource.includes("max(42px,var(--pwa-safe-left))")
       && patchCssSource.includes('data-force-landscape="true"][data-mobile-layout="true"]')
@@ -3561,7 +3620,7 @@
       && recoveryProbe.recovered
       && recoveryProbe.progress.day === 9
       && exportProbe.format === "boreumi-ramen-save"
-      && exportProbe.gameVersion === "0.26.3";
+      && exportProbe.gameVersion === "0.26.4";
     result.customerStoryCatalogComplete = CustomerCatalog.every(customer => {
       const profile = CustomerStoryCatalog[customer.id];
       return profile?.chapters?.length === 4
@@ -3599,6 +3658,10 @@
       && patchV0263CssSource.includes("focus-within")
       && patchV0263CssSource.includes("pointer-events:auto")
       && patchV0263CssSource.includes("--whisper-y");
+    result.customerCounterForeground = !!$(".guest-counter-front")
+      && getComputedStyle($(".guest-counter-front")).backgroundImage.includes("guest-counter-front-v1.webp")
+      && patchV0264CssSource.includes("Boreumi stays in front")
+      && serviceWorkerSource.includes("guest-counter-front-v1.webp");
     result.journalTouchLayoutReady = storyCssSource.includes("touch-action:pan-y")
       && storyCssSource.includes(".journal-button")
       && serviceWorkerSource.includes("story-v024.css");
@@ -3730,29 +3793,28 @@
       && $$(".appliance .art").every(art => getComputedStyle(art).overflow !== "hidden");
     const ppomiRect = $("#ppomiPerch").getBoundingClientRect();
     const guestRowRectBeforeStart = $("#guestRow").getBoundingClientRect();
-    const guestTableRect = $(".service-table").getBoundingClientRect();
-    result.ppomiAtGuestTableRight = ppomiRect.left >= guestRowRectBeforeStart.right - 2
-      && ppomiRect.right <= guestTableRect.right + 2
-      && Math.abs(ppomiRect.bottom - guestTableRect.top) <= 4;
-    const guestApronStyle = getComputedStyle($(".service-table"), "::after");
-    result.guestLowerBodiesScreened = guestApronStyle.backgroundImage.includes("guest-center-wood-panel-v2.webp")
-      && parseFloat(guestApronStyle.height) >= 130
-      && parseFloat(guestApronStyle.height) <= 145
-      && parseFloat(guestApronStyle.width) >= 680
-      && parseFloat(guestApronStyle.width) <= 720
-      && parseInt(getComputedStyle($(".service-table")).zIndex, 10) > parseInt(getComputedStyle($("#guestRow")).zIndex, 10)
-      && parseInt(getComputedStyle($(".characters")).zIndex, 10) > parseInt(getComputedStyle($(".service-table")).zIndex, 10);
-    result.guestSidePropsPreserved = parseFloat(guestApronStyle.width) <= 720
-      && parseFloat(getComputedStyle($(".service-table")).width) >= 1800;
-    result.integratedWoodApronArt = guestApronStyle.backgroundImage.includes("guest-center-wood-panel-v2.webp")
-      && guestApronStyle.backgroundSize.includes("cover")
-      && parseFloat(guestApronStyle.borderBottomWidth) === 0
-      && (guestApronStyle.webkitMaskImage || guestApronStyle.maskImage).includes("linear-gradient")
-      && guestApronStyle.filter.includes("brightness(1.16)");
-    const guestApronMask = guestApronStyle.webkitMaskImage || guestApronStyle.maskImage;
-    result.naturalWoodApronEnds = guestApronMask.includes("4%")
-      && guestApronMask.includes("96%")
-      && guestApronStyle.filter.includes("brightness(1.16)");
+    const guestCounter = $(".guest-counter-front");
+    const guestCounterRect = guestCounter.getBoundingClientRect();
+    const guestCounterStyle = getComputedStyle(guestCounter);
+    const guestStageRect = $("#stage").getBoundingClientRect();
+    result.ppomiAtGuestTableRight = ppomiRect.left >= guestRowRectBeforeStart.right - ppomiRect.width
+      && ppomiRect.right <= guestCounterRect.right + 2
+      && ppomiRect.bottom >= guestCounterRect.top
+      && ppomiRect.bottom <= guestCounterRect.top + ppomiRect.height / 2;
+    result.guestLowerBodiesScreened = guestCounterStyle.backgroundImage.includes("guest-counter-front-v1.webp")
+      && parseFloat(guestCounterStyle.height) >= 180
+      && guestCounterRect.width >= guestRowRectBeforeStart.width
+      && parseInt(guestCounterStyle.zIndex, 10) > parseInt(getComputedStyle($("#guestRow")).zIndex, 10)
+      && parseInt(getComputedStyle($(".characters")).zIndex, 10) > parseInt(guestCounterStyle.zIndex, 10);
+    result.guestSidePropsPreserved = guestCounterRect.left <= guestRowRectBeforeStart.left
+      && guestCounterRect.right >= guestRowRectBeforeStart.right
+      && guestCounterRect.left >= guestStageRect.left
+      && guestCounterRect.right <= guestStageRect.right;
+    result.integratedWoodApronArt = guestCounterStyle.backgroundImage.includes("guest-counter-front-v1.webp")
+      && guestCounterStyle.backgroundSize === "100% 100%"
+      && guestCounterStyle.pointerEvents === "none";
+    result.naturalWoodApronEnds = guestCounterStyle.filter.includes("brightness")
+      && guestCounterStyle.filter.includes("drop-shadow");
     result.pochaHudArt = getComputedStyle($(".hud")).backgroundImage.includes("hud-panel-v1.webp")
       && parseFloat(getComputedStyle($(".hud")).borderTopWidth) === 0;
     const dockItemNames = $$(".dock .item-name").map(label => label.textContent.trim());
@@ -3878,6 +3940,11 @@
       && MenuCatalog[Guests[0].order.items[1].id].kind === "drink"
       && $$(`[data-guest="0"] .order-item`).length === 2
       && $$(`[data-guest="0"] .order-plus`).length === 1;
+    const dialogueCountBeforeRepeat = State.storyDialogueQueue.length;
+    queueGuestDialogue(qaFirstCustomerId, "같은 날에는 다시 표시되면 안 되는 검사 대화");
+    result.sameDayDialogueOnce = State.dayDialogueCustomers.has(qaFirstCustomerId)
+      && State.dayDialogueCustomers.size === 1
+      && State.storyDialogueQueue.length === dialogueCountBeforeRepeat;
     const sampledRandomOrders = new Set();
     for (let sample = 0; sample < 128; sample += 1) {
       const sampleGuest = { order: null };
@@ -3889,6 +3956,12 @@
     result.unweightedRandomOrders = qaFoodPool.length >= 4
       && qaDrinkPool.length === 4
       && sampledRandomOrders.size >= Math.min(qaFoodPool.length * qaDrinkPool.length, 12);
+    State.foodOrderBag = [];
+    State.foodOrderPoolKey = "";
+    State.lastFoodOrder = null;
+    const firstMenuCycle = Array.from({ length: qaFoodPool.length }, () => nextRandomFoodOrder());
+    result.allMenusRandomizedCycle = new Set(firstMenuCycle).size === qaFoodPool.length
+      && qaFoodPool.every(id => firstMenuCycle.includes(id));
     Guests[0].order = createOrder("ramen_plain", "soju");
     renderGuest(Guests[0]);
     result.menuCatalogIncludesDrinks = ["soju", "beer", "somaek", "makgeolli"].every(id => MenuCatalog[id]?.kind === "drink" && MenuCatalog[id].price > 0);
@@ -3923,6 +3996,7 @@
     result.mobileOrderUiNoOverlap = document.documentElement.dataset.mobileLayout !== "true" || result.orderUiNoOverlap;
     result.healingGameTiming = Config.daySeconds === 300
       && Config.guests.waitsForever
+      && Config.takeout.waitsForever
       && Config.guests.wrongPenaltyMs === 0
       && !Config.cooking.burns
       && Config.cooking.defaultBurnMs === 0;
@@ -4083,13 +4157,15 @@
     const odenTwoArt = getComputedStyle($(".sprite-cooking-oden-two")).backgroundImage;
     takeApplianceServing(Appliances[5]);
     const odenOneArt = getComputedStyle($(".sprite-cooking-oden-one")).backgroundImage;
+    const odenStockBeforeRefill = ingredientStock("oden");
     takeApplianceServing(Appliances[5]);
-    result.odenContinuousServing = Appliances[5].state === "ready"
+    result.odenAutoRefills = Appliances[5].state === "ready"
       && Appliances[5].recipeId === "warm_oden"
-      && Appliances[5].servingsShown === 1
+      && Appliances[5].servingsShown === 3
+      && ingredientStock("oden") === odenStockBeforeRefill - 1
       && odenTwoArt.includes("cooking-oden-two-v1.webp")
       && odenOneArt.includes("cooking-oden-one-v1.webp")
-      && $("[data-id='oden-0']").dataset.odenCount === "1";
+      && $("[data-id='oden-0']").dataset.odenCount === "3";
     const readyPayload = payload($(`[data-id="${Appliances[0].id}"]`));
     result.sameReadyDragArt = readyPayload?.image.includes("food-ramen-plain-no-scallion-v1.webp");
     const plainCookingProbe = document.createElement("i");
@@ -4186,6 +4262,8 @@
       && Guests[0].order.items.every(item => item.fulfilled)
       && State.sales === MenuCatalog.ramen_plain.price + MenuCatalog.soju.price
       && State.served === 1;
+    result.liveSalesReachWallet = Progress.gold === State.sales
+      && $("#walletGold").textContent === money(State.sales);
     result.storyStartsAndPersists = Progress.regulars[qaFirstCustomerId].visits === 1
       && Progress.regulars[qaFirstCustomerId].served === 1
       && Progress.regulars[qaFirstCustomerId].chapters === 1
@@ -4237,7 +4315,7 @@
       && Config.layout.reservedStations.includes("service-pass");
 
     result.managementProgressDefaults = Progress.day === 1
-      && Progress.gold === 0
+      && Progress.gold === State.sales
       && Progress.stallLevel === 1
       && Object.values(Progress.stationLevels).every(level => level === 1)
       && $("#dayNumber").textContent === "1"
@@ -4245,7 +4323,7 @@
     const walletRect = $("#walletBadge").getBoundingClientRect();
     result.walletBadgeReadable = walletRect.top >= hudRect.bottom - 2
       && walletRect.right <= stage.right
-      && $("#walletGold").textContent === "0원"
+      && $("#walletGold").textContent === money(Progress.gold)
       && $("#stallLevel").textContent === String(effectiveStallLevel());
     result.managementUpgradeCatalog = Object.keys(StationUpgradeCatalog).join("|") === "pot|grill|oden"
       && Object.values(StationUpgradeCatalog).every(upgrade => upgrade.costs.length === 4
@@ -4254,6 +4332,7 @@
       && StallUpgradeCatalog.costs.every((cost, index) => !index || cost > StallUpgradeCatalog.costs[index - 1]);
 
     State.sales = 10500;
+    Progress.gold = State.sales;
     State.served = 3;
     State.missed = 1;
     State.takeoutServed = 0;
@@ -4344,6 +4423,18 @@
       && $$(".appliance.pot:not([hidden])").length === 3
       && $$(".appliance.grill:not([hidden])").length === 1
       && $$(".appliance.oden:not([hidden])").length === 1;
+    renderSettlement(State.lastSettlement);
+    const level2PanelRect = $(".management-panel").getBoundingClientRect();
+    const level2HeadingRect = $(".management-heading").getBoundingClientRect();
+    const level2BodyRect = $(".management-body").getBoundingClientRect();
+    const level2FooterRect = $(".management-actions").getBoundingClientRect();
+    result.settlementFitsEveryStallLevel = level2PanelRect.left >= stage.left
+      && level2PanelRect.right <= stage.right
+      && level2PanelRect.top >= stage.top
+      && level2PanelRect.bottom <= stage.bottom
+      && level2HeadingRect.bottom <= level2BodyRect.top + 2
+      && level2BodyRect.bottom <= level2FooterRect.top + 2
+      && patchV0264CssSource.includes("#stage[data-stall-level] .management-panel");
     const savedProgress = JSON.parse(localStorage.getItem(SaveKey) || "null");
     result.progressSavedLocally = savedProgress?.day === 2
       && savedProgress?.gold === Progress.gold
@@ -4487,6 +4578,7 @@
     resetTakeoutOrders();
     const salesBeforeTakeoutQA = State.sales;
     const servedBeforeTakeoutQA = State.served;
+    const walletBeforeTakeoutQA = Progress.gold;
     activateTakeout(0);
     const generatedLevel5Combination = TakeoutOrders[0].items.length === 2
       && MenuCatalog[TakeoutOrders[0].items[0].id].kind === "food"
@@ -4508,7 +4600,8 @@
       && Appliances[0].state === "empty"
       && State.takeoutServed === 1
       && State.served === servedBeforeTakeoutQA + 1
-      && State.sales === salesBeforeTakeoutQA + expectedTakeoutPrice;
+      && State.sales === salesBeforeTakeoutQA + expectedTakeoutPrice
+      && Progress.gold === walletBeforeTakeoutQA + expectedTakeoutPrice;
 
     Appliances[3].state = "ready";
     Appliances[3].item = "dumpling";
@@ -4539,11 +4632,16 @@
     const missedTakeoutBeforeQA = State.takeoutMissed;
     activateTakeout(1);
     TakeoutOrders[1].items = [{ id: "warm_oden", fulfilled: false }];
-    expireTakeout(TakeoutOrders[1]);
-    result.missedTakeoutHasPenalty = State.takeoutMissed === missedTakeoutBeforeQA + 1
-      && State.takeoutPenalty === penaltyBeforeQA + Config.takeout.missedPenalty
-      && TakeoutOrders[1].missed
-      && !TakeoutOrders[1].active;
+    TakeoutOrders[1].patience = 60;
+    renderTakeoutOrder(TakeoutOrders[1]);
+    await new Promise(resolve => setTimeout(resolve, 180));
+    result.takeoutWaitsForever = Config.takeout.waitsForever
+      && State.takeoutMissed === missedTakeoutBeforeQA
+      && State.takeoutPenalty === penaltyBeforeQA
+      && !TakeoutOrders[1].missed
+      && TakeoutOrders[1].active
+      && $(`[data-takeout="1"] .takeout-patience`).hidden
+      && $(`[data-takeout="1"]`).getAttribute("aria-label").includes("시간제한 없이");
     clearTakeoutTimers();
     resetTakeoutOrders();
     resetCompletionPass();

@@ -45,12 +45,13 @@
     "assets/art-v0263/kitchen-worktable-v1.webp",
     "assets/art-v0263/cooking-oden-two-v1.webp",
     "assets/art-v0263/cooking-oden-one-v1.webp",
+    "assets/art-v0264/guest-counter-front-v1.webp",
     "assets/art-v012/drink-soju-v1.webp",
     "assets/art-v0261/food-ramen-plain-no-scallion-v1.webp"
   ];
 
   const state = {
-    version: "0.26.3",
+    version: "0.26.4",
     dataReady: false,
     gameReady: false,
     resourcesLoaded: 0,
