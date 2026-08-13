@@ -11,7 +11,7 @@
   let viewportFrame = 0;
 
   const state = {
-    version: "0.26",
+    version: "0.26.1",
     installed: standaloneQuery.matches || fullscreenQuery.matches || isIOSStandalone,
     landscapeRequested: true,
     cssLandscapeFallback: false,
@@ -35,6 +35,7 @@
 
   window.BoreumiPWA = state;
   document.documentElement.dataset.pwa = "enabled";
+  document.documentElement.dataset.mobileLayout = String(isTouchMobile);
 
   function viewportSize() {
     const viewport = window.visualViewport;
@@ -56,6 +57,7 @@
     state.logicalViewport = { width: logicalWidth, height: logicalHeight };
     state.visualViewport = physical;
     document.documentElement.dataset.forceLandscape = String(shouldRotate);
+    document.documentElement.dataset.mobileLayout = String(isTouchMobile);
     document.documentElement.style.setProperty("--app-landscape-width", `${logicalWidth}px`);
     document.documentElement.style.setProperty("--app-landscape-height", `${logicalHeight}px`);
     document.documentElement.style.setProperty("--app-visual-offset-left", `${physical.offsetLeft}px`);

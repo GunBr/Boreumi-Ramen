@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  document.title = "보름이의 라면포차 V0.26";
+  document.title = "보름이의 라면포차 V0.26.1";
 
   const $ = selector => document.querySelector(selector);
   const $$ = selector => [...document.querySelectorAll(selector)];
@@ -41,7 +41,7 @@
       reservedStations: ["takeout", "service-pass"]
     },
     boreumi: { idleWidth: 300, cookingWidth: 300, servingWidth: 360, idleOffset: -210 },
-    daySeconds: 90,
+    daySeconds: 300,
     cooking: { tickMs: 50, defaultBurnMs: 10000 },
     guests: { tickMs: 100, patienceMs: 40000, wrongPenaltyMs: 2500 },
     takeout: {
@@ -55,7 +55,7 @@
   };
 
   const FoodArt = {
-    pot: "assets/art-v012/food-ramen-no-egg-v3.webp",
+    pot: "assets/art-v0261/food-ramen-plain-no-scallion-v1.webp",
     potEgg: "assets/art-v012/food-ramen-v2.webp",
     potScallion: "assets/art-v025/food-ramen-scallion-v1.webp",
     potKimchi: "assets/art-v025/food-ramen-kimchi-v1.webp",
@@ -867,6 +867,7 @@
   const State = {
     running: false,
     paused: false,
+    closing: false,
     tutorialMode: false,
     helpPausedGame: false,
     journalPausedGame: false,
@@ -1400,11 +1401,21 @@
     const viewport = window.visualViewport || window;
     const stage = $("#stage");
     const logicalViewport = window.BoreumiPWA?.logicalViewport || { width: viewport.width, height: viewport.height };
+    const viewportElement = $("#viewport");
+    const viewportStyle = getComputedStyle(viewportElement);
+    const reservedWidth =
+      (Number.parseFloat(viewportStyle.paddingLeft) || 0) +
+      (Number.parseFloat(viewportStyle.paddingRight) || 0);
+    const reservedHeight =
+      (Number.parseFloat(viewportStyle.paddingTop) || 0) +
+      (Number.parseFloat(viewportStyle.paddingBottom) || 0);
+    const usableWidth = Math.max(1, logicalViewport.width - reservedWidth);
+    const usableHeight = Math.max(1, logicalViewport.height - reservedHeight);
     const viewportRatio = logicalViewport.width / logicalViewport.height;
     const adaptiveWidth = Math.round(Config.stage.height * viewportRatio);
     const requiredWidth = stageWidthForCapacity();
     const stageWidth = Math.max(requiredWidth, Math.min(Config.stage.maxWidth, adaptiveWidth));
-    const scale = Math.min(logicalViewport.width / stageWidth, logicalViewport.height / Config.stage.height);
+    const scale = Math.min(usableWidth / stageWidth, usableHeight / Config.stage.height);
     Config.stage.currentWidth = stageWidth;
     stage.style.width = `${stageWidth}px`;
     stage.style.setProperty("--stage-width", `${stageWidth}px`);
@@ -1819,9 +1830,10 @@
     order.items = [];
     order.patience = 0;
     renderTakeoutOrder(order);
-    if (reschedule && State.running && order.index < takeoutCapacityForLevel()) {
+    if (reschedule && State.running && !State.closing && order.index < takeoutCapacityForLevel()) {
       scheduleTakeout(order.index, Config.takeout.repeatDelayMs + order.index * 900);
     }
+    checkClosingComplete();
   }
 
   function resetTakeoutOrders() {
@@ -1830,14 +1842,14 @@
   }
 
   function scheduleTakeout(index, delay) {
-    if (index >= takeoutCapacityForLevel()) return;
+    if (State.closing || index >= takeoutCapacityForLevel()) return;
     const timer = setTimeout(() => activateTakeout(index), delay);
     State.takeoutTimers.push(timer);
   }
 
   function activateTakeout(index) {
     const order = TakeoutOrders[index];
-    if (!order || index >= takeoutCapacityForLevel() || !State.running || order.active) return;
+    if (!order || State.closing || index >= takeoutCapacityForLevel() || !State.running || order.active) return;
     order.serial = ++State.takeoutSerial;
     order.active = true;
     order.packed = false;
@@ -1931,14 +1943,14 @@
   }
 
   function scheduleGuest(index, delay) {
-    if (index >= guestCapacityForLevel()) return;
+    if (State.closing || index >= guestCapacityForLevel()) return;
     const timer = setTimeout(() => activateGuest(index), delay);
     State.guestTimers.push(timer);
   }
 
   function activateGuest(index) {
     const guest = Guests[index];
-    if (!guest || index >= guestCapacityForLevel() || !State.running || guest.active) return;
+    if (!guest || State.closing || index >= guestCapacityForLevel() || !State.running || guest.active) return;
     const customer = chooseCustomer();
     guest.customerId = customer.id;
     guest.active = true;
@@ -1973,7 +1985,8 @@
     guest.satisfaction = "waiting";
     guest.customerId = null;
     renderGuest(guest);
-    if (State.running && index < guestCapacityForLevel()) scheduleGuest(index, arrivalDelay(2800 + index * 450));
+    if (State.running && !State.closing && index < guestCapacityForLevel()) scheduleGuest(index, arrivalDelay(2800 + index * 450));
+    checkClosingComplete();
   }
 
   function expireGuest(guest) {
@@ -2026,9 +2039,12 @@
   }
 
   function laneLeftFor(target, spriteWidth) {
-    const lane = $(".characters").getBoundingClientRect();
-    const scale = lane.width / $(".characters").clientWidth;
-    return (target.left + target.width / 2 - lane.left) / scale - spriteWidth / 2;
+    const laneElement = $(".characters");
+    const lane = laneElement.getBoundingClientRect();
+    const stage = $("#stage").getBoundingClientRect();
+    const stageScale = stage.width / Config.stage.currentWidth;
+    const targetCenter = target.left + target.width / 2;
+    return (targetCenter - lane.left) / stageScale - spriteWidth / 2;
   }
 
   function animateBoreumi(mode, pose, left) {
@@ -2069,7 +2085,9 @@
   }
 
   function teleport(appliance, text) {
-    const target = $(`[data-id="${appliance.id}"]`).getBoundingClientRect();
+    const targetElement = $(`[data-id="${appliance.id}"]`);
+    if (!targetElement || targetElement.hidden) return setBoreumiIdle();
+    const target = targetElement.getBoundingClientRect();
     const pose = appliance.type === "pot" ? (IngredientRules[appliance.item]?.mode === "addon" ? "egg" : "noodle") : appliance.type;
     animateBoreumi("cooking", pose, laneLeftFor(target, Config.boreumi.cookingWidth));
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 920);
@@ -2078,19 +2096,25 @@
   }
 
   function teleportToGuest(guestIndex) {
-    const target = $(`[data-guest="${guestIndex}"]`).getBoundingClientRect();
+    const targetElement = $(`[data-guest="${guestIndex}"]`);
+    if (!targetElement || targetElement.hidden) return setBoreumiIdle();
+    const target = targetElement.getBoundingClientRect();
     animateBoreumi("serving", "serve", laneLeftFor(target, Config.boreumi.servingWidth));
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 820);
   }
 
   function teleportToTakeout(orderIndex) {
-    const target = $(`[data-takeout="${orderIndex}"]`).getBoundingClientRect();
+    const targetElement = $(`[data-takeout="${orderIndex}"]`);
+    if (!targetElement || targetElement.hidden) return setBoreumiIdle();
+    const target = targetElement.getBoundingClientRect();
     animateBoreumi("serving", "serve", laneLeftFor(target, Config.boreumi.servingWidth));
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 820);
   }
 
   function teleportToPass() {
-    const target = $("#completionPass").getBoundingClientRect();
+    const targetElement = $("#completionPass");
+    if (!targetElement || targetElement.hidden) return setBoreumiIdle();
+    const target = targetElement.getBoundingClientRect();
     animateBoreumi("cooking", "grill", laneLeftFor(target, Config.boreumi.cookingWidth));
     State.boreumiTimer = setTimeout(() => setBoreumiIdle(), 720);
   }
@@ -2746,12 +2770,14 @@
     if (!State.running) return;
     State.running = false;
     State.paused = false;
+    State.closing = false;
     clearInterval(State.dayTimer);
     clearGuestTimers();
     clearTakeoutTimers();
     Sound.stopBgm();
     Sound.sfx("finish");
     setBoreumiIdle();
+    $("#stage").dataset.closing = "false";
     $(".hud").classList.remove("running");
     $("#startButton").style.removeProperty("display");
     $("#startButton").disabled = true;
@@ -2764,8 +2790,40 @@
     toast(`영업 종료 · ${money(State.lastSettlement.totalReward)} 획득`);
   }
 
+  function hasOpenOrders() {
+    return Guests.some(guest => guest.active)
+      || TakeoutOrders.some(order => order.active || order.packed);
+  }
+
+  function checkClosingComplete() {
+    if (!State.running || !State.closing || hasOpenOrders()) return false;
+    finishDay();
+    return true;
+  }
+
+  function beginClosingTime() {
+    if (!State.running || State.closing) return;
+    State.closing = true;
+    State.time = 0;
+    $("#stage").dataset.closing = "true";
+    $("#startButton").setAttribute("aria-label", "주문 마감 중");
+    $("#startButton strong").textContent = "마감중";
+    renderHud();
+    if (!checkClosingComplete()) toast("주문 마감 · 남아 있는 손님을 모두 모실게요.");
+  }
+
+  function closeSettlement() {
+    if (State.running) return;
+    $("#settlementOverlay").classList.add("hidden");
+    $("#startButton").disabled = false;
+    $("#startButton").setAttribute("aria-label", "다음 날 영업 시작");
+    $("#startButton strong").textContent = "영업 시작";
+    Sound.sfx("drop");
+  }
+
   function start() {
     if (State.running || !$("#settlementOverlay").classList.contains("hidden")) return;
+    if (State.lastSettlement) State.lastSettlement = null;
     $("#startButton").classList.remove("first-day-ready");
     clearInterval(State.dayTimer);
     setBoreumiIdle();
@@ -2775,6 +2833,8 @@
     Appliances.forEach(resetAppliance);
     State.running = true;
     State.paused = false;
+    State.closing = false;
+    $("#stage").dataset.closing = "false";
     State.time = Config.daySeconds;
     State.goal = goalForDay();
     State.sales = 0;
@@ -2807,7 +2867,7 @@
       if (State.time <= 0) {
         State.time = 0;
         renderHud();
-        finishDay();
+        beginClosingTime();
         return;
       }
       renderHud();
@@ -2826,6 +2886,8 @@
   function devStopActiveDay() {
     State.running = false;
     State.paused = false;
+    State.closing = false;
+    $("#stage").dataset.closing = "false";
     clearInterval(State.dayTimer);
     clearGuestTimers();
     clearTakeoutTimers();
@@ -2872,7 +2934,8 @@
       if (!State.running) return toast("현재 진행 중인 영업이 없어요.");
       State.time = 0;
       renderHud();
-      finishDay();
+      if (hasOpenOrders()) beginClosingTime();
+      else finishDay();
       renderDevTools();
       return;
     }
@@ -3119,7 +3182,7 @@
     return JSON.stringify({
       format: "boreumi-ramen-save",
       exportVersion: 1,
-      gameVersion: "0.26",
+      gameVersion: "0.26.1",
       exportedAt: new Date().toISOString(),
       progress: Progress
     }, null, 2);
@@ -3325,15 +3388,17 @@
     let storyCssSource = "";
     let bootSource = "";
     let serviceWorkerSource = "";
+    let patchCssSource = "";
     try {
-      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse] = await Promise.all([
+      const [manifestResponse, cssResponse, experienceResponse, mobileResponse, storyResponse, bootResponse, workerResponse, patchResponse] = await Promise.all([
         fetch("app.webmanifest", { cache: "no-store" }),
         fetch("pwa-v024.css", { cache: "no-store" }),
         fetch("experience-v024.css", { cache: "no-store" }),
         fetch("mobile-v024.css", { cache: "no-store" }),
         fetch("story-v024.css", { cache: "no-store" }),
         fetch("boot-v024.js", { cache: "no-store" }),
-        fetch("service-worker.js", { cache: "no-store" })
+        fetch("service-worker.js", { cache: "no-store" }),
+        fetch("patch-v0261.css", { cache: "no-store" })
       ]);
       pwaManifest = await manifestResponse.json();
       pwaCssSource = await cssResponse.text();
@@ -3342,6 +3407,7 @@
       storyCssSource = await storyResponse.text();
       bootSource = await bootResponse.text();
       serviceWorkerSource = await workerResponse.text();
+      patchCssSource = await patchResponse.text();
     } catch {
       // Individual checks below report the unavailable PWA resource.
     }
@@ -3373,7 +3439,12 @@
       && window.BoreumiBoot?.state.resourcesLoaded === window.BoreumiBoot?.state.resourcesTotal;
     result.parallelCriticalLoading = bootSource.includes("preloadCriticalAssets")
       && bootSource.includes("Promise.all")
-      && window.BoreumiBoot?.state.version === "0.26";
+      && bootSource.includes('version: "0.26.1"');
+    result.mobileSafeCenteredLayout = patchCssSource.includes('data-mobile-layout="true"')
+      && patchCssSource.includes("max(42px,var(--pwa-safe-left))")
+      && patchCssSource.includes('data-force-landscape="true"][data-mobile-layout="true"]')
+      && patchCssSource.includes("padding-bottom:max(18px,var(--pwa-safe-left))")
+      && document.documentElement.dataset.mobileLayout === String(new URLSearchParams(location.search).has("mobile") || navigator.maxTouchPoints > 0 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
     result.serviceWorkerRegistered = !!serviceWorkerRegistration && window.BoreumiPWA?.serviceWorkerRegistered === true;
     result.offlineGameCacheReady = serviceWorkerSource.includes("CACHE_GAME")
       && serviceWorkerSource.includes("GAME_ASSETS")
@@ -3409,7 +3480,7 @@
       && recoveryProbe.recovered
       && recoveryProbe.progress.day === 9
       && exportProbe.format === "boreumi-ramen-save"
-      && exportProbe.gameVersion === "0.26";
+      && exportProbe.gameVersion === "0.26.1";
     result.customerStoryCatalogComplete = CustomerCatalog.every(customer => {
       const profile = CustomerStoryCatalog[customer.id];
       return profile?.chapters?.length === 4
@@ -3676,6 +3747,7 @@
       && $("#startButton strong").textContent.trim() === "영업중"
       && Math.abs(runningButtonRect.left - startButtonRect.left) <= 1
       && Math.abs(runningButtonRect.top - startButtonRect.top) <= 1;
+    result.fiveMinuteBusinessTime = Config.daySeconds === 300 && State.time === 300 && $("#time").textContent === "05:00";
     const lockedDayTimer = State.dayTimer;
     const lockedTime = State.time;
     $("#startButton").click();
@@ -3724,7 +3796,21 @@
       && activePatienceRect.width >= 155 * buttonStageScale
       && getComputedStyle($(`[data-guest="0"] .patience`)).visibility === "visible"
       && parseInt(getComputedStyle($(`[data-guest="0"] .patience`)).zIndex, 10) > parseInt(getComputedStyle($(`[data-guest="0"] .bubble`)).zIndex, 10);
-    result.relaxedGameTiming = Config.guests.patienceMs === 40000
+    const mobileControls = [$("#walletBadge"), $("#recipeButton"), $("#journalButton"), $("#helpButton"), $("#soundButton")];
+    const visibleOrderBubbles = $$(".guest-slot.active .bubble");
+    result.mobileOrderUiNoOverlap = document.documentElement.dataset.mobileLayout !== "true"
+      || visibleOrderBubbles.every(bubble => {
+        const bubbleRect = bubble.getBoundingClientRect();
+        return mobileControls.every(control => {
+          const controlRect = control.getBoundingClientRect();
+          return controlRect.right <= bubbleRect.left
+            || controlRect.left >= bubbleRect.right
+            || controlRect.bottom <= bubbleRect.top
+            || controlRect.top >= bubbleRect.bottom;
+        });
+      });
+    result.relaxedGameTiming = Config.daySeconds === 300
+      && Config.guests.patienceMs === 40000
       && Config.cooking.defaultBurnMs === 10000
       && Config.guests.patienceMs > RecipeCatalog.ramen_plain.cookMs * 8
       && Config.cooking.defaultBurnMs > RecipeCatalog.ramen_plain.cookMs * 2;
@@ -3864,14 +3950,31 @@
 
     await new Promise(resolve => setTimeout(resolve, 4400));
     result.independentTimers = Appliances[0].state === "ready" && Appliances[1].state === "ready" && Appliances[3].state === "ready" && Appliances[5].state === "ready";
-    result.noEggPlainRamen = !!$(".sprite-ramen-plain") && getComputedStyle($(".sprite-ramen-plain")).backgroundImage.includes("food-ramen-no-egg-v3");
+    result.noEggPlainRamen = !!$(".sprite-ramen-plain") && getComputedStyle($(".sprite-ramen-plain")).backgroundImage.includes("food-ramen-plain-no-scallion-v1");
     result.eggRamenVariant = !!$(".sprite-ramen-egg") && getComputedStyle($(".sprite-ramen-egg")).backgroundImage.includes("food-ramen-v2");
     result.completeFoodArt = !!$(".sprite-dumpling") && getComputedStyle($(".sprite-dumpling")).backgroundImage.includes("food-dumpling-v2");
     result.odenStaysInBar = !!$(".sprite-oden-warm")
       && getComputedStyle($(".sprite-oden-warm")).backgroundImage.includes("cooking-oden-v2.webp")
       && !$(".sprite-oden-food");
     const readyPayload = payload($(`[data-id="${Appliances[0].id}"]`));
-    result.sameReadyDragArt = readyPayload?.image.includes("food-ramen-no-egg-v3.webp");
+    result.sameReadyDragArt = readyPayload?.image.includes("food-ramen-plain-no-scallion-v1.webp");
+    const plainCookingProbe = document.createElement("i");
+    plainCookingProbe.className = "kitchen-sprite sprite-cooking-ramen";
+    document.body.append(plainCookingProbe);
+    const scallionCookingProbe = document.createElement("i");
+    scallionCookingProbe.className = "kitchen-sprite sprite-cooking-ramen-scallion";
+    document.body.append(scallionCookingProbe);
+    const scallionReadyProbe = document.createElement("i");
+    scallionReadyProbe.className = "kitchen-sprite sprite-ramen-scallion";
+    document.body.append(scallionReadyProbe);
+    result.plainRamenHasNoDefaultScallion = getComputedStyle(plainCookingProbe).backgroundImage.includes("cooking-ramen-plain-no-scallion-v1.webp")
+      && getComputedStyle(plainCookingProbe, "::after").backgroundImage === "none"
+      && getComputedStyle(scallionCookingProbe, "::after").backgroundImage.includes("ingredient-scallion-v1.webp")
+      && getComputedStyle($(".sprite-ramen-plain")).backgroundImage.includes("food-ramen-plain-no-scallion-v1.webp")
+      && getComputedStyle(scallionReadyProbe).backgroundImage.includes("food-ramen-scallion-v1.webp");
+    plainCookingProbe.remove();
+    scallionCookingProbe.remove();
+    scallionReadyProbe.remove();
     showGhost(readyPayload);
     result.readyGhostSameIllustration = $("#dragGhost").classList.contains("food-drag")
       && $("#dragGhost img").src === readyPayload.image
@@ -4022,7 +4125,20 @@
     const expectedGoalBonus = goalBonusForDay(Progress.day);
     const expectedServiceBonus = State.ratings.happy * 400 + State.ratings.okay * 200;
     const expectedReward = State.sales + expectedGoalBonus + expectedServiceBonus;
-    finishDay();
+    resetGuests();
+    Guests[0].active = true;
+    State.closing = true;
+    State.time = 0;
+    $("#stage").dataset.closing = "true";
+    renderGuest(Guests[0]);
+    const waitsForLastGuest = !checkClosingComplete() && State.running && State.closing;
+    Guests[0].active = false;
+    renderGuest(Guests[0]);
+    const finishedAfterLastGuest = checkClosingComplete();
+    result.closingWaitsForRemainingGuests = waitsForLastGuest
+      && finishedAfterLastGuest
+      && !State.running
+      && !State.closing;
     const managementPanelRect = $(".management-panel").getBoundingClientRect();
     result.settlementOverlayAppears = !$("#settlementOverlay").classList.contains("hidden")
       && !State.running
@@ -4051,6 +4167,11 @@
       && managementPanelRect.top >= stage.top
       && managementPanelRect.bottom <= stage.bottom
       && $$(".upgrade-card").length === 4;
+    $("#closeSettlementButton").click();
+    result.settlementCloseAndHudRestart = $("#settlementOverlay").classList.contains("hidden")
+      && !$("#startButton").disabled
+      && $("#startButton strong").textContent.trim() === "영업 시작";
+    renderSettlement();
 
     Progress.gold = 1000000;
     renderHud();
@@ -4130,6 +4251,7 @@
       { day: 1, level: 5, seats: 10, customers: 18, width: 2340 }
     ];
     let milestoneLayoutPass = true;
+    let dynamicBoreumiTargetsPass = true;
     milestoneCases.forEach(testCase => {
       Progress.day = testCase.day;
       Progress.stallLevel = testCase.level;
@@ -4140,8 +4262,21 @@
         && $$(".guest-slot:not([hidden])").length === testCase.seats
         && Number($("#stage").dataset.layoutWidth) === testCase.width
         && Config.stage.currentWidth >= testCase.width;
+      const laneRect = $(".characters").getBoundingClientRect();
+      const stageRect = $("#stage").getBoundingClientRect();
+      const levelScale = stageRect.width / Config.stage.currentWidth;
+      const visibleStation = $$(".appliance:not([hidden])").at(-1);
+      const visibleGuest = $$(".guest-slot:not([hidden])").at(-1);
+      const stationRect = visibleStation?.getBoundingClientRect();
+      const guestRect = visibleGuest?.getBoundingClientRect();
+      const stationExpected = (stationRect.left + stationRect.width / 2 - laneRect.left) / levelScale - Config.boreumi.cookingWidth / 2;
+      const guestExpected = (guestRect.left + guestRect.width / 2 - laneRect.left) / levelScale - Config.boreumi.servingWidth / 2;
+      dynamicBoreumiTargetsPass = dynamicBoreumiTargetsPass
+        && Math.abs(laneLeftFor(stationRect, Config.boreumi.cookingWidth) - stationExpected) < .5
+        && Math.abs(laneLeftFor(guestRect, Config.boreumi.servingWidth) - guestExpected) < .5;
     });
     result.seatAndCustomerMilestones = milestoneLayoutPass;
+    result.dynamicBoreumiTargets = dynamicBoreumiTargetsPass;
     Progress.day = 1;
     Progress.stallLevel = 1;
     applyStallLevel();
@@ -4321,6 +4456,7 @@
   document.addEventListener("pointercancel", endDrag, { passive: false });
   $("#startButton").addEventListener("click", start);
   $("#nextDayButton").addEventListener("click", nextDay);
+  $("#closeSettlementButton").addEventListener("click", closeSettlement);
   $("#restockButton").addEventListener("click", restockIngredients);
   $("#openSupplyShopButton").addEventListener("click", openSupplyShop);
   $("#closeSupplyShopButton").addEventListener("click", closeSupplyShop);
@@ -4388,6 +4524,7 @@
     else if (!$("#recipeOverlay").classList.contains("hidden")) closeRecipeBook(true);
     else if (!$("#journalOverlay").classList.contains("hidden")) closeJournal(true);
     else if (!$("#helpOverlay").classList.contains("hidden")) closeHelp(true);
+    else if (!$("#settlementOverlay").classList.contains("hidden")) closeSettlement();
   });
   document.addEventListener("dragstart", event => event.preventDefault());
   window.addEventListener("boreumi:cache-progress", updateMobileCare);
@@ -4406,5 +4543,10 @@
     console.error("Boreumi QA failed", error);
     document.documentElement.dataset.qa = "error";
     window.BoreumiQAError = String(error?.stack || error);
+    const qaError = document.createElement("pre");
+    qaError.id = "qa-error";
+    qaError.textContent = window.BoreumiQAError;
+    qaError.style.cssText = "position:absolute;z-index:99999;left:0;top:0;max-width:720px;margin:0;padding:12px;background:#fff;color:#900;font-size:13px;white-space:pre-wrap";
+    $("#stage").append(qaError);
   });
 })();

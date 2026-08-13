@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_VERSION = "boreumi-ramen-v026-0826c";
+const CACHE_VERSION = "boreumi-ramen-v0261-0827d";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -24,6 +24,7 @@ const CORE_ASSETS = [
   "./readability-v025.css",
   "./dev-tools-v0251.css",
   "./menu-v026.css",
+  "./patch-v0261.css",
   "./boot-v024.js",
   "./pwa-v024.js",
   "./script.js",
@@ -50,6 +51,8 @@ const CORE_ASSETS = [
   "./assets/art-v025/ingredient-scallion-v1.webp",
   "./assets/art-v025/ingredient-kimchi-v1.webp",
   "./assets/art-v025/ingredient-cheese-v1.webp"
+  ,"./assets/art-v0261/cooking-ramen-plain-no-scallion-v1.webp"
+  ,"./assets/art-v0261/food-ramen-plain-no-scallion-v1.webp"
   ,"./assets/art-v025/food-ramen-scallion-v1.webp"
   ,"./assets/art-v025/food-ramen-kimchi-v1.webp"
   ,"./assets/art-v025/food-ramen-cheese-v1.webp"
@@ -190,11 +193,11 @@ self.addEventListener("fetch", event => {
   }
 
   event.respondWith((async () => {
-    const cached = await caches.match(request, { ignoreSearch: true });
+    const cache = await caches.open(CACHE_VERSION);
+    const cached = await cache.match(request, { ignoreSearch: true });
     if (cached) return cached;
     const response = await fetch(request);
     if (response.ok) {
-      const cache = await caches.open(CACHE_VERSION);
       cache.put(request, response.clone());
     }
     return response;
