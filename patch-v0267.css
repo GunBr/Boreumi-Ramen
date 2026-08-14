@@ -1,0 +1,126 @@
+/* V0.26.7: final guest-table alignment, larger takeout tickets, unified top rails, and pause journal. */
+
+/* The table drops one last six pixels; Ppomi's painted paws now meet its upper lip. */
+#stage .guest-counter-front{
+  top:454px!important
+}
+#stage[data-guest-capacity] .ppomi-perch{
+  top:294px!important;right:190px!important;z-index:19!important
+}
+
+/* The sign, HUD, and utility rail form one continuous top frame. */
+#stage[data-stall-level] .sign{
+  left:18px!important;top:16px!important
+}
+#stage[data-stall-level] .hud{
+  left:236px!important;right:174px!important;width:auto!important;top:16px!important;
+  grid-template-columns:128px 220px minmax(220px,1fr) 218px 184px 154px 8px 70px 8px!important;
+  padding-left:52px!important;padding-right:52px!important
+}
+html[data-mobile-layout] #stage[data-guest-capacity] .quick-supply-button,
+html[data-mobile-layout] #stage[data-guest-capacity] .recipe-button,
+html[data-mobile-layout] #stage[data-guest-capacity] .journal-button,
+html[data-mobile-layout] #stage[data-guest-capacity] .help-button,
+html[data-mobile-layout] #stage[data-guest-capacity] .sound-button{
+  left:auto!important;right:18px!important;width:138px!important;height:50px!important;
+  padding:0 9px!important;display:flex!important;align-items:center;justify-content:center;
+  border-radius:14px!important;font-size:17px!important;line-height:1!important
+}
+html[data-mobile-layout] #stage[data-guest-capacity] .quick-supply-button{top:16px!important}
+html[data-mobile-layout] #stage[data-guest-capacity] .recipe-button{top:74px!important}
+html[data-mobile-layout] #stage[data-guest-capacity] .journal-button{top:132px!important}
+html[data-mobile-layout] #stage[data-guest-capacity] .help-button{top:190px!important}
+html[data-mobile-layout] #stage[data-guest-capacity] .sound-button{top:248px!important}
+#stage[data-stall-level] .wallet-badge{
+  top:132px!important;right:174px!important;width:318px!important
+}
+
+/* Takeout tickets and their requested-food artwork remain legible after mobile scaling. */
+#stage .takeout-board{
+  top:260px!important;left:18px!important;width:344px!important;min-height:126px!important;
+  padding:13px 14px 15px!important;border-width:5px!important
+}
+#stage .takeout-board>header{height:40px!important;padding:0 10px 7px!important}
+#stage .takeout-board>header strong{font-size:23px!important}
+#stage .takeout-board>header span{min-width:60px!important;padding:4px 10px!important;font-size:17px!important}
+#stage .takeout-orders{gap:8px!important;padding-top:9px!important}
+#stage .takeout-order,
+#stage[data-growth-level="5"] .takeout-order{
+  height:80px!important;grid-template-columns:54px minmax(0,1fr) 60px!important;
+  gap:7px!important;padding:6px 7px 9px!important;border-width:3px!important
+}
+#stage .takeout-order .ticket-number{font-size:15px!important}
+#stage .takeout-order .takeout-items{gap:5px!important}
+#stage .takeout-order .takeout-item,
+#stage .takeout-order .takeout-item img,
+#stage[data-growth-level="5"] .takeout-order .takeout-item,
+#stage[data-growth-level="5"] .takeout-order .takeout-item img{
+  width:62px!important;height:62px!important
+}
+#stage .takeout-order .takeout-plus{font-size:21px!important}
+#stage .takeout-order .package-preview,
+#stage[data-growth-level="5"] .takeout-order .package-preview{
+  width:58px!important;height:64px!important
+}
+/* Ten seats need a narrow side-wing ticket, but its artwork still stays much larger than V0.26.6. */
+#stage[data-growth-level="5"] .takeout-board{left:8px!important;width:286px!important;padding-left:10px!important;padding-right:10px!important}
+#stage[data-growth-level="5"] .takeout-order{grid-template-columns:44px minmax(0,1fr) 50px!important;gap:4px!important;padding-left:4px!important;padding-right:4px!important}
+#stage[data-growth-level="5"] .takeout-order .takeout-item,
+#stage[data-growth-level="5"] .takeout-order .takeout-item img{width:52px!important;height:52px!important}
+#stage[data-growth-level="5"] .takeout-order .package-preview{width:48px!important;height:56px!important}
+
+/* The pointer has its own coordinate so edge clamping never detaches it from its guest. */
+#stage .story-whisper::before{
+  left:var(--whisper-tip-x,50%)!important
+}
+
+/* Pause opens a compact live business journal instead of a generic interruption card. */
+#stage .pause-journal-overlay{
+  position:absolute;z-index:410;inset:0;display:grid;place-items:center;padding:54px 76px;
+  background:radial-gradient(circle at 50% 38%,#5e3424c7,#100706f2 74%);backdrop-filter:blur(6px)
+}
+#stage .pause-journal-overlay.hidden{display:none}
+#stage .pause-journal-panel{
+  width:min(1160px,calc(100% - 80px));height:760px;padding:34px 42px 38px;
+  display:grid;grid-template-rows:132px minmax(0,1fr) 102px;gap:22px;
+  border:9px solid #5e2a1a;border-radius:34px;
+  background:radial-gradient(circle at 18% 12%,#fff5d9b3,transparent 35%),linear-gradient(180deg,#f8e7bd,#dfb371 68%,#c78c4e);
+  box-shadow:inset 0 0 0 4px #ffe9b495,inset 0 -24px 40px #7a3d2038,0 28px 70px #070302e8;
+  color:#562719;text-align:left;overflow:hidden
+}
+#stage .pause-journal-heading{
+  display:flex;align-items:center;justify-content:space-between;gap:28px;padding:0 12px 22px;
+  border-bottom:4px solid #98502d66
+}
+#stage .pause-journal-heading small{display:block;color:#9a5630;font-size:18px;font-weight:950}
+#stage .pause-journal-heading h2{margin:4px 0 0;color:#5d2419;font-size:44px;line-height:1}
+#stage .pause-journal-heading p{
+  margin:0;padding:13px 22px;border:4px solid #8d4528;border-radius:999px;
+  background:linear-gradient(#fff0b9,#e9ba62);color:#a32d22;font-size:24px;font-weight:1000;white-space:nowrap
+}
+#stage .pause-journal-body{min-height:0;display:grid;grid-template-rows:auto auto;gap:20px}
+#stage .pause-journal-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#stage .pause-journal-grid article{
+  min-width:0;min-height:126px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:3px solid #a56a4075;border-radius:19px;background:#fff0c9c9;box-shadow:inset 0 0 0 2px #fff9e3,0 6px 10px #7b3e2330
+}
+#stage .pause-journal-grid small{color:#945032;font-size:18px;font-weight:900}
+#stage .pause-journal-grid b{max-width:100%;margin-top:6px;color:#6a281c;font-size:31px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stage .pause-journal-note{
+  margin:0;padding:18px 24px;border:3px dashed #9a59399c;border-radius:18px;
+  background:#f7dca8ad;color:#74402c;font-size:21px;font-weight:800;line-height:1.45;text-align:center
+}
+#stage .pause-journal-actions{display:flex;align-items:flex-end;justify-content:center;border-top:3px solid #98502d4a;padding-top:20px}
+#stage #resumeButton{
+  min-width:300px;height:72px;padding:0 40px;border:5px solid #74331f;border-radius:20px;
+  background:linear-gradient(#ffcf6d,#ed8e31);box-shadow:inset 0 0 0 3px #fff1b56e,0 8px 14px #5c211660;
+  color:#5d2419;font-size:28px;font-weight:1000;text-shadow:0 1px #fff2c8
+}
+#stage #resumeButton:active{transform:translateY(2px);box-shadow:inset 0 0 0 3px #fff1b56e,0 4px 8px #5c211660}
+
+@media(max-height:520px),(max-width:980px){
+  #stage .pause-journal-panel{width:min(1260px,calc(100% - 60px));height:820px}
+  #stage .pause-journal-grid small{font-size:20px}
+  #stage .pause-journal-grid b{font-size:34px}
+  #stage .pause-journal-note{font-size:23px}
+}

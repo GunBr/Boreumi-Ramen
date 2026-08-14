@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_VERSION = "boreumi-ramen-v0266-0814c";
+const CACHE_VERSION = "boreumi-ramen-v0267-0814a";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -30,9 +30,10 @@ const CORE_ASSETS = [
   "./patch-v0264.css",
   "./patch-v0265.css",
   "./patch-v0266.css",
-  "./boot-v0266.js",
-  "./pwa-v0266.js",
-  "./script-v0266.js",
+  "./patch-v0267.css",
+  "./boot-v0267.js",
+  "./pwa-v0267.js",
+  "./script-v0267.js",
   "./assets/pwa/icon-180.png",
   "./assets/pwa/icon-192.png",
   "./assets/pwa/icon-512.png",
