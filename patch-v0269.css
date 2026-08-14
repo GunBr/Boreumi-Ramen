@@ -1,0 +1,100 @@
+/* V0.26.9: table meals, complete mobile HUD, cached movement layout, new sign art. */
+
+/* The top board now owns every money/level readout, so the right utility rail stays clear. */
+#stage[data-stall-level] .hud{
+  grid-template-columns:142px 220px 210px minmax(210px,1fr) 190px 160px 154px 70px!important;
+  padding-left:52px!important;padding-right:52px!important
+}
+#stage[data-stall-level] .hud>.stall-hud{position:relative!important;padding-bottom:14px!important}
+#stage[data-stall-level] .hud>.stall-hud small{font-size:15px!important}
+#stage[data-stall-level] .hud>.stall-hud b{min-height:25px!important;font-size:27px!important}
+#stage[data-stall-level] .hud>.stall-hud em{
+  position:absolute;left:50%;bottom:5px;transform:translateX(-50%);
+  padding:2px 8px;border:2px solid #94542f;border-radius:999px;background:#ffe8b5;
+  color:#7b3422;font-size:11px;font-style:normal;font-weight:1000;line-height:1;white-space:nowrap
+}
+#stage[data-stall-level] .hud>div:not(:nth-of-type(6))::after{display:block!important}
+#stage[data-stall-level] .hud>div:first-child::after{display:none!important}
+#stage[data-stall-level] .hud>div:nth-of-type(6)::after{display:none!important}
+#stage[data-stall-level] .hud>.start{grid-column:7!important;transform:none!important}
+#stage[data-stall-level] #pauseButton{grid-column:8!important;transform:none!important}
+#stage[data-stall-level] .hud>.start:active:not(:disabled),
+#stage[data-stall-level] #pauseButton:active{transform:translateY(2px)!important}
+#stage .wallet-badge{display:none!important}
+
+/* Completed orders rest on the customer counter for the calm ten-second meal break. */
+#stage .guest-meal-layer{position:absolute;z-index:22;inset:0;pointer-events:none;contain:layout paint style}
+#stage .guest-meal{
+  position:absolute;left:var(--meal-x,50%);top:397px;transform:translateX(-50%);
+  width:190px;height:92px;display:flex;align-items:flex-end;justify-content:center;gap:1px;
+  filter:drop-shadow(0 7px 6px #160604b8);transform-origin:50% 100%
+}
+#stage .guest-meal[hidden]{display:none!important}
+#stage .guest-meal::before{
+  content:"";position:absolute;z-index:-1;left:19px;right:19px;bottom:5px;height:20px;border-radius:50%;
+  background:#210b077d;filter:blur(5px)
+}
+#stage .guest-meal-item{display:grid;place-items:end center;width:82px;height:88px}
+#stage .guest-meal-item.food{width:108px}
+#stage .guest-meal-item img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}
+#stage .guest-meal-item.drink{width:58px;height:76px;margin-left:-6px}
+#stage .guest-slot.eating .bubble{opacity:0!important;visibility:hidden!important}
+
+/* One texture contains four natural four-legged gait frames; only the compositor moves Ppomi. */
+#stage[data-guest-capacity] .ppomi-perch.walking{
+  left:0!important;right:auto!important;top:294px!important;z-index:23!important;
+  width:178px!important;height:174px!important;
+  transform:translate3d(var(--ppomi-x,0px),0,0)!important;
+  transition:none!important;will-change:transform;contain:layout paint style
+}
+#stage .ppomi-perch.walking .ppomi-sprite{
+  left:0!important;bottom:0!important;width:178px!important;height:124px!important;
+  background-image:url("assets/art-v0269/ppomi-walk-strip-v1.webp")!important;
+  background-size:400% 100%!important;background-repeat:no-repeat!important;
+  filter:drop-shadow(0 8px 7px #160604a8)!important;
+  animation:ppomiNaturalWalk 1.18s steps(1,end) infinite!important;
+  will-change:background-position;transform-origin:50% 100%
+}
+#stage .ppomi-perch.walking[data-direction="right"] .ppomi-sprite{transform:scaleX(1)!important}
+#stage .ppomi-perch.walking[data-direction="left"] .ppomi-sprite{transform:scaleX(-1)!important}
+#stage .ppomi-perch.walking.serving-drink .ppomi-sprite{filter:brightness(1.13) drop-shadow(0 0 10px #ffe88c) drop-shadow(0 8px 7px #160604a8)!important}
+#stage .ppomi-perch.walking i{opacity:0!important}
+@keyframes ppomiNaturalWalk{
+  0%,24%{background-position:0 50%}
+  25%,49%{background-position:33.333% 50%}
+  50%,74%{background-position:66.666% 50%}
+  75%,100%{background-position:100% 50%}
+}
+
+/* The new signature combines a ramen bowl, full moon, and rising steam. Live text stays crisp. */
+#stage[data-stall-level] .sign{
+  width:226px!important;height:236px!important;padding:76px 34px 27px!important;
+  background:url("assets/art-v0269/sign-ramen-moon-v1.webp") center/contain no-repeat!important;
+  color:#6b2119!important;
+  text-shadow:-2px -2px 0 #fff2c9,2px -2px 0 #fff2c9,-2px 2px 0 #fff2c9,2px 2px 0 #fff2c9,0 4px 6px #5d2115aa!important
+}
+#stage[data-stall-level] .sign small{font-size:16px!important}
+#stage[data-stall-level] .sign strong{font-size:39px!important;line-height:.9!important}
+
+/* Richer chili red keeps kimchi distinct from the orange noodles. */
+.sprite-ramen-kimchi,
+.sprite-cooking-ramen-kimchi{background-image:url("assets/art-v0269/food-ramen-kimchi-red-v1.webp")!important}
+.sprite-ramen-kimchi-egg,
+.sprite-cooking-ramen-kimchi-egg{background-image:url("assets/art-v0269/food-ramen-kimchi-egg-red-v1.webp")!important}
+.sprite-ramen-kimchi-cheese,
+.sprite-cooking-ramen-kimchi-cheese{background-image:url("assets/art-v0269/food-ramen-kimchi-cheese-red-v1.webp")!important}
+
+/* Long sessions avoid growing layout/effect work as seats and dishes accumulate. */
+#stage .guest-row{contain:layout style}
+#stage .guest-slot{contain:layout style}
+#stage .fx-layer{contain:layout paint style}
+#stage .guest-art,#stage .guest-counter-front,#stage .kitchen-sprite{backface-visibility:hidden}
+
+html[data-mobile-layout="true"] #stage .guest-meal{top:395px;width:202px;height:98px}
+html[data-mobile-layout="true"] #stage .guest-meal-item{height:94px}
+html[data-mobile-layout="true"] #stage .guest-meal-item.food{width:116px}
+html[data-mobile-layout="true"] #stage .guest-meal-item.drink{width:62px;height:82px}
+
+@media(prefers-reduced-motion:reduce){
+  #stage .ppomi-perch.walking .ppomi-sprite{animation:none!important;background-position:0 50%!important}
+}

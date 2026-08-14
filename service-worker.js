@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_VERSION = "boreumi-ramen-v0268-0814a";
+const CACHE_VERSION = "boreumi-ramen-v0269-0814d";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -32,12 +32,18 @@ const CORE_ASSETS = [
   "./patch-v0266.css",
   "./patch-v0267.css",
   "./patch-v0268.css",
-  "./boot-v0268.js",
-  "./pwa-v0268.js",
-  "./script-v0268.js",
+  "./patch-v0269.css",
+  "./boot-v0269.js",
+  "./pwa-v0269.js",
+  "./script-v0269.js",
   "./assets/pwa/icon-180.png",
   "./assets/pwa/icon-192.png",
   "./assets/pwa/icon-512.png",
+  "./assets/art-v0269/sign-ramen-moon-v1.webp",
+  "./assets/art-v0269/ppomi-walk-strip-v1.webp",
+  "./assets/art-v0269/food-ramen-kimchi-red-v1.webp",
+  "./assets/art-v0269/food-ramen-kimchi-egg-red-v1.webp",
+  "./assets/art-v0269/food-ramen-kimchi-cheese-red-v1.webp",
   "./assets/art-v012/environment-cozy-pocha-level1-v6.webp",
   "./assets/art-v012/environment-river-moon-v5.webp",
   "./assets/art-v012/sign-full-moon-v1.webp",
