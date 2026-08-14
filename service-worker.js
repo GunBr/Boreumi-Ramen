@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_VERSION = "boreumi-ramen-v0265-0814b";
+const CACHE_VERSION = "boreumi-ramen-v0266-0814c";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -29,9 +29,10 @@ const CORE_ASSETS = [
   "./patch-v0263.css",
   "./patch-v0264.css",
   "./patch-v0265.css",
-  "./boot-v024.js",
-  "./pwa-v024.js",
-  "./script.js",
+  "./patch-v0266.css",
+  "./boot-v0266.js",
+  "./pwa-v0266.js",
+  "./script-v0266.js",
   "./assets/pwa/icon-180.png",
   "./assets/pwa/icon-192.png",
   "./assets/pwa/icon-512.png",
@@ -207,12 +208,21 @@ self.addEventListener("fetch", event => {
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_VERSION);
-    const cached = await cache.match(request, { ignoreSearch: true });
+    const destination = request.destination;
+    const mustRefresh = destination === "script" || destination === "style" || url.pathname.endsWith(".webmanifest");
+    if (mustRefresh) {
+      try {
+        const response = await fetchWithTimeout(request);
+        if (response.ok) cache.put(request, response.clone());
+        return response;
+      } catch {
+        return (await cache.match(request)) || (await cache.match(url.pathname.replace(/^.*\//, "./")));
+      }
+    }
+    const cached = await cache.match(request);
     if (cached) return cached;
     const response = await fetch(request);
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
+    if (response.ok) cache.put(request, response.clone());
     return response;
   })());
 });

@@ -1,0 +1,36 @@
+/* V0.26.6: mobile viewport fill, precise guest dialogue, and final counter seating polish. */
+
+/* Close the last hairline under the guest counter. Ppomi follows the same six-pixel drop. */
+#stage .guest-counter-front{
+  top:448px!important
+}
+#stage[data-guest-capacity] .ppomi-perch{
+  top:329px!important
+}
+
+/* On touch screens the dialogue remains calm and translucent, but is large enough to read. */
+html[data-mobile-layout="true"] #stage .story-whisper{
+  width:472px!important;min-height:108px!important;
+  padding:12px 60px 12px 96px!important
+}
+html[data-mobile-layout="true"] #stage .story-whisper-portrait{
+  left:13px!important;bottom:7px!important;width:74px!important;height:91px!important
+}
+html[data-mobile-layout="true"] #stage .story-whisper-copy small{font-size:15px!important}
+html[data-mobile-layout="true"] #stage .story-whisper-copy strong{font-size:21px!important}
+html[data-mobile-layout="true"] #stage .story-whisper-copy p{font-size:19px!important;line-height:1.34!important}
+html[data-mobile-layout="true"] #stage .story-whisper-close{
+  right:8px!important;width:46px!important;height:46px!important;
+  border-width:4px!important;font-size:26px!important
+}
+
+/* The logical landscape canvas uses every pixel offered by the portrait fallback. */
+html[data-force-landscape="true"][data-mobile-layout="true"] body,
+html[data-force-landscape="true"][data-mobile-layout="true"] #viewport{
+  max-width:none!important;max-height:none!important
+}
+
+/* One-pixel rounding at 1920x1080 must never push the settlement outside the stage. */
+#stage[data-stall-level] .management-panel{
+  height:calc(100% - 1px)!important;transform:translateY(1px)!important
+}
