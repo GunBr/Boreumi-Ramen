@@ -1,0 +1,91 @@
+/* V0.26.8: calm eating rhythm, Ppomi drink service, compact stock rail, and batch dumplings. */
+
+/* Boreumi keeps her egg-breaking pose, while every other ramen topping uses tongs. */
+#stage .boreumi-sprite[data-pose="tongs"],
+#stage[data-stall-level="1"] .boreumi-sprite[data-pose="tongs"]{
+  background-image:url("assets/art-v0268/boreumi-tongs-v1.webp")!important;
+  background-size:contain;background-position:center bottom
+}
+
+/* A guest stays seated for ten seconds and visibly eats the food that was served. */
+#stage .guest-row[data-capacity="4"]{left:calc(50% + 58px)!important;width:1360px!important}
+#stage .guest-row[data-capacity="5"]{left:calc(50% + 66px)!important;width:1320px!important}
+#stage .guest-slot .eating-scene{
+  position:absolute;z-index:7;left:50%;top:145px;transform:translateX(-50%);
+  width:150px;height:103px;opacity:0;visibility:hidden;pointer-events:none
+}
+#stage .guest-slot.eating .eating-scene{opacity:1;visibility:visible}
+#stage .guest-slot.eating .bubble{opacity:0!important;visibility:hidden!important}
+#stage .guest-slot .eating-scene i{
+  position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:132px;height:72px;background-image:url("assets/art-v0268/guest-eating-strip-v1.webp");
+  background-size:300% 100%;background-repeat:no-repeat;filter:drop-shadow(0 7px 7px #160604a8);
+  transform-origin:50% 80%;animation:guestEatingBite .72s ease-in-out infinite alternate
+}
+#stage .guest-slot[data-eating="ramen"] .eating-scene i{background-position:0 center}
+#stage .guest-slot[data-eating="oden"] .eating-scene i{background-position:50% center}
+#stage .guest-slot[data-eating="dumpling"] .eating-scene i{background-position:100% center}
+#stage .guest-slot .eating-scene b{
+  position:absolute;right:1px;bottom:1px;min-width:47px;height:30px;padding:0 8px;display:grid;place-items:center;
+  border:3px solid #71351f;border-radius:999px;background:#fff0bd;color:#74301f;font-size:15px;font-weight:1000;
+  box-shadow:0 4px 7px #2c0d0870
+}
+@keyframes guestEatingBite{
+  from{transform:translateX(-50%) translateY(7px) rotate(-2deg) scale(.96)}
+  to{transform:translateX(-50%) translateY(-7px) rotate(2deg) scale(1.03)}
+}
+
+/* Ppomi strolls along the customer counter and pauses with a cheerful drink-service hop. */
+#stage[data-guest-capacity] .ppomi-perch.walking{
+  left:var(--ppomi-left,0px)!important;right:auto!important;top:294px!important;z-index:20!important;transition:left .1s linear
+}
+#stage .ppomi-perch.walking .ppomi-sprite{
+  background-image:url("assets/art-v012/ppomi-wave.webp")!important;
+  animation:ppomiCounterWalk .72s ease-in-out infinite!important
+}
+#stage .ppomi-perch.walking[data-direction="left"] .ppomi-sprite{scale:-1 1}
+#stage .ppomi-perch.walking.serving-drink .ppomi-sprite{animation:ppomiDrinkServe .34s ease-in-out 2!important}
+#stage .ppomi-perch.walking i{opacity:0!important}
+@keyframes ppomiCounterWalk{50%{transform:translateY(-5px) rotate(2deg)}}
+@keyframes ppomiDrinkServe{50%{transform:translateY(-15px) rotate(-5deg) scale(1.08)}}
+
+/* Drinks no longer occupy the bottom drag rack; this compact rail is stock-only. */
+#stage .drink-stock-rail{
+  position:absolute;z-index:76;right:18px;top:306px;width:138px;display:grid;grid-template-columns:1fr;gap:7px;
+  pointer-events:none
+}
+#stage .drink-stock{
+  height:43px;padding:3px 8px 3px 5px;display:grid;grid-template-columns:48px 1fr;align-items:center;
+  border:3px solid #69371f;border-radius:13px;background:linear-gradient(180deg,#f6d99d,#dba85f 72%,#b87538);
+  box-shadow:inset 0 0 0 2px #fff0c58f,0 5px 9px #18090680;color:#642719
+}
+#stage .drink-stock img{width:45px;height:35px;object-fit:contain;filter:drop-shadow(0 3px 3px #4c1a1055)}
+#stage .drink-stock small{display:none}
+#stage .drink-stock b{font-size:18px;font-weight:1000;text-align:center;font-variant-numeric:tabular-nums}
+#stage .drink-stock.sold-out{filter:grayscale(.78);opacity:.72}
+
+/* Five ramen ingredients and both snacks remain visible in one uninterrupted row. */
+#stage .dock .rack-page,#stage .dock .rack-page-index{display:none!important}
+#stage .dock .ingredient-rack{flex:5 1 0!important}
+#stage .dock .snack-rack{flex:2 1 0!important}
+
+/* The grill itself stays visible while the plated dumplings step down 3 -> 2 -> 1. */
+#stage .sprite-cooking-dumpling-one,
+#stage .sprite-cooking-dumpling-two{
+  position:relative;background-image:url("assets/art-v012/kitchen-grill.webp")!important
+}
+#stage .sprite-cooking-dumpling-one::after,
+#stage .sprite-cooking-dumpling-two::after{
+  content:"";position:absolute;inset:0;background:url("assets/art-v012/cooking-dumpling.webp") center/contain no-repeat;
+  pointer-events:none
+}
+#stage .sprite-cooking-dumpling-one::after{clip-path:inset(0 66% 0 0)}
+#stage .sprite-cooking-dumpling-two::after{clip-path:inset(0 33% 0 0)}
+
+html[data-mobile-layout="true"] #stage .guest-slot .eating-scene{top:142px;width:158px;height:108px}
+html[data-mobile-layout="true"] #stage .guest-slot .eating-scene i{width:140px;height:77px}
+html[data-mobile-layout="true"] #stage .guest-slot .eating-scene b{height:33px;min-width:52px;font-size:17px}
+
+@media(prefers-reduced-motion:reduce){
+  #stage .guest-slot .eating-scene i,#stage .ppomi-perch.walking .ppomi-sprite{animation:none!important}
+}

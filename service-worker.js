@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_VERSION = "boreumi-ramen-v0267-0814a";
+const CACHE_VERSION = "boreumi-ramen-v0268-0814a";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -31,9 +31,10 @@ const CORE_ASSETS = [
   "./patch-v0265.css",
   "./patch-v0266.css",
   "./patch-v0267.css",
-  "./boot-v0267.js",
-  "./pwa-v0267.js",
-  "./script-v0267.js",
+  "./patch-v0268.css",
+  "./boot-v0268.js",
+  "./pwa-v0268.js",
+  "./script-v0268.js",
   "./assets/pwa/icon-180.png",
   "./assets/pwa/icon-192.png",
   "./assets/pwa/icon-512.png",
@@ -129,6 +130,8 @@ const GAME_ASSETS = [
   "./assets/art-v012/pause-button-v2.webp",
   "./assets/art-v012/ppomi-groom.webp",
   "./assets/art-v012/ppomi-wave.webp",
+  "./assets/art-v0268/boreumi-tongs-v1.webp",
+  "./assets/art-v0268/guest-eating-strip-v1.webp",
   "./assets/art-v012/start-button-v1.webp",
   "./assets/art-v012/takeout-package-v1.webp",
   "./assets/art-v012/water-surface-v1.webp",
